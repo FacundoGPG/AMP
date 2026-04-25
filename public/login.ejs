@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- íconos de boxicons para los inputs y el menú hamburguesa -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+    <title>AMP | Login & Registration</title>
+</head>
+<body>
+
+    <div class="wrapper">
+        <nav class="nav">
+            <div class="nav-logo">
+                <img src="/images/logo.jpeg" alt="Logo AMP">
+            </div>
+
+           <% /* <div class="nav-menu" id="navMenu">
+                <ul>
+                    <li><a href="#" class="link active">Home</a></li>
+                    <li><a href="#" class="link">Blog</a></li>
+                    <li><a href="#" class="link">Services</a></li>
+                    <li><a href="#" class="link">About</a></li>
+                </ul>
+            </div>*/ %> 
+
+            <!-- botones de la nav que también controlan qué formulario se muestra -->
+            <div class="nav-button">
+                <button class="btn white-btn" id="loginBtn" onclick="login()">Sign In</button>
+                <button class="btn" id="registerBtn" onclick="register()">Sign Up</button>
+            </div>
+
+            <!-- botón hamburguesa, solo aparece en móvil -->
+            <div class="nav-menu-btn">
+                <i class="bx bx-menu" onclick="myMenuFunction()"></i>
+            </div>
+        </nav>
+
+        <!-- contenedor que tiene los dos formularios apilados, solo se ve uno a la vez -->
+        <div class="form-box">
+
+            <!-- FORMULARIO DE LOGIN -->
+            <div class="login-container" id="login">
+                <div class="top">
+                    <span>Don't have an account? <a href="#" onclick="register()">Sign Up</a></span>
+                    <header>Login</header>
+                </div>
+
+                <div class="input-box">
+                    <input type="text" class="input-field" placeholder="Username or Email">
+                    <i class="bx bx-user"></i>
+                </div>
+
+                <div class="input-box">
+                    <input type="password" class="input-field" placeholder="Password">
+                    <i class="bx bx-lock-alt"></i>
+                </div>
+
+                <div class="input-box">
+                    <input type="submit" class="submit" value="Sign In">
+                </div>
+
+                <div class="two-col">
+                    <div class="one">
+                        <input type="checkbox" id="login-check">
+                        <label for="login-check">Remember Me</label>
+                    </div>
+
+                    <div class="two">
+                        <label><a href="#">Forgot password?</a></label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORMULARIO DE REGISTRO -->
+            <div class="register-container" id="register">
+                <div class="top">
+                    <span>Have an account? <a href="#" onclick="login()">Login</a></span>
+                    <header>Sign Up</header>
+                </div>
+
+                <!-- nombre y apellido en la misma fila -->
+                <div class="two-forms">
+                    <div class="input-box">
+                        <input type="text" class="input-field" placeholder="Firstname">
+                        <i class="bx bx-user"></i>
+                    </div>
+
+                    <div class="input-box">
+                        <input type="text" class="input-field" placeholder="Lastname">
+                        <i class="bx bx-user"></i>
+                    </div>
+                </div>
+
+                <div class="input-box">
+                    <input type="text" class="input-field" placeholder="Email">
+                    <i class="bx bx-envelope"></i>
+                </div>
+
+                <div class="input-box">
+                    <input type="password" class="input-field" placeholder="Password">
+                    <i class="bx bx-lock-alt"></i>
+                </div>
+
+                <div class="input-box">
+                    <input type="submit" class="submit" value="Register">
+                </div>
+
+                <div class="two-col">
+                    <div class="one">
+                        <input type="checkbox" id="register-check">
+                        <label for="register-check">Remember Me</label>
+                    </div>
+
+                    <div class="two">
+                        <label><a href="#">Terms & conditions</a></label>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // abre/cierra el menú hamburguesa en móvil toggleando la clase "responsive"
+        function myMenuFunction() {
+            var i = document.getElementById("navMenu");
+
+            if (i.className === "nav-menu") {
+                i.className += " responsive";
+            } else {
+                i.className = "nav-menu";
+            }
+        }
+
+        // referencias a los botones de la nav y a los dos formularios
+        var a = document.getElementById("loginBtn");
+        var b = document.getElementById("registerBtn");
+        var x = document.getElementById("login");
+        var y = document.getElementById("register");
+
+        // trae el login al centro y manda el register fuera de pantalla a la derecha
+        function login() {
+            x.style.left = "50%";
+            x.style.opacity = 1;
+
+            y.style.left = "150%";
+            y.style.opacity = 0;
+
+            // el botón activo se pone blanco
+            a.className = "btn white-btn";
+            b.className = "btn";
+        }
+
+        // lo mismo pero al revés: register entra, login sale por la izquierda
+        function register() {
+            x.style.left = "-100%";
+            x.style.opacity = 0;
+
+            y.style.left = "50%";
+            y.style.opacity = 1;
+
+            a.className = "btn";
+            b.className = "btn white-btn";
+        }
+    </script>
+
+</body>
+</html>
