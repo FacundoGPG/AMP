@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="../styles.css">
+    <title>Dashboard  - Alpha 1 </title>
+</head>
+<body>
+
+    
+    <header class="topbar"> 
+        <div class="nav-left">
+            <button id="menu-btn" >
+                 <img src="../../resources/menu.png"alt=>
+                </button>
+            <div id="logo">
+                <h1>SVA - Sistema Alpha 1</h1>
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <div class="dropdown">
+               <a class="btn btn-secondary dropdown-toggle" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown">
+                Seleccionar SOFOM
+                </a>
+
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <li><a class="dropdown-item" href="#">Sofom 1 </a></li>
+                    <li><a class="dropdown-item" href="#">Sofom 2 </a></li>
+                    <li><a class="dropdown-item" href="#">Sofom 3 </a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+    
+    <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>Menú</h2>
+        <button id="close-btn" type="button">&times;</button>
+     </div>
+
+     <nav class="sidebar-nav">
+        <a href="#" class="sidebar-link"> <img src="../../resources/dashboard.png" alt=""> Vista General </a>
+        <a href="#" class="sidebar-link"> <img src="../../resources/data-processing.png" alt=""> Operaciones </a>
+        <a href="#" class="sidebar-link"> <img src="../../resources/warning.png " alt=""> Alertas </a>
+        <a href="#" class="sidebar-link"> <img src="../../resources/mail-box.png" alt=""> Buzon </a>
+        <a href="#" class="sidebar-link"> <img src="../../resources/user.png" alt=""> Gestion de Clientes</a>
+        <a href="#" class="sidebar-link"> <img src="../../resources/documentation.png" alt=""> Reportes Regulatorios</a>
+        <a href="#" class="sidebar-link"> <img src="../../resources/history.png" alt=""> Historial de Actividades</a>
+    </nav>
+    
+     <nav class = "sidebar-bot"> 
+        <a href="#" class="sidebar-link"> <img src="../../resources/setting.png" alt="" >Configuracion</a>
+     </nav>
+    </aside>
+
+    <div id="overlay" class="overlay"></div>
+
+    <a href="https://www.flaticon.com/free-icons/user" title="user icons">User icons created by Freepik - Flaticon</a>
+
+    <main class="dashboard">
+
+        <div class="card">
+            <h5 class="card-title">Card title</h5>
+            <h6 class="card-subtitle">Card subtitle</h6>
+            <p class="card-nmb">10</p>
+        </div>
+
+        <div class="card">
+            <h5 class="card-title">Alertas Activas</h5>
+            <h6 class="card-subtitle">+2 que ayer</h6>
+            <p class="card-nmb">30</p>
+        </div>
+
+        <div class="card">
+            <h5 class="card-title">Card title</h5>
+            <h6 class="card-subtitle">Card subtitle</h6>
+            <p class="card-nmb">0</p>
+        </div>
+
+        <div class="card">
+            <h5 class="card-title">Card title</h5>
+            <h6 class="card-subtitle">Card subtitle</h6>
+            <p class="card-nmb">3</p>
+        </div>
+
+        <section class="panel half">
+           <div class="panel-header">
+                <h5> Nuevas Personas Bloqueadas</h5> 
+                <button type="button" class="btn btn-light"> Ver Listado</button>
+                </div>
+                    <table class="blocked-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr><td>+ Persona 1</td><td></td></tr>
+                                <tr><td>+ Persona 2</td><td></td></tr>
+                                <tr><td>+ Persona 3</td><td></td></tr>
+                                <tr><td>+ Persona 4</td><td></td></tr>
+                        </tbody>
+                    </table>
+        </section>
+        
+
+        <section class="panel half">
+            <div class="panel-header">
+                <h5> Alertas Recientes </h5>
+                <button type="button" class="btn btn-light"> Ver Alertas</button>
+                </div>  
+                    <div class="alert-item">
+                    <i class="circlePrio1"></i>
+                    <p>Cliente: {Cliente} — Posible PEP</p>
+                    </div>
+
+                    <div class="alert-item">
+                    <i class="circlePrio2"></i>
+                    <p>Cliente: Empresa X — Múltiples operaciones</p>
+                    </div>
+
+                    <div class="alert-item">
+                    <i class="circlePrio1"></i>
+                    <p>Cliente: {Cliente 2} — Monto alto inusual</p>
+                    </div>
+
+                    <div class="alert-item">
+                    <i class="circlePrio3"></i>
+                    <p>Auditoría PLD/FT — Completada con éxito</p>
+                    </div>
+
+            </section>
+        <section class="panel full">
+            <div class="panel-header">
+                <h5> Operaciones Recientes </h5>
+                <button type="button" class="btn btn-light"> Ver Operaciones</button>
+            </div>
+                <table class="blocked-table">
+                    <thead>
+                        <tr> 
+                            <th> Cliente </th> <th> Tipo Credito </th> <th> Monto </th> <th> Estatus </th> <th> Vigencia </th>
+                        </tr>
+                    </thead>
+                        <tbody>
+                                <tr>
+                                    <td>Persona 1</td>
+                                    <td> {TipoCredito}</td> 
+                                    <td> {Cantidad} </td> 
+                                    <td> Activo </td>  
+                                    <td> {Vigencia} </td> 
+                                </tr>
+                                <tr>
+                                    <td>Persona 2</td>
+                                    <td> {TipoCredito} </td> 
+                                    <td> {Cantidad} </td> 
+                                    <td> En Proceso</td> 
+                                    <td> {Vigencia} </td>
+                                </tr>
+                                <tr>
+                                    <td>Persona 3</td>
+                                    <td> {TipoCredito} </td> 
+                                    <td> {Cantidad} </td> 
+                                    <td> Vencido</td> 
+                                    <td> {Vigencia} </td>
+                                </tr>
+                                <tr>
+                                    <td>Persona 4</td>
+                                    <td> {TipoCredito} </td> 
+                                    <td> {Cantidad} </td> 
+                                    <td> Activo</td> 
+                                    <td> {Vigencia} </td> </tr>
+                        </tbody>
+                </table>
+        </section> 
+    </main>
+    <script src="../script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+
+</body>
+
+<footer>
+<!--  <p><a href="#">Créditos</a></p> -->
+    
+</footer>
+</html>
