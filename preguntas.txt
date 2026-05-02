@@ -1,0 +1,12 @@
+¿Qué otras formas de autentificación existen?
+
+Además del uso tradicional de usuario y contraseña, existen diversas formas de autenticación que fortalecen la seguridad 
+de los sistemas. Estas incluyen la autenticación basada en posesión, como el uso de códigos de verificación enviados 
+al celular o generados por aplicaciones especializadas; la autenticación biométrica, que utiliza características 
+únicas del usuario como huellas dactilares, reconocimiento facial o de voz; y la autenticación multifactor (MFA), 
+que combina dos o más métodos para ofrecer un mayor nivel de protección.
+
+Asimismo, han surgido alternativas más modernas como el inicio de sesión mediante cuentas externas 
+(por ejemplo, a través de Google o Microsoft) y el uso de llaves de seguridad físicas o autenticación sin contraseña 
+(passwordless). En conjunto, estas opciones permiten reducir riesgos y mejorar la protección de la información, 
+adaptándose a distintos niveles de seguridad y necesidades del usuario.
