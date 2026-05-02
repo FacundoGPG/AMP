@@ -1,0 +1,724 @@
+/* =============================================================
+   SISTEMA DE DISEÑO — VARIABLES GLOBALES
+   Centraliza colores, tipografía, espaciado y bordes para
+   mantener consistencia en todo el proyecto.
+   ============================================================= */
+:root {
+
+    /* --- Colores --- */
+    --color-primary: #ff8400;   /* Naranja principal: CTAs y acentos */
+    --color-bg: #FFE5CA;   /* Fondo global de la página         */
+    --color-surface: #ffffff;   /* Superficies elevadas (cards, modales) */
+    --color-text: #1c1e21;   /* Texto principal                   */
+    --color-muted: #5f6368;   /* Texto secundario / subtítulos     */
+    --color-border: #dadde1;   /* Bordes y separadores              */
+    --color-objects: #ffffff;   /* Objetos de interfaz (topbar, etc) */
+    --color-hover: #afafaf;   /* Estado hover de elementos         */
+    --color-shadow: #aeaeae;   /* Sombras de componentes            */
+    --color-prio1: #FFBABA; /* Estado prioridad Max */
+    --color-prio2: #FFF5BA; /* Estado prioridad Mid */
+    --color-prio3: #D0FFBA; /* Estado prioridad Min */
+
+    /* --- Tipografía --- */
+    --font-base: system-ui, sans-serif;  /* Fuente base del sistema */
+
+    /* --- Espaciado (escala modular) --- */
+    --space-sm: 0.5rem;   /*  8px */
+    --space-md: 1rem;     /* 16px */
+    --space-lg: 1.5rem;   /* 24px */
+    --space-xl: 2rem;     /* 32px */
+    --space-2xl: 3rem;     /* 48px */
+
+    /* --- Bordes redondeados --- */
+    --radius-sm: 8px;    /* Elementos pequeños: botones, inputs  */
+    --radius-lg: 12px;   /* Contenedores: cards, paneles         */
+}
+
+/* =============================================================
+   BASE
+   ============================================================= */
+
+/* Fondo de página y reset de margen */
+body {
+    background-color: var(--color-bg);
+    margin: 0;
+}
+
+/* Desplaza el contenido debajo de la topbar fija (70px) */
+main {
+    margin-top: 70px;
+}
+
+
+/* =============================================================
+   TOPBAR — Barra de navegación superior fija
+   ============================================================= */
+.topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    z-index: 1000;           /* Encima del contenido normal */
+    box-sizing: border-box;
+    padding: 0 20px;
+}
+
+/* Logotipo: fuente Inter en bold */
+#logo h1 {
+    font-family: 'Inter', sans-serif;
+    font-size: 2rem;
+    font-weight: bold;
+    align-items: center;
+    position: relative;
+}
+
+/* Agrupa el boton de menu y el logo en la zona izquierda */
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Agrupacion de dropdown y futuro reloj */ 
+.nav-right { 
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Agrupacion de dropdown y futuro reloj */ 
+.topbar{
+    background-color: var(--color-objects);
+}
+
+.dropdown .btn-secondary {
+  background: var(--color-bg);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-weight: 600;
+  color: var(--color-text)
+}
+
+.dropdown-item {
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.dropdown-item:hover {
+  background: #ffe5ca;
+  color: var(--color-primary);
+}
+
+/* reloj */
+.clock {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+/* =============================================================
+   BOTON 3 LINEAS — Abrir/cerrar la sidebar
+   ============================================================= */
+#menu-btn {
+    position: static;
+    align-items: center;
+    left: 20px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    color: var(--color-text);
+    cursor: pointer;
+    width: 30px;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    z-index: 1200;
+}
+
+#menu-btn:hover {
+    background-color: var(--color-hover);
+}
+
+#menu-btn img {
+    width: 20px;
+    height: 20px;
+    
+}
+
+/* Botón de cierre de sidebar */
+#close-btn {
+    border: none;
+    background-color: var(--color-surface);
+}
+
+#close-btn:hover {
+    background-color: var(--color-hover);
+}
+
+/* Áreas de grid para logo y botón de menú */
+#logo, #menu-btn {
+    grid-area: 1 / 1 / 2 / 2;
+}
+
+
+
+/* =============================================================
+   SIDEBAR — Panel lateral que se desliza
+   Se active al añadir la clase .active vía JS.
+   z-index: 1500 → por encima del overlay (1400).
+   ============================================================= */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;            /* Oculto fuera de pantalla por defecto */
+    width: 280px;
+    height: 100vh;
+    background: #ffffff;
+    color: var(--color-text);
+    transition: left 0.3s ease;   /* Animación de deslizamiento */
+    z-index: 1500;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.sidebar-header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+/* Estado activo: el sidebar entra desde la izquierda */
+.sidebar.active {
+    left: 0;
+}
+
+/* Navegación vertical del sidebar */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Enlace de navegación individual */
+.sidebar-link {
+    color: var(--color-text);
+    text-decoration: none;
+    padding: 12px 14px;
+    border-radius: var(--radius-lg);
+    transition: background 0.2s ease;
+}
+
+.sidebar-link:hover {
+    background: var(--color-hover);
+    color: var(--color-primary);
+}
+
+.sidebar-link img {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    align-items: center;
+}
+
+/* Sección inferior del sidebar (perfil, ajustes, etc.) */
+.sidebar-bot {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;           /* Empuja al fondo del flex column */
+    width: 100%;
+    color: var(--color-text);
+    text-decoration: none;
+    padding: 12px 14px;
+    border-radius: var(--radius-lg);
+    transition: background 0.2s ease;
+}
+
+
+/* =============================================================
+   DROPDOWN — Menú desplegable al hacer hover
+   ============================================================= */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: var(--color-objects);
+    min-width: 130px;
+    box-shadow: 0px 8px 4px 0px var(--color-shadow);
+    padding: 12px 16px;
+}
+
+/* Muestra el menú al pasar el cursor sobre el padre */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+
+/* =============================================================
+   OVERLAY — Fondo oscuro al abrir la sidebar
+   z-index: 1400 → entre el contenido (1000) y el sidebar (1500).
+   Se activa añadiendo la clase .active vía JS.
+   ============================================================= */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1400;
+    display: none;
+    transition: background-color 0.3s;
+}
+
+.overlay.active {
+    display: block;
+    z-index: 1400;
+}
+
+
+/* =============================================================
+   CARDS — Tarjetas de métricas / resumen
+   Flexibles: se adaptan al contenedor con flex-wrap.
+   ============================================================= */
+.card {
+    background: var(--color-surface);
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    box-shadow: 5px 5px 2px 1px var(--color-shadow);
+    min-height: 110px;
+}
+
+
+/* Contenedor horizontal de cards separadas uniformemente 
+.cards-container {
+    margin-top: 50px;
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+*/
+/* Titulo principal de la card */
+.card-title {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--color-text);
+    font-weight: bold;
+}
+
+/* Subtítulo / descripcion secundaria en carta */
+.card-subtitle {
+    margin: 4px 0;
+    min-height: 16px;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+}
+
+/* Numeros en Carta */
+.card-nmb {
+    margin: 8px 0 0;
+    font-size: 2.2rem;
+    color: var(--color-text);
+}
+
+
+/* =============================================================
+   DASHBOARD — Cuadrícula principal de 4 columnas
+   Usa clases modificadoras .half y .full para controlar
+   cuántas columnas ocupa cada panel.
+   ============================================================= */
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Panel base: fondo blanco con sombra */
+.panel {
+    background: var(--color-surface);
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    box-shadow: 5px 5px 2px 1px var(--color-shadow);
+    
+    overflow-y: auto;
+}
+
+/* Panel que ocupa 2 de 4 columnas */
+.half {
+    grid-column: span 2;
+    max-height: 300px; 
+}
+
+/* Panel que ocupa las 4 columnas (ancho completo) */
+.full {
+    grid-column: span 4;
+    max-height: 3400px; 
+}
+
+/* Cabecera del panel: título + acción alineados */
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.panel-header h5 {
+    margin: 0;
+}
+
+.welcome {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    box-shadow: none;
+    padding: 10px 0;
+}
+
+.welcome h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: var(--color-text);
+}
+
+.welcome p {
+    margin: 6px 0 0;
+    color: var(--color-muted);
+}
+
+.alert-time {
+    margin-left: auto;
+    color: var(--color-muted);
+    font-size: 0.85rem;
+}
+
+.status {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status.activo {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.status.proceso {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.status.vencido {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+/* =============================================================
+   TABLA DE BLOQUEADOS — Tabla de datos dentro de un panel
+   ============================================================= */
+.blocked-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+/* Encabezados con borde inferior doble */
+.blocked-table th {
+    text-align: left;
+    padding: 10px;
+    border-bottom: 2px solid black;
+    font-weight: 600;
+    color: var(--color-text);
+    background: var(--color-objects);
+}
+
+.blocked-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+.blocked-table tr {
+    border-bottom: 2px solid var(--color-muted);
+}
+
+.blocked-table tbody tr:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+
+/* =============================================================
+   BOTONES
+   ============================================================= */
+
+/* Botón de acción secundaria en la mitad izquierda */
+.btn-half-left {
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+/* Al hacer hover se rellena con el color primario */
+.btn-half-left:hover {
+    background: var(--color-primary);
+    color: var(--color-text);
+    border-color: var(--color-primary);
+}
+
+/* =============================================================
+   TABLA DE BLOQUEADOS — Tabla de Datos dentro de un panel, con figuras generadas en css
+   ============================================================= */
+.alert-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.alert-item p {
+  margin: 0;
+}
+
+.circlePrio1,
+.circlePrio2,
+.circlePrio3 {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%; /* Para generar forma de ciculo */
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.circlePrio1 {
+  background-color: var(--color-prio1);
+}
+
+.circlePrio2 {
+  background-color: var(--color-prio2);
+}
+
+.circlePrio3 {
+  background-color: var(--color-prio3);
+}
+
+/* ===== FILTROS OPERACIONES ===== */
+.filters {
+  display: grid;
+  grid-template-columns: 2fr repeat(5, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.filters input,
+.filters select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm)x;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
+
+
+/* ===== RESUMEN ACTIVIDAD ===== */
+.panel p {
+  margin: 10px 0;
+  font-size: 0.95rem;
+}
+
+/* Estilo pagina full */
+.full-page { 
+    grid-column: span 4;
+    min-height: 700px;
+}
+
+
+/* Clientes */
+
+.table-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.tab-btn.active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.table-section {
+  display: none;
+}
+
+.table-section.active {
+  display: block;
+}
+
+
+.buzon-page {
+  padding: 85px 20px 20px;
+}
+
+.buzon-header h1 {
+  margin: 0;
+}
+
+.buzon-header p {
+  margin: 6px 0 0;
+}
+
+.buzon-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.buzon-card {
+  background: var(--color-surface);
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  box-shadow: 5px 5px 2px 1px var(--color-shadow);
+}
+
+.buzon-card p {
+  margin: 0;
+  font-weight: 600;
+}
+
+.buzon-card h2 {
+  margin: 12px 0 0;
+  font-size: 2rem;
+}
+
+.buzon-layout {
+  display: grid;
+  grid-template-columns: 1.8fr 0.9fr;
+  gap: 20px;
+}
+
+.buzon-panel {
+  background: var(--color-surface);
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  box-shadow: 5px 5px 2px 1px var(--color-shadow);
+}
+
+.buzon-panel-header h2 {
+  margin: 0 0 16px;
+}
+
+.detail-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-title h3 {
+  margin: 0;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.detail-grid p,
+.detail-block p {
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+
+.detail-block {
+  margin-bottom: 18px;
+}
+
+.file-item {
+  border: 1px solid var(--color-border);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: #fafafa;
+}
+
+.detail-select,
+.detail-panel textarea {
+  width: 100%;
+  margin: 6px 0 14px;
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.detail-panel textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.save-btn {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pending {
+  background: #ffe5ca;
+  color: #d97706;
+}
+
+.tracking {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.solved {
+  background: #d1fae5;
+  color: #059669;
+}

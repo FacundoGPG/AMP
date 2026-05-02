@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="/styles.css">
+    <title>Inicio - AMP</title>
+</head>
+<body>
+  <%- include("partials/topbar") %>
+  <%- include("partials/sidebar") %>
+  <div id="overlay" class="overlay"></div>
+
+    <main class="dashboard">
+
+    <section class="welcome full">
+        <div>
+            <h1>¡Bienvenido, Usuario!</h1>
+            <p>Aquí tienes un resumen general de la actividad del sistema.</p>
+        </div>
+    </section>
+
+    <div class="card">
+        <h5 class="card-title">Total de reportes</h5>
+        <h6 class="card-subtitle">+12% desde la semana pasada</h6>
+        <p class="card-nmb">24</p>
+    </div>
+
+    <div class="card">
+        <h5 class="card-title">Alertas activas</h5>
+        <h6 class="card-subtitle">+2 que ayer</h6>
+        <p class="card-nmb">30</p>
+    </div>
+
+    <div class="card">
+        <h5 class="card-title">Operaciones en revisión</h5>
+        <h6 class="card-subtitle">-3% desde la semana pasada</h6>
+        <p class="card-nmb">10</p>
+    </div>
+
+    <div class="card">
+        <h5 class="card-title">Casos resueltos</h5>
+        <h6 class="card-subtitle">+2% desde la semana pasada</h6>
+        <p class="card-nmb">6</p>
+    </div>
+
+    <section class="panel half">
+        <div class="panel-header">
+            <h5>Nuevas Personas Bloqueadas</h5>
+            <a href="/clientes?tab=bloqueados" class="btn btn-light">Ver Listado</a>
+        </div>
+
+        <table class="blocked-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Fecha</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>Persona 1</td>
+                    <td>22/05/2024 11:32</td>
+                    <td>+</td>
+                </tr>
+                <tr>
+                    <td>Persona 2</td>
+                    <td>21/05/2024 09:15</td>
+                    <td>+</td>
+                </tr>
+                <tr>
+                    <td>Persona 3</td>
+                    <td>20/05/2024 16:45</td>
+                    <td>+</td>
+                </tr>
+                <tr>
+                    <td>Persona 4</td>
+                    <td>19/05/2024 14:20</td>
+                    <td>+</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="panel half">
+        <div class="panel-header">
+            <h5>Alertas Recientes</h5>
+            <button type="button" href="/alertas#alertas-table"class="btn btn-light">Ver Alertas</button>
+        </div>
+
+        <div class="alert-item">
+            <i class="circlePrio1"></i>
+            <p>Cliente: {Cliente} — Posible PEP</p>
+            <span class="alert-time">Hace 10 min</span>
+        </div>
+
+        <div class="alert-item">
+            <i class="circlePrio2"></i>
+            <p>Cliente: Empresa X — Múltiples operaciones</p>
+            <span class="alert-time">Hace 25 min</span>
+        </div>
+
+        <div class="alert-item">
+            <i class="circlePrio1"></i>
+            <p>Cliente: {Cliente 2} — Monto alto inusual</p>
+            <span class="alert-time">Hace 40 min</span>
+        </div>
+
+        <div class="alert-item">
+            <i class="circlePrio3"></i>
+            <p>Auditoría PLD/FT — Completada con éxito</p>
+            <span class="alert-time">Hace 1 h</span>
+        </div>
+    </section>
+
+    <section class="panel full">
+        <div class="panel-header">
+            <h5>Operaciones Recientes</h5>
+            <button type="button" class="btn btn-light">Ver Operaciones</button>
+        </div>
+
+        <table class="blocked-table">
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Tipo Crédito</th>
+                    <th>Monto</th>
+                    <th>Estatus</th>
+                    <th>Vigencia</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>Persona 1</td>
+                    <td>{TipoCredito}</td>
+                    <td>$50,000.00</td>
+                    <td><span class="status activo">Activo</span></td>
+                    <td>22/06/2024</td>
+                </tr>
+                <tr>
+                    <td>Persona 2</td>
+                    <td>{TipoCredito}</td>
+                    <td>$120,000.00</td>
+                    <td><span class="status proceso">En Proceso</span></td>
+                    <td>25/06/2024</td>
+                </tr>
+                <tr>
+                    <td>Persona 3</td>
+                    <td>{TipoCredito}</td>
+                    <td>$75,000.00</td>
+                    <td><span class="status vencido">Vencido</span></td>
+                    <td>15/06/2024</td>
+                </tr>
+                <tr>
+                    <td>Persona 4</td>
+                    <td>{TipoCredito}</td>
+                    <td>$30,000.00</td>
+                    <td><span class="status activo">Activo</span></td>
+                    <td>30/06/2024</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+</main>
+    
+    <script src="/scripts/componentes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+
+</body>
+</html>
