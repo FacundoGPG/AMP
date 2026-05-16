@@ -7,6 +7,67 @@ const alertas = [
   ["AL-0004", "2025-05-24 10:05", "Carlos Ruiz", "Actividad sospechosa", "Conexion con Terrorismo", "Alta", "Abierta"]
 ];
 
+
+function applyFiltros() {
+
+  const texto = document.getElementById("searchClient").value.toLowerCase().trim();
+  const tipo = document.getElementById("filterType").value.trim();
+  const estatus = document.getElementById("filterStatus").value.trim();
+
+  const dateFrom = document.getElementById("dateFrom").value;
+  const dateTo = document.getElementById("dateTo").value;
+
+  const filtradas = alertas.filter((alerta) => {
+
+    const coincideTexto =
+      texto === "" ||
+      alerta[0].toLowerCase().includes(texto) ||
+      alerta[2].toLowerCase().includes(texto);
+
+    const coincideTipo =
+      tipo === "" || alerta[3] === tipo;
+
+    const coincideEstatus =
+      estatus === "" || alerta[6] === estatus;
+
+    const fechaAlerta = new Date(alerta[1]);
+
+    const coincideFechaDesde =
+      !dateFrom || fechaAlerta >= new Date(dateFrom);
+
+    const coincideFechaHasta =
+      !dateTo || fechaAlerta <= new Date(dateTo);
+
+    return (
+      coincideTexto &&
+      coincideTipo &&
+      coincideEstatus &&
+      coincideFechaDesde &&
+      coincideFechaHasta
+    );
+
+  });
+
+  gridAlertas.updateConfig({
+    data: filtradas
+  }).forceRender();
+
+}
+
+function clearFiltros() {
+
+  document.getElementById("searchClient").value = "";
+  document.getElementById("dateFrom").value = "";
+  document.getElementById("dateTo").value = "";
+  document.getElementById("filterType").value = "";
+  document.getElementById("filterStatus").value = "";
+
+  gridAlertas.updateConfig({
+    data: alertas
+  }).forceRender();
+
+}
+
 document.addEventListener("DOMContentLoaded", () => {
 
   const tableContainer = document.getElementById("alertas-table");
@@ -36,67 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }).render(tableContainer);
 
-  applyBtn.addEventListener("click", aplicarFiltros);
-  clearBtn.addEventListener("click", limpiarFiltros);
+  applyBtn.addEventListener("click", applyFiltros);
+  clearBtn.addEventListener("click", clearFiltros);
 
 });
-
-function aplicarFiltros() {
-
-  const texto = document.getElementById("searchClient").value.toLowerCase().trim();
-  const tipo = document.getElementById("filterType").value.trim();
-  const estatus = document.getElementById("filterStatus").value.trim();
-
-  const dateFrom = document.getElementById("dateFrom").value;
-  const dateTo = document.getElementById("dateTo").value;
-
-  const filtradas = alertas.filter((a) => {
-
-    const coincideTexto =
-      texto === "" ||
-      a[0].toLowerCase().includes(texto) ||
-      a[2].toLowerCase().includes(texto);
-
-    const coincideTipo =
-      tipo === "" || a[3] === tipo;
-
-    const coincideEstatus =
-      estatus === "" || a[6] === estatus;
-
-    const fechaAlerta = new Date(a[1]);
-
-    const coincideFechaDesde =
-      !dateFrom || fechaAlerta >= new Date(dateFrom);
-
-    const coincideFechaHasta =
-      !dateTo || fechaAlerta <= new Date(dateTo);
-
-    return (
-      coincideTexto &&
-      coincideTipo &&
-      coincideEstatus &&
-      coincideFechaDesde &&
-      coincideFechaHasta
-    );
-
-  });
-
-  gridAlertas.updateConfig({
-    data: filtradas
-  }).forceRender();
-
-}
-
-function limpiarFiltros() {
-
-  document.getElementById("searchClient").value = "";
-  document.getElementById("dateFrom").value = "";
-  document.getElementById("dateTo").value = "";
-  document.getElementById("filterType").value = "";
-  document.getElementById("filterStatus").value = "";
-
-  gridAlertas.updateConfig({
-    data: alertas
-  }).forceRender();
-
-}
