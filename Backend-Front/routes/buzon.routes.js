@@ -1,7 +1,0 @@
-const express = require("express");
-const router = express.Router();
-const buzonController = require("../controllers/buzon.controller");
-
-router.get("/buzon", buzonController.renderChisme);
-
-module.exports = router;
