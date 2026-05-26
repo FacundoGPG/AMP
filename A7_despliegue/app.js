@@ -201,7 +201,7 @@ app.use(
 );
 
 /* =========================
-   SERVER (configurado para Vercel)
+   SERVER (configurado para vercel)
 ========================= */
 
 const PORT = process.env.PORT || 3001;
