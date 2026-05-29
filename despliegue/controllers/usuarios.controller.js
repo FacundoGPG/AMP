@@ -123,22 +123,22 @@ module.exports.get_logged = async (req, res) => {
     if (!usuario) return res.redirect("/");
 
 
-    /*
+    
     res.render("logged", {
         user: usuario,
         usuarioSesion: req.session.usuario
     });
-    */
+    
 };
 
-/*
+
 module.exports.get_registro = (req, res) => {
     res.render('usuarios/registro', { 
         registro: true,
         csrfToken: req.csrfToken ? req.csrfToken() : res.locals.csrfToken
     });
 };
-*/
+
 
 module.exports.post_registro = async (req, res) => {
 
