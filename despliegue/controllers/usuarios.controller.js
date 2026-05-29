@@ -123,12 +123,11 @@ module.exports.get_logged = async (req, res) => {
     if (!usuario) return res.redirect("/");
 
 
-    
-    res.render("logged", {
+    res.render("usuarios/logged", {
         user: usuario,
         usuarioSesion: req.session.usuario
     });
-    
+
 };
 
 
