@@ -3,7 +3,16 @@ let operacionesData = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   cargarTablaOperaciones();
+
+
+  const applyBtn = document.getElementById("applyFiltersOp");
+  const clearBtn = document.getElementById("clearFiltersOp");
+
+  if (applyBtn) applyBtn.addEventListener("click", applyOperacionFilters);
+  if (clearBtn) clearBtn.addEventListener("click", cleanOperacionFiltros);
+
 });
+
 
 async function cargarTablaOperaciones() {
   const operacionesContainer = document.getElementById("operaciones-table");
@@ -11,9 +20,6 @@ async function cargarTablaOperaciones() {
 
   const response = await fetch("/api/operaciones");
   operacionesData = await response.json();
-
-  const applyBtn = document.getElementById("applyFiltersOp");
-  const clearBtn = document.getElementById("clearFiltersOp");
 
   gridOperaciones = new gridjs.Grid({
     columns: ["ID Operación", "Cliente", "Producto", "Tipo", "Monto", "Fecha", "Estatus", "Canal", "Riesgo"],
@@ -31,9 +37,7 @@ async function cargarTablaOperaciones() {
     sort: true,
     pagination: { limit: 10 }
   }).render(operacionesContainer);
-
-  if (applyBtn) applyBtn.addEventListener("click", applyOperacionFilters);
-
+ 
 }
 
 function applyOperacionFilters() {
@@ -98,3 +102,25 @@ function applyOperacionFilters() {
   }).forceRender();
 }
 
+function cleanOperacionFiltros() {
+  document.getElementById("searchClientOp").value = "";
+  document.getElementById("dateFromOp").value = "";
+  document.getElementById("dateToOp").value = "";
+  document.getElementById("filterTipoOp").value = "";
+  document.getElementById("filterProductoOp").value = "";
+  document.getElementById("filterRiesgoOp").value = "";
+
+  gridOperaciones.updateConfig({
+    data: operacionesData.map(op => [
+      op.ID_Operacion,
+      op.Cliente,
+      op.Producto,
+      op.Tipo_Operacion,
+      op.Monto,
+      op.Fecha,
+      op.Estado,
+      op.Canal,
+      op.Riesgo
+    ])
+  }).forceRender();
+}
