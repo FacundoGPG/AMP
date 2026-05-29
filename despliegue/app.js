@@ -6,7 +6,7 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const helmet = require("helmet");
-const fs = require("fs");
+// const fs = require("fs");
 
 const { doubleCsrf } = require("csrf-csrf");
 
@@ -16,10 +16,12 @@ const app = express();
    CREAR CARPETA PRIVATE
 ========================= */
 
+/*
 fs.mkdirSync(
   path.join(__dirname, "private"),
   { recursive: true }
 );
+*/
 
 /* =========================
    CONFIGURACIÓN EJS
@@ -331,9 +333,10 @@ app.use(
    SERVER
 ========================= */
 
-app.listen(3001, () => {
+if (process.env.NODE_ENV !== "production") {
+  app.listen(3001, () => {
+    console.log("http://localhost:3001");
+  });
+}
 
-  console.log(
-    "http://localhost:3001"
-  );
-});
+module.exports = app;
