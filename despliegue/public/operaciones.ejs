@@ -11,6 +11,7 @@
 <body>
   <%- include("partials/topbar") %>
   <%- include("partials/sidebar") %>
+  <%- include("partials/config") %>
 
   <div id="overlay" class="overlay"></div>
 
@@ -25,33 +26,52 @@
     </div>
 
     <div class="filters">
-      <input id = "searchClient "type="text" placeholder="Buscar por cliente o ID">
+      <input id = "searchClientOp" type="text" placeholder="Buscar por cliente o ID">
 
-      <input type="date">
-      <input type="date">
+      <input id="dateFromOp" type="date">
+      <input id="dateToOp" type="date">
 
-      <select>
-        <option>Selecciona Tipo de operación</option>
-        <option>{TIPO OPERACION 1 }</option>
-        <option>{TIPO OPERACION 2 }</option>
-        <option>{TIPO OPERACION 3 }</option>
-        <option>{TIPO OPERACION 4 }</option>
+      <select id="filterTipoOp">
+        <option value="">Tipo de operación</option>
+        <option value="Transferencia">Transferencia</option>
+        <option value="Deposito">Deposito</option>
+        <option value="Retiro">Retiro</option>
+        <option value="Pago">Pago</option>
       </select>
 
-      <select>
-        <option>Selecciona Producto</option>
-        <option> {Producto 1}</option>
-        <option> {Producto 2} </option>
+      <select id="filterProductoOp">
+        <option value="">Producto</option>
+        <option value="Credito Personal">Credito Personal</option>
+        <option value="Arrendamiento">Arrendamiento</option>
+        <option value="Credito Automotriz">Credito Automotriz</option>
+        <option value="Credito Hipotecario">Credito Hipotecario</option>
+        <option value="Leasing Industrial">Leasing Industrial</option>
       </select>
 
-      <select>
-        <option>Estatus</option>
-        <option>Bajo</option>
-        <option>Medio</option>
-        <option>Alto</option>
+      <select id="filterCanalOp">
+        <option value="">Canal</option>
+        <option value="Web">Web</option>
+        <option value="Sucursal">Sucursal</option>
+        <option value="Móvil">Móvil</option>
+        <option value="API">API</option>
       </select>
 
-      <button class="btn btn-dark"> Filtrar </button>
+      <select id="filterEstatusOp">
+        <option value="">Estatus</option>
+        <option value="Completada">Completada</option>
+        <option value="En_Revision">En Revisión</option>
+        <option value="Sospechosa">Sospechosa</option>
+      </select>
+
+      <select id="filterRiesgoOp">
+        <option value="">Riesgo</option>
+        <option value="Bajo">Bajo</option>
+        <option value="Medio">Medio</option>
+        <option value="Alto">Alto</option>  
+      </select>
+
+      <button type="button" id="applyFiltersOp" class="btn btn-dark">Filtrar</button>
+
     </div>
   </section>
 

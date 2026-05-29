@@ -9,6 +9,9 @@
     <title>Operaciones - Beta 1 </title>
 </head>
 <body>
+  <% const tabActiva = typeof activeTab !== "undefined" ? activeTab : "clientes"; %>
+  <% const totalClientesVista = typeof totalClientes !== "undefined" ? totalClientes : "--"; %>
+  <% const totalBloqueadosVista = typeof totalBloqueados !== "undefined" ? totalBloqueados : "--"; %>
   <%- include("partials/topbar") %>
   <%- include("partials/sidebar") %>
   <%- include("partials/config") %>
@@ -20,33 +23,34 @@
     <div class="card">
         <h5 class="card-title">Total de Clientes</h5>
         <h6 class="card-subtitle"> </h6>
-        <p class="card-nmb">1,248</p>
+        <p class="card-nmb" id="total-clientes"> <%= totalClientesVista %> </p>
     </div>
 
     <div class="card">
         <h5 class="card-title">Clientes Activos</h5>
         <h6 class="card-subtitle"> </h6>
-        <p class="card-nmb">1,102</p>
+        <p class="card-nmb" id="total-clientes-activos">--</p>
     </div>
 
     <div class="card">
         <h5 class="card-title">Nuevos Clientes</h5>
         <h6 class="card-subtitle">(ultima semana)</h6>
-        <p class="card-nmb">38</p>
+        <p class="card-nmb" id="total-clientes-nuevos">--</p>
     </div>
 
     <div class="card">
-        <h5 class="card-title">Clientes con Alertas</h5>
+        <h5 class="card-title">Clientes Bloqueados</h5>
         <h6 class="card-subtitle">  </h6>
-        <p class="card-nmb">50</p>
+        <p class="card-nmb" id="total-clientes-bloqueados"><%= totalBloqueadosVista %></p>
     </div>
 
     <section class="panel full-page">
-
+    
+    
     <div class="clientes-header">
         <div class="clientes-tabs">
-        <button class="tab-btn active" data-table="clientes-section">Clientes</button>
-        <button class="tab-btn" data-table="bloqueados-section">Personas Bloqueadas</button>
+        <button class="tab-btn <%= tabActiva === 'clientes' ? 'active' : '' %>" data-table="clientes-section">Clientes</button>
+        <button class="tab-btn <%= tabActiva === 'bloqueados' ? 'active' : '' %>" data-table="bloqueados-section">Personas Bloqueadas</button>
         </div>
         <div class="AddCliente"> 
         <button class="btn btn-light"> Añadir Cliente </button>
@@ -54,12 +58,12 @@
         
     </div>
 
-    <div id="clientes-section" class="table-section active">
+    <div id="clientes-section" class="table-section <%= tabActiva === 'clientes' ? 'active' : '' %>">
         <h2>Listado de Clientes</h2>
         <div id="clientes-table"></div>
     </div>
 
-    <div id="bloqueados-section" class="table-section">
+    <div id="bloqueados-section" class="table-section <%= tabActiva === 'bloqueados' ? 'active' : '' %>">
         <h2>Personas Bloqueadas</h2>
         <div id="bloqueados-table"></div>
     </div>
@@ -67,6 +71,79 @@
     </section>
 
 </main>
+
+<div id="clienteOverlay" class="overlay"></div>
+
+<aside id="clientePanel" class="cliente-panel">
+    <div class="cliente-panel-header">
+        <div>
+            <p>Resumen de cliente</p>
+            <h3 id="cliente-detail-nombre"></h3>
+        </div>
+        <button type="button" id="cerrarClientePanel" aria-label="Cerrar detalle">X</button>
+    </div>
+    <div class="btn-group cliente-panel-tabs" role="group" aria-label="Secciones del cliente">
+        <button type="button" class="btn btn-light cliente-panel-tab active" data-panel-tab="cliente-info-tab">
+            Información general
+        </button>
+
+        <button type="button" class="btn btn-light cliente-panel-tab" data-panel-tab="cliente-operaciones-tab">
+            Operaciones
+        </button>
+
+        <button type="button" class="btn btn-light cliente-panel-tab" data-panel-tab="cliente-alertas-tab">
+            Alertas
+        </button>
+    </div>
+
+    <section id="cliente-info-tab" class="cliente-panel-section active">
+    <div class="detail-grid">
+        <div>
+            <p>RFC:</p>
+            <strong id="cliente-detail-rfc">---</strong>
+        </div>
+        <div>
+            <p>Tipo:</p>
+            <strong id="cliente-detail-tipo">---</strong>
+        </div>
+        <div>
+            <p>Correo:</p>
+            <strong id="cliente-detail-correo">---</strong>
+        </div>
+        <div>
+            <p>Telefono:</p>
+            <strong id="cliente-detail-telefono">---</strong>
+        </div>
+        <div>
+            <p>Estatus:</p>
+            <strong id="cliente-detail-estatus">---</strong>
+        </div>
+        <div>
+            <p>Fecha de registro:</p>
+            <strong id="cliente-detail-fecha">---</strong>
+        </div>
+        <div class="detail-block">
+            <p>Domicilio:</p>
+            <strong id="cliente-detail-domicilio">---</strong>
+        </div>
+    </div>
+    </section>
+
+    <section id="cliente-operaciones-tab" class="cliente-panel-section">
+        <h4>Operaciones del cliente</h4>
+        <div id="cliente-operaciones-list" class="cliente-preview-list">
+            Selecciona un cliente para ver sus operaciones.
+        </div>
+    </section>
+
+    <section id="cliente-alertas-tab" class="cliente-panel-section">
+        <h4>Alertas del cliente</h4>
+        <div id="cliente-alertas-list" class="cliente-preview-list">
+            Selecciona un cliente para ver sus alertas.
+        </div>
+    </section>
+</aside>
+
 <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
 <script src="/scripts/componentes.js"></script>
 <script src="/scripts/clientes.js"></script>

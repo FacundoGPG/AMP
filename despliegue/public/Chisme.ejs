@@ -14,23 +14,20 @@
   <div id="overlay" class="overlay"></div>
   <main class="chisme">
     <section class="panel full ">
-    <a> 
     <h1>Formulario</h1>
 
-    <form action="/formulario/form" method="POST">
+    <form action="/upload_file_private" method="POST" enctype="multipart/form-data">
         <label>Nombre:</label>
         <input type="text" name="nombre">
 
         <label>Mensaje:</label>
         <input type="text" name="mensaje">
 
+        <label class="block mb-2.5 text-sm font-medium text-heading" for="file_input">Subir Evidencia</label>
+        <input class="cursor-pointer bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full shadow-xs placeholder:text-body" id="file_input" type="file" name="file">
+
         <button type="submit">Enviar</button>
-    <label class="block mb-2.5 text-sm font-medium text-heading" for="file_input">Subir Evidencia</label>
-    <input class="cursor-pointer bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full shadow-xs placeholder:text-body" id="file_input" type="file">
-
     </form>
-
-    <a href="/formulario/datos">Ver datos</a>
     
     </section>
   </main>

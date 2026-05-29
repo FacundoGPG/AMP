@@ -8,7 +8,7 @@ exports.get_reportes = async (req, res) => {
       ORDER BY fecha_generacion DESC
     `);
 
-    res.render("reportes", {
+    res.render("Reportes", {
       pageTitle: "Reportes - Beta 1",
       reportes: resultado.rows,
       usuarioSesion: req.session.usuario,

@@ -1,42 +1,3 @@
-async function cargarComponentes() {
-  try {
-    const navRes = await fetch('/topbar.html');
-    const navHtml = await navRes.text();
-    document.getElementById('navbar-container').innerHTML = navHtml;
-
-    const sideRes = await fetch('/sidebar.html');
-    const sideHtml = await sideRes.text();
-    document.getElementById('sidebar-container').innerHTML = sideHtml;
-
-    iniciarSidebar(); // Iniciar Sidebar
-    iniciarDropdown(); // Iniciar Dropdown
-    iniciarReloj(); // Iniciar Reloj
-
-  } catch (error) {
-    console.error('Error cargando componentes:', error);
-  }
-}
-
-function iniciarSidebar() {
-  const menuBtn = document.getElementById("menu-btn");
-  const closeBtn = document.getElementById("close-btn");
-  const sidebar = document.getElementById("sidebar");
-  const overlay = document.getElementById("overlay");
-
-  menuBtn.addEventListener("click", () => {
-    sidebar.classList.add("active");
-    overlay.classList.add("active");
-  });
-
-  closeBtn.addEventListener("click", cerrarSidebar);
-  overlay.addEventListener("click", cerrarSidebar);
-
-  function cerrarSidebar() {
-    sidebar.classList.remove("active");
-    overlay.classList.remove("active");
-  }
-}
-
 function iniciarDropdown() {
   const btn = document.getElementById("dropdown-btn");
   const menu = document.getElementById("dropdown-menu");
@@ -195,7 +156,7 @@ function iniciarCookies() {
 }
 
 function IniciarTodo() {
-  iniciarSidebar();
+
   iniciarDropdown();
   iniciarReloj();
   iniciarConfigPanel();
