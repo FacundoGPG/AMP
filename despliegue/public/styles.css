@@ -642,11 +642,10 @@ h1 {
 /* ===== FILTROS OPERACIONES ===== */
 .filters {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 8px;
+  grid-template-columns: 2fr repeat(5, 1fr) auto;
+  gap: 12px;
   align-items: center;
 }
-
 
 .filters input,
 .filters select {
@@ -1150,4 +1149,8 @@ h1 {
     }
     .history-title p{
         color: #555;
+    }
+
+    body.standalone main {
+    margin-left: 0;
     }

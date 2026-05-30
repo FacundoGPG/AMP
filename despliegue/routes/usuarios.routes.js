@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 //NUEVO 
-const verificarRol = require('../public/scripts/verificarRol.js');
+const verificarRol = require('../config/verificarRol.js');
 const controllerUsuarios = require('../controllers/usuarios.controller.js');
-const isAuth = require("../public/scripts/is-auth.js");
+const isAuth = require("../config/is-auth.js");
 
 router.get("/health", (req, res) => {
     res.status(200).json({ status: "ok Usuarios" });

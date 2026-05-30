@@ -32,5 +32,6 @@ exports.Operacion = class {
 
         const result = await pool.query(sql);
         return result.rows;
-    }
+    }    
 }
+

@@ -107,8 +107,14 @@ module.exports.do_login = async(req, res) => {
         console.log("ROL DEL USUARIO:", req.session.usuario.rol);
         console.log("REDIRIGIENDO A DASHBOARD");
 
-        return res.redirect("/dashboard");
+        const rol = req.session.usuario.rol;
 
+        if (rol === 'Cliente' || rol === 'Empleado') {
+            return res.redirect("/testing");
+        }
+
+        return res.redirect("/dashboard");
+        
     } catch(e) {
 
         console.error(e);
@@ -161,7 +167,7 @@ module.exports.post_registro = async (req, res) => {
 
         res.status(201).redirect('/');
 
-    } catch (e) { 
+    } catch (e) {
 
         console.error(e);
         res.status(500).send('Error registrando usuario');

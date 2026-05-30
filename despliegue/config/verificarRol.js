@@ -1,6 +1,6 @@
 function verificarRol(rolesPermitidos){
     return (req,res, next) =>{
-        if (!req,session.usuario){
+        if (!req.session.usuario){
             return res.redirect("/");
         }
         if (!rolesPermitidos.includes(req.session.usuario.rol)){

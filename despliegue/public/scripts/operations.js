@@ -29,7 +29,7 @@ async function cargarTablaOperaciones() {
       op.Producto,
       op.Tipo_Operacion,
       op.Monto,
-      op.Fecha,
+      op.Fecha ? new Date(op.Fecha).toISOString().slice(0, 10) : "",
       op.Estado,
       op.Canal,
       op.Riesgo

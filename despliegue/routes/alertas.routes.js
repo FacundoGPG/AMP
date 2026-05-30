@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const alertasController = require("../controllers/alertas.controller");
-const verificarRol = require("../public/scripts/verificarRol");
+const verificarRol = require("../config/verificarRol");
 
 router.get("/alertas", alertasController.renderAlertas);
 
