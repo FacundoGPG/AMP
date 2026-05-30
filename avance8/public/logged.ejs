@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sesión iniciada</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 420px; margin: 3rem auto; }
+    </style>
+</head>
+<body>
+    <h1>¡Gracias por iniciar sesión!</h1>
+    <p>Hola, <strong><%= user.name || user.username %></strong>.</p>
+    <p>Tu username: <code><%= user.username %></code></p>
+    <p>Tu rol: <strong><%= usuarioSesion.rol %></strong></p>
+    <% if (usuarioSesion.rol === "Administrador") { %>
+        <h3>Opciones de administrador</h3>
+        <a href="/usuarios">Gestionar usuarios</a>
+    <% } %>
+    <% if (usuarioSesion.rol === "Empleado") { %>
+        <h3>Opciones de empleado</h3>
+        <a href="/alertas">Ver alertas</a>
+    <% } %>
+    <% if (usuarioSesion.rol === "Cliente") { %>
+        <h3>Opciones de cliente</h3>
+        <a href="/documentacion">Ver documentación</a>
+    <% } %>
+</body>
+</html>

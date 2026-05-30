@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />   
+    <link rel="stylesheet" href="/styles.css">
+    <title>Operaciones - Beta 1 </title>
+</head>
+<body>
+  <%- include("partials/topbar") %>
+  <%- include("partials/sidebar") %>
+  <%- include("partials/config") %>
+
+  <div id="overlay" class="overlay"></div>
+
+
+ <main class="dashboard">
+
+  <!-- FILTROS -->
+  <section class="panel full">
+    <div class="panel-header">
+      <h5>Filtros</h5>
+      <button type="button" id="clearFiltersOp" class="btn btn-light">Limpiar filtros</button>
+    </div>
+
+    <div class="filters">
+      <input id = "searchClientOp" type="text" placeholder="Buscar por cliente o ID">
+
+      <input id="dateFromOp" type="date">
+      <input id="dateToOp" type="date">
+
+      <select id="filterTipoOp">
+        <option value="">Tipo de operación</option>
+        <option value="Transferencia">Transferencia</option>
+        <option value="Deposito">Deposito</option>
+        <option value="Retiro">Retiro</option>
+        <option value="Pago">Pago</option>
+      </select>
+
+      <select id="filterProductoOp">
+        <option value="">Producto</option>
+        <option value="Credito Personal">Credito Personal</option>
+        <option value="Arrendamiento">Arrendamiento</option>
+        <option value="Credito Automotriz">Credito Automotriz</option>
+        <option value="Credito Hipotecario">Credito Hipotecario</option>
+        <option value="Leasing Industrial">Leasing Industrial</option>
+      </select>
+
+      <select id="filterCanalOp">
+        <option value="">Canal</option>
+        <option value="Web">Web</option>
+        <option value="Sucursal">Sucursal</option>
+        <option value="Móvil">Móvil</option>
+        <option value="API">API</option>
+      </select>
+
+      <select id="filterEstatusOp">
+        <option value="">Estatus</option>
+        <option value="Completada">Completada</option>
+        <option value="En_Revision">En Revisión</option>
+        <option value="Sospechosa">Sospechosa</option>
+      </select>
+
+      <select id="filterRiesgoOp">
+        <option value="">Riesgo</option>
+        <option value="Bajo">Bajo</option>
+        <option value="Medio">Medio</option>
+        <option value="Alto">Alto</option>  
+      </select>
+
+      <button type="button" id="applyFiltersOp" class="btn btn-dark">Filtrar</button>
+
+    </div>
+  </section>
+
+  <!-- TABLA PRINCIPAL -->
+  <section class="panel full-page">
+    <div class="panel-header">
+      <h5>Listado de Operaciones</h5>
+    </div>
+
+    <div id="operaciones-table"></div>
+
+  </section>
+
+  
+</main>
+    <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+    <script src="/scripts/componentes.js"></script>
+    <script src="/scripts/operations.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+</body>
+</html>
