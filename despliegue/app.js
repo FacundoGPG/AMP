@@ -22,6 +22,18 @@ const app = express();
 );
 */ 
 
+
+exports.get_private_file = async (req, res) => {
+  const fileName = path.basename(req.params.file);
+  const filePath = path.join(__dirname, "../private", fileName);
+
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      return res.status(404).json({ code: 404, msg: "Archivo no encontrado" });
+    }
+  });
+};
+
 /* =========================
    CONFIGURACIÓN EJS
 ========================= */
