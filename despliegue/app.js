@@ -344,9 +344,10 @@ app.use(
    SERVER
 ========================= */
 
-app.listen(3001, () => {
+if (process.env.NODE_ENV !== "production") {
+  app.listen(3001, () => {
+    console.log("http://localhost:3001");
+  });
+}
 
-  console.log(
-    "http://localhost:3001"
-  );
-});
+module.exports = app;
