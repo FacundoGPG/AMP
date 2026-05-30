@@ -16,10 +16,11 @@ const app = express();
    CREAR CARPETA PRIVATE
 ========================= */
 
-fs.mkdirSync(
+/* fs.mkdirSync(
   path.join(__dirname, "private"),
   { recursive: true }
 );
+*/ 
 
 /* =========================
    CONFIGURACIÓN EJS
