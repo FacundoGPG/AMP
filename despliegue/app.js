@@ -97,11 +97,13 @@ app.use(express.json());
 
 app.use(cookieParser());
 
+app.set("trust proxy", 1);
+
 app.use(
   session({
     secret:
       process.env.SESSION_SECRET ||
-      "mi string secreto largo para desarrollo",
+      "secret",
 
     resave: false,
 
@@ -110,7 +112,7 @@ app.use(
     cookie: {
       httpOnly: true,
       sameSite: "lax",
-      secure: false
+      secure: process.env.NODE_ENV === "production"
     }
   })
 );
