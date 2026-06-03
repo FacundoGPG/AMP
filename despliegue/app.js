@@ -15,12 +15,12 @@ app.set("trust proxy", 1);
 /* =========================
    CREAR CARPETA PRIVATE
 ========================= */
-
+/*
 fs.mkdirSync(
   path.join(__dirname, "private"),
   { recursive: true }
 );
-
+*/
 /* =========================
    CONFIGURACIÓN EJS
 ========================= */
