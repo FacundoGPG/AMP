@@ -1,38 +1,25 @@
 require("dotenv").config();
-
 const express = require("express");
 const path = require("path");
-const session = require("express-session");
 const cookieParser = require("cookie-parser");
+const session = require('express-session')
 const cors = require("cors");
 const helmet = require("helmet");
 const fs = require("fs");
-
 const { doubleCsrf } = require("csrf-csrf");
-
+const sesion = require("./config/sesion");
 const app = express();
+
+app.set("trust proxy", 1);
 
 /* =========================
    CREAR CARPETA PRIVATE
 ========================= */
 
-/* fs.mkdirSync(
+fs.mkdirSync(
   path.join(__dirname, "private"),
   { recursive: true }
 );
-*/ 
-
-
-exports.get_private_file = async (req, res) => {
-  const fileName = path.basename(req.params.file);
-  const filePath = path.join(__dirname, "../private", fileName);
-
-  res.sendFile(filePath, (err) => {
-    if (err) {
-      return res.status(404).json({ code: 404, msg: "Archivo no encontrado" });
-    }
-  });
-};
 
 /* =========================
    CONFIGURACIÓN EJS
@@ -97,10 +84,12 @@ app.use(express.json());
 
 app.use(cookieParser());
 
-app.set("trust proxy", 1);
-
 app.use(
   session({
+    store: process.env.DATABASE_URL
+      ? new sesion()
+      : undefined,
+
     secret:
       process.env.SESSION_SECRET ||
       "secret",
@@ -112,7 +101,8 @@ app.use(
     cookie: {
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production"
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000
     }
   })
 );
@@ -141,8 +131,7 @@ const {
 } = doubleCsrf({
 
   getSecret: () =>
-    process.env.CSRF_SECRET ||
-    "cambia-esto-en-desarrollo",
+    process.env.CSRF_SECRET || "",
 
   getSessionIdentifier: (req) =>
     req.sessionID,
@@ -203,15 +192,6 @@ app.get("/health", (req, res) => {
 });
 
 /* =========================
-   RUTAS DE PRUEBA
-========================= */
-
-app.get("/test_ejs", (req, res) => {
-
-  res.render("usuarios/login");
-});
-
-/* =========================
    COOKIES
 ========================= */
 
@@ -247,46 +227,11 @@ app.get("/test_value_cookie", (req, res) => {
    SESIONES
 ========================= */
 
-app.get("/test_session", (req, res) => {
-
-  req.session.mi_variable = "valor";
-
-  res.setHeader(
-    "Content-Type",
-    "text/plain"
-  );
-
-  res.send(req.session.mi_variable);
-});
-
-app.get("/test_session_variable", (req, res) => {
-
-  res.setHeader(
-    "Content-Type",
-    "text/plain"
-  );
-
-  res.send(
-    req.session.mi_variable ||
-    "No existe la variable de sesión"
-  );
-});
-
 app.get("/logout", (req, res) => {
-
   req.session.destroy(() => {
 
     res.redirect("/");
   });
-});
-
-/* =========================
-   PREGUNTAS
-========================= */
-
-app.get("/preguntas", (req, res) => {
-
-  res.render("preguntas");
 });
 
 /* =========================
@@ -346,10 +291,9 @@ app.use(
    SERVER
 ========================= */
 
-if (process.env.NODE_ENV !== "production") {
-  app.listen(3001, () => {
-    console.log("http://localhost:3001");
-  });
-}
+app.listen(3001, () => {
 
-module.exports = app;
+  console.log(
+    "http://localhost:3001"
+  );
+});

@@ -107,14 +107,15 @@ module.exports.do_login = async(req, res) => {
         console.log("ROL DEL USUARIO:", req.session.usuario.rol);
         console.log("REDIRIGIENDO A DASHBOARD");
 
-        const rol = req.session.usuario.rol;
+        return req.session.save((error) => {
+            if (error) {
+                console.error("Error guardando sesion:", error);
+                return res.redirect("/");
+            }
 
-        if (rol === 'Cliente' || rol === 'Empleado') {
-            return res.redirect("/testing");
-        }
+            return res.redirect("/dashboard");
+        });
 
-        return res.redirect("/dashboard");
-        
     } catch(e) {
 
         console.error(e);
@@ -128,14 +129,11 @@ module.exports.get_logged = async (req, res) => {
 
     if (!usuario) return res.redirect("/");
 
-
     res.render("usuarios/logged", {
         user: usuario,
         usuarioSesion: req.session.usuario
     });
-
 };
-
 
 module.exports.get_registro = (req, res) => {
     res.render('usuarios/registro', { 
@@ -143,7 +141,6 @@ module.exports.get_registro = (req, res) => {
         csrfToken: req.csrfToken ? req.csrfToken() : res.locals.csrfToken
     });
 };
-
 
 module.exports.post_registro = async (req, res) => {
 

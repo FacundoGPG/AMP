@@ -1,25 +1,29 @@
-jest.mock("../models/dashboard.model", () => ({
-  getResumen: jest.fn().mockResolvedValue({
-    usuarios: 10,
-    alertas: 5,
-    mensajes: 3
-  })
-}));
-const dashboardController = require("../controllers/dashboard.controller");
+const dashboardController = require("../../../despliegue (2)/despliegue/despliegue/controllers/dashboard.controller");
 describe("Dashboard Controller", () => {
-  test("renderiza dashboard", async () => {
-    const req = {
-      session: {}
-    };
-    const res = {
-      render: jest.fn(),
-      redirect: jest.fn(),
-      status: jest.fn().mockReturnThis(),
-      send: jest.fn()
-    };
-
-    await dashboardController.renderDashboard(req, res);
-
-    expect(res.render).toHaveBeenCalled();
-  });
+    test("redirige si no existe sesión", () => {
+        const req = {
+            session: {}
+        };
+        const res = {
+            redirect: jest.fn(),
+            render: jest.fn()
+        };
+        dashboardController.renderDashboard(req, res);
+        expect(res.redirect).toHaveBeenCalledWith("/");
+    });
+    test("renderiza dashboard si hay usuario", () => {
+        const req = {
+            session: {
+                usuario: {
+                    nombre: "David"
+                }
+            }
+        };
+        const res = {
+            redirect: jest.fn(),
+            render: jest.fn()
+        };
+        dashboardController.renderDashboard(req, res);
+        expect(res.render).toHaveBeenCalled();
+    });
 });

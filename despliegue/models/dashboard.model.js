@@ -53,6 +53,7 @@ exports.getResumen = async () => {
   ]);
 
   return {
+    totalReportes,
     alertasActivas,
     operacionesEnRevision,
     casosResueltos

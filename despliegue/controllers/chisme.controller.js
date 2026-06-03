@@ -1,12 +1,6 @@
 exports.renderChisme = (req, res) => {
 
-    const rol = req.session.usuario?.rol;
-
-    if (rol === 'Cliente') {
-        return res.render("cliente", { pageTitle: "Portal del Cliente" });
-    }
-
-    res.render("chisme", {
+    res.render("Chisme", {
         pageTitle: "Chisme - Beta 1"
     });
 };

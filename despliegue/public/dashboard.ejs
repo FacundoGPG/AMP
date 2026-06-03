@@ -20,34 +20,34 @@
 
     <section class="welcome full">
         <div>
-            <h1>¡Bienvenido, <%= usuarioSesion?.nombre || "Usuario" %> </h1>
+            <h1>¡Bienvenido, <%= usuarioSesion.nombre.trim() %>!</h1>
             <p>Aquí tienes un resumen general de las novedades.</p>
         </div>
     </section>
 
     <div class="card">
         <h5 class="card-title">Total de reportes</h5>
-        <h6 class="card-subtitle">+12% desde la semana pasada</h6>
+        <h6 class="card-subtitle"></h6>
         <p class="card-nmb">--</p>
     </div>
 
 
     <div class="card">
         <h5 class="card-title">Alertas activas</h5>
-        <h6 class="card-subtitle">+2 que ayer</h6>
+        <h6 class="card-subtitle"></h6>
         <p class="card-nmb"><%=resumen.alertasActivas%></p>
     </div>
 
     <div class="card">
         <h5 class="card-title">Operaciones en revisión</h5>
-        <h6 class="card-subtitle">-3% desde la semana pasada</h6>
+        <h6 class="card-subtitle">-</h6>
         <p class="card-nmb"><%= resumen.operacionesEnRevision %></p>
     </div>
 
     <div class="card">
         <h5 class="card-title">Casos resueltos</h5>
-        <h6 class="card-subtitle">+2% desde la semana pasada</h6>
-        <p class="card-nmb">1</p>
+        <h6 class="card-subtitle"></h6>
+        <p class="card-nmb"><%= resumen.casosResueltos %></p>
     </div>
 
     <section class="panel half">
