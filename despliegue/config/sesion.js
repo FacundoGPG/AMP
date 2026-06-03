@@ -12,10 +12,10 @@ class sesion extends session.Store {
       CREATE TABLE IF NOT EXISTS public.sesiones (
         sid VARCHAR(255) PRIMARY KEY,
         ses JSONB NOT NULL,
-        createdon TIMESTAMP NOT NULL, 
         expires TIMESTAMPTZ NOT NULL
       )
     `);
+
   }
 
   getExpires(ses) {
@@ -51,7 +51,9 @@ class sesion extends session.Store {
           INSERT INTO public.sesiones (sid, ses, expires)
           VALUES ($1, $2, $3)
           ON CONFLICT (sid)
-          DO UPDATE SET ses = EXCLUDED.ses, expires = EXCLUDED.expires
+          DO UPDATE SET
+            ses = EXCLUDED.ses,
+            expires = EXCLUDED.expires
         `,
         [sid, JSON.stringify(ses), this.getExpires(ses)]
       );
