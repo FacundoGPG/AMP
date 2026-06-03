@@ -1,5 +1,5 @@
 exports.renderBuzon = (req, res) => {
-  res.render("Buzon", {
+  res.render("buzon", {
     pageTitle: "Buzon - Beta 1"
   });
 };

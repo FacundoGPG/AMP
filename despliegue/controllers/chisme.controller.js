@@ -1,7 +1,7 @@
 exports.renderChisme = (req, res) => {
 
-    res.render("Chisme", {
-        pageTitle: "Chisme - Beta 1"
+    res.render("chisme", {
+        pageTitle: "chisme - Beta 1"
     });
 };
 
