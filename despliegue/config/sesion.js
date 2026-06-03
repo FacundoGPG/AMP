@@ -12,10 +12,20 @@ class sesion extends session.Store {
       CREATE TABLE IF NOT EXISTS public.sesiones (
         sid VARCHAR(255) PRIMARY KEY,
         ses JSONB NOT NULL,
+        createdon TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         expires TIMESTAMPTZ NOT NULL
       )
     `);
 
+    await pool.query(`
+      ALTER TABLE public.sesiones
+      ADD COLUMN IF NOT EXISTS createdon TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    `);
+
+    await pool.query(`
+      ALTER TABLE public.sesiones
+      ALTER COLUMN createdon SET DEFAULT NOW()
+    `);
   }
 
   getExpires(ses) {
