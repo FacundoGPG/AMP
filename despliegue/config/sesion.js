@@ -4,7 +4,25 @@ const pool = require("./database");
 class sesion extends session.Store {
   constructor() {
     super();
-    this.ready = this.init();
+    this.ready = this.autoMigracion()
+      ? this.init()
+      : Promise.resolve();
+  }
+
+  autoMigracion() {
+    if (process.env.SESSION_AUTO_MIGRATE) {
+      return process.env.SESSION_AUTO_MIGRATE === "true";
+    }
+
+    return process.env.NODE_ENV !== "production";
+  }
+
+  reinicioSesion() {
+    if (process.env.SESSION_TOUCH_ENABLED) {
+      return process.env.SESSION_TOUCH_ENABLED === "true";
+    }
+
+    return process.env.NODE_ENV !== "production";
   }
 
   async init() {
@@ -87,6 +105,11 @@ class sesion extends session.Store {
   async touch(sid, ses, callback) {
     try {
       await this.ready;
+
+      if (!this.reinicioSesion()) {
+        callback(null);
+        return;
+      }
 
       await pool.query(
         "UPDATE public.sesiones  SET expires = $2 WHERE sid = $1",

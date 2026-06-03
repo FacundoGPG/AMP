@@ -132,13 +132,17 @@ exports.User = class {
 
         const sql = `
             SELECT
-                id_usuario AS "ID_Usuario",
-                nombre AS "Nombre",
-                apellido AS "Apellido",
-                correo AS "Correo",
-                contrasena AS "Contrasena"
-            FROM public."Usuario"
-            WHERE correo = $1
+                u.id_usuario  AS "ID_Usuario",
+                u.nombre      AS "Nombre",
+                u.apellido    AS "Apellido",
+                u.correo      AS "Correo",
+                u.contrasena  AS "Contrasena",
+                ARRAY_AGG(r.nombre) AS "roles"
+            FROM public."Usuario" u
+            LEFT JOIN public."Usuario_Rol" ur ON ur.id_usuario = u.id_usuario
+            LEFT JOIN public."Rol" r          ON r.id_rol = ur.id_rol
+            WHERE u.correo = $1
+            GROUP BY u.id_usuario
             LIMIT 1
         `;
 

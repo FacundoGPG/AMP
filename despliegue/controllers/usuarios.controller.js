@@ -92,11 +92,11 @@ module.exports.do_login = async(req, res) => {
         // AQUI ES PARA ROLES
 
         req.session.usuario = {
-            id: usuario.ID_Usuario,
-            correo: usuario.Correo,
-            nombre: usuario.Nombre,
+            id:       usuario.ID_Usuario,
+            correo:   usuario.Correo,
+            nombre:   usuario.Nombre,
             apellido: usuario.Apellido,
-            rol: usuario.rol || "Cliente"
+            roles:    usuario.roles || []
         };
 
         req.session.Correo = usuario.Correo;
@@ -104,17 +104,15 @@ module.exports.do_login = async(req, res) => {
 
         // AQUI TERMINA ROLES
 
-        console.log("ROL DEL USUARIO:", req.session.usuario.rol);
-        console.log("REDIRIGIENDO A DASHBOARD");
+        console.log("ROL DEL USUARIO:", req.session.usuario.roles);
 
-        return req.session.save((error) => {
-            if (error) {
-                console.error("Error guardando sesion:", error);
-                return res.redirect("/");
-            }
+        const roles = req.session.usuario.roles || [];
 
+        if (roles.includes("Administrador") || roles.includes("Oficial_Cumplimiento")) {
             return res.redirect("/dashboard");
-        });
+        }
+        
+        return res.redirect("/testing");
 
     } catch(e) {
 

@@ -12,6 +12,7 @@ const pool = new Pool({
   max: parseNumber(process.env.PG_POOL_MAX, 1),
   idleTimeoutMillis: parseNumber(process.env.PG_IDLE_TIMEOUT_MS, 1000),
   connectionTimeoutMillis: parseNumber(process.env.PG_CONNECTION_TIMEOUT_MS, 5000),
+  maxLifetimeSeconds: parseNumber(process.env.PG_MAX_LIFETIME_SECONDS, 60),
   allowExitOnIdle: true
 });
 

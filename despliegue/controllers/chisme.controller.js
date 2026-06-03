@@ -1,7 +1,12 @@
 exports.renderChisme = (req, res) => {
+    const roles = req.session.usuario?.roles || [];
+
+    if (roles.includes("Cliente")) {
+        return res.render("cliente", { pageTitle: "Portal del Cliente" });
+    }
 
     res.render("chisme", {
-        pageTitle: "chisme - Beta 1"
+        pageTitle: "Chisme - Beta 1"
     });
 };
 

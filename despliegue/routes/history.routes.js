@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const historyController = require("../controllers/history.controller");
+const isAuth = require("../config/is-auth");
+const verificarRol = require("../config/verificarRol");
 
-router.get("/history", historyController.renderHistory);
+const ROLES_ADMIN = ["Administrador", "Oficial_Cumplimiento"];
+
+router.get("/history", isAuth, verificarRol(ROLES_ADMIN), historyController.renderHistory);
 
 module.exports = router;

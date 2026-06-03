@@ -1,12 +1,14 @@
-function verificarRol(rolesPermitidos){
-    return (req,res, next) =>{
-        if (!req.session.usuario){
-            return res.redirect("/");
-        }
-        if (!rolesPermitidos.includes(req.session.usuario.rol)){
-            return res.status(402).send("No tienens los permisos suficientes");
-        }
-        next(); //verifica que este corredcto todo, da los permisos que pase al siguiente nivel
+function verificarRol(rolesPermitidos) {
+  return (req, res, next) => {
+    if (!req.session.usuario) {
+      return res.redirect("/");
     }
+    const rolesUsuario = req.session.usuario.roles || [];
+    const tieneAcceso = rolesUsuario.some(rol => rolesPermitidos.includes(rol));
+    if (!tieneAcceso) {
+      return res.status(403).send("No tienes los permisos suficientes");
+    }
+    next();
+  };
 }
-module.exports=verificarRol;
+module.exports = verificarRol;
