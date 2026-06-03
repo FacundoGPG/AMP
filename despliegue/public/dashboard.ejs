@@ -20,7 +20,7 @@
 
     <section class="welcome full">
         <div>
-            <h1>¡Bienvenido, <%= usuarioSesion.nombre.trim() %>!</h1>
+            <h1>¡Bienvenido, <%= usuarioSesion?.nombre || "Usuario" %> </h1>
             <p>Aquí tienes un resumen general de las novedades.</p>
         </div>
     </section>
