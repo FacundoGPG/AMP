@@ -28,26 +28,26 @@
     <div class="card">
         <h5 class="card-title">Total de reportes</h5>
         <h6 class="card-subtitle"></h6>
-        <p class="card-nmb"> 3 </p>
+        <p class="card-nmb">--</p>
     </div>
 
 
     <div class="card">
         <h5 class="card-title">Alertas activas</h5>
         <h6 class="card-subtitle"></h6>
-        <p class="card-nmb"> 4 </p>
+        <p class="card-nmb"><%=resumen.alertasActivas%></p>
     </div>
 
     <div class="card">
         <h5 class="card-title">Operaciones en revisión</h5>
-        <h6 class="card-subtitle"></h6>
-        <p class="card-nmb"> 3</p>
+        <h6 class="card-subtitle">-</h6>
+        <p class="card-nmb"><%= resumen.operacionesEnRevision %></p>
     </div>
 
     <div class="card">
         <h5 class="card-title">Casos resueltos</h5>
         <h6 class="card-subtitle"></h6>
-        <p class="card-nmb"> --</p>
+        <p class="card-nmb"><%= resumen.casosResueltos %></p>
     </div>
 
     <section class="panel half">

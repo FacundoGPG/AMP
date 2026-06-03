@@ -1,3 +1,4 @@
+const pool = require("../config/database");
 const log = console.log;
 
 exports.ObtenerUsuarios = function(correo, contrasena) {
@@ -79,7 +80,6 @@ exports.ObtenerUsuariosActivos = function(correo, contrasena) {
 
 // A partir de aqui es de autenticacion
 
-const pool = require('../config/database');
 const bcrypt = require('bcrypt');
 
 exports.User = class {

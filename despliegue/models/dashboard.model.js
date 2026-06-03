@@ -1,61 +1,12 @@
 const pool = require("../config/database");
-
-exports.getTotalAlertasActivas = async () => {
-  const result = await pool.query(`
-    SELECT COUNT(*)::int AS alertas_activas
-    FROM public."Alerta"
-    WHERE estatus IN ('Abierta', 'En revisión')
-  `);
-
-  return result.rows[0].alertas_activas;
-};
-
-exports.getTotalAlertasActivas = async () => {
-  const result = await pool.query(`
-    SELECT COUNT(*)::int AS total
-    FROM public."Alerta"
-    WHERE estatus IN ('Abierta', 'En revisión')
-  `);
-
-  return result.rows[0].total;
-};
-
-exports.getTotalOperacionesEnRevision = async () => {
-  const result = await pool.query(`
-    SELECT COUNT(*)::int AS total
-    FROM public."Operacion"
-    WHERE estado = 'En revisión'
-  `);
-
-  return result.rows[0].total;
-};
-
-exports.getTotalCasosResueltos = async () => {
-  const result = await pool.query(`
-    SELECT COUNT(*)::int AS total
-    FROM public."Alerta"
-    WHERE estatus = 'Resuelta'
-  `);
-
-  return result.rows[0].total;
-};
-
 exports.getResumen = async () => {
-  const [
-    totalReportes,
-    alertasActivas,
-    operacionesEnRevision,
-    casosResueltos
-  ] = await Promise.all([
-    exports.getTotalAlertasActivas(),
-    exports.getTotalOperacionesEnRevision(),
-    exports.getTotalCasosResueltos()
-  ]);
+  const result = await pool.query(`
+    SELECT
+      (SELECT COUNT(*) FROM public."Cliente") AS total_clientes,
+      (SELECT COUNT(*) FROM public."Operacion" WHERE estatus = 'En revisión') AS operaciones_revision,
+      (SELECT COUNT(*) FROM public."Alerta") AS total_alertas,
+      (SELECT COUNT(*) FROM public."Reporte") AS total_reportes
+  `);
 
-  return {
-    totalReportes,
-    alertasActivas,
-    operacionesEnRevision,
-    casosResueltos
-  };
+  return result.rows[0];
 };
