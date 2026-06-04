@@ -7,6 +7,7 @@ const verificarRol = require("../config/verificarRol");
 const ROLES_ADMIN = ["Administrador", "Oficial_Cumplimiento"];
 
 router.get("/clientes", isAuth, verificarRol(ROLES_ADMIN), clientesController.renderClientes);
+router.post("/clientes/crear", isAuth, verificarRol(ROLES_ADMIN), clientesController.addCliente);
 router.get("/api/clientes", isAuth, verificarRol(ROLES_ADMIN), clientesController.getClientes);
 router.get("/api/clientes/bloqueados", isAuth, verificarRol(ROLES_ADMIN), clientesController.getClientesBloqueados);
 

@@ -7,7 +7,7 @@
 
     /* --- Colores --- */
     --color-primary: #fab030;   /* Naranja principal: CTAs y acentos */
-    --dark-mode: #0a0a0a; 
+    --color-pdarker: #d19327; /* utilizado para textos secundarios */
     --color-bg: #faf5ea;   /* Fondo global de la página         */
     --color-surface: #ffffff;   /* Superficies elevadas (cards, paneles) */
     --color-text: #1c1e21;   /* Texto principal                   */
@@ -19,16 +19,15 @@
     --color-prio1: #FFBABA; /* Estado prioridad Max */
     --color-prio2: #FFF5BA; /* Estado prioridad Mid */
     --color-prio3: #D0FFBA; /* Estado prioridad Min */
-    /* #FFE5CA; */
-    /* --- Tipografía --- */
+
     --font-base: 'Inter', sans-serif; /* Fuente base del sistema */
 
     /* --- Espaciado (escala modular) --- */
-    --space-sm: 0.5rem;   /*  8px */
-    --space-md: 1rem;     /* 16px */
-    --space-lg: 1.5rem;   /* 24px */
-    --space-xl: 2rem;     /* 32px */
-    --space-2xl: 3rem;     /* 48px */
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
 
     /* --- Bordes redondeados --- */
     --radius-sm: 8px;    /* Elementos pequeños: botones, inputs  */
@@ -63,8 +62,8 @@ h1 {
 .topbar {
     position: fixed;
     top: 0;
-    left: var(--sidebar-width);
-    width: calc(100% - var(--sidebar-width));
+    left: 0;
+    width: 100%;
     height: 70px;
     display: flex;
     justify-content: space-between;
@@ -76,19 +75,7 @@ h1 {
     padding: 0 20px;  
 }
 
-/* Logotipo: fuente Inter en bold */
-/* No usado actualmente: no existe un elemento con id="logo" en las vistas activas.
-#logo h1 {
-    font-family: var(--font-base);
-    font-size: 2rem;
-    font-weight: bold;
-    align-items: center;
-    margin: 0; 
-    line-height: 1;
-}
-*/
-
-/* Agrupa el boton de menu y el logo en la zona izquierda */
+/* Agrupa el boton de men en la zona izquierda */
 .nav-left {
     display: flex;
     align-items: center;
@@ -107,8 +94,6 @@ h1 {
     background-color: var(--color-objects);
 }
 
-
-
 /* reloj */
 .clock {
   margin: 0;
@@ -121,68 +106,9 @@ h1 {
 }
 
 /* =============================================================
-   BOTON 3 LINEAS — Abrir/cerrar la sidebar
-   ============================================================= */
-
-/* No usado actualmente: no existe un elemento con id="menu-btn" en las vistas activas.
-   #menu-btn {
-    position: static;
-    align-items: center;
-    left: 20px;
-    font-size: 24px;
-    background: none;
-    border: none;
-    color: var(--color-text);
-    cursor: pointer;
-    width: 48px;
-    height: 48px;
-    padding: 0;
-    margin: 0;
-    border-radius: var(--radius-lg);
-    z-index: 1200;
-    display: none !important;
-    justify-content: center;
-    background: #f5d7b7;
-}
-
-#menu-btn:hover {
-  transform: scale(1.05);
-  background-color: var(--color-hover);
-    
-}
-
-#menu-btn img {
-    width: 20px;
-    height: 20px;
-    
-}
-*/
-
-/* Botón de cierre de sidebar */
-/* No usado actualmente: no existe un elemento con id="close-btn" en las vistas activas.
-#close-btn {
-    border: none;
-    background-color: var(--color-surface);
-}
-
-#close-btn:hover {
-    background-color: var(--color-hover);
-}
-*/
-
-/* Áreas de grid para logo y botón de menú */
-/* No usado actualmente: depende de #logo y #menu-btn, que no existen en las vistas activas.
-#logo, #menu-btn {
-    grid-area: 1 / 1 / 2 / 2;
-}
-*/
-
-
-
-/* =============================================================
    SIDEBAR — Panel lateral que NO se desliza
    Se active al añadir la clase .active vía JS.
-   z-index: 1500 → por encima del overlay (1400).
+   z-index: 1100 → por encima de topbar (1000).
    ============================================================= */
 .sidebar {
     position:fixed;
@@ -192,7 +118,7 @@ h1 {
     height: 100vh;
     background: #ffffff;
     color: var(--color-text);
-    z-index: 900;
+    z-index: 1100;
     padding: 20px;
     box-sizing: border-box;
     overflow-y: auto;
@@ -303,7 +229,7 @@ h1 {
 
   width: 240px;
 
-  background: white;
+  background: var(--color-objects);
 
   border-radius: 12px;
 
@@ -402,7 +328,7 @@ h1 {
 }
 
 
-/* Contenedor horizontal de cards separadas uniformemente 
+/* No usado actualmente: no aparece class="cards-container" en vistas o scripts.
 .cards-container {
     margin-top: 50px;
     display: flex;
@@ -463,11 +389,6 @@ h1 {
     max-height: 300px; 
 }
 
-/* Panel que ocupa 2 de 4 filas */
-.halfwidth{
-    grid-row: span 2;
-    max-height: 300px; 
-}
 
 /* Panel que ocupa las 4 columnas (ancho completo) */
 .full {
@@ -521,26 +442,6 @@ h1 {
     font-weight: 600;
 }
 
-/* No usado actualmente: no hay elementos que generen class="status activo".
-.status.activo {
-    background: #d1fae5;
-    color: #047857;
-}
-*/
-
-/* No usado actualmente: no hay elementos que generen class="status proceso".
-.status.proceso {
-    background: #dbeafe;
-    color: #2563eb;
-}
-*/
-
-/* No usado actualmente: no hay elementos que generen class="status vencido".
-.status.vencido {
-    background: #fee2e2;
-    color: #b91c1c;
-}
-*/
 /* =============================================================
    TABLA DE BLOQUEADOS — Tabla de datos dentro de un panel
    ============================================================= */
@@ -576,32 +477,6 @@ h1 {
 }
 
 
-/* =============================================================
-   BOTONES
-   ============================================================= */
-
-/* Botón de acción secundaria en la mitad izquierda */
-/* No usado actualmente: no aparece .btn-half-left en las vistas/scripts activos.
-.btn-half-left {
-    border: 1px solid var(--color-border);
-    background: var(--color-surface);
-    color: var(--color-text);
-    padding: 6px 12px;
-    border-radius: var(--radius-sm);
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: 0.2s ease;
-}
-*/
-
-/* Al hacer hover se rellena con el color primario */
-/* No usado actualmente: hover de .btn-half-left.
-.btn-half-left:hover {
-    background: var(--color-primary);
-    color: var(--color-text);
-    border-color: var(--color-primary);
-}
-*/
 
 /* =============================================================
    TABLA DE BLOQUEADOS — Tabla de Datos dentro de un panel, con figuras generadas en css
@@ -673,16 +548,6 @@ h1 {
 }
 
 
-/* Clientes */
-
-/* No usado actualmente: clientes.ejs usa .clientes-tabs, no .table-tabs.
-.table-tabs {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-*/
-
 .tab-btn {
   border: 1px solid var(--color-border);
   background: var(--color-surface);
@@ -694,7 +559,7 @@ h1 {
 
 .tab-btn.active {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-objects);
   border-color: var(--color-primary);
 }
 
@@ -711,17 +576,6 @@ h1 {
   padding: 15px 20px 20px;
 }
 
-/* No usado actualmente: el bloque .buzon-header esta comentado en buzon.ejs.
-.buzon-header h1 {
-  margin: 0;
-}
-*/
-
-/* No usado actualmente: el bloque .buzon-header esta comentado en buzon.ejs.
-.buzon-header p {
-  margin: 6px 0 0;
-}
-*/
 
 .buzon-cards {
   display: grid;
@@ -814,7 +668,7 @@ h1 {
 
 .save-btn {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-objects);
   border: none;
   padding: 10px 14px;
   border-radius: var(--radius-sm);
@@ -843,10 +697,6 @@ h1 {
   color: #059669;
 }
 
-.chisme{ 
-  grid-area: 1 / 1 / 2 / 2;;
-  background-color: var(--color-objects);
-}
 
 .clientes-header {
   display: flex;
@@ -866,7 +716,7 @@ h1 {
   background-color: var(--color-bg);
 }
 
-.AddCliente button:hover {
+.addCliente button:hover {
   color: var(--color-primary);
   background-color: var(--color-hover);
 }
@@ -951,11 +801,51 @@ h1 {
   overflow-wrap: anywhere;
 }
 
-.cliente-panel .detail-block {
-  margin: 0;
+.cliente-form label {
+  color: var(--color-text);
+  display: block;
+  font-size: 0.92rem;
+  margin-bottom: 8px;
 }
 
-#cerrarClientePanel {
+.cliente-form input,
+.cliente-form select {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cliente-form input:focus,
+.cliente-form select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(250, 176, 48, 0.2);
+}
+
+.cliente-form-submit {
+  width: 100%;
+  min-height: 44px;
+  font-weight: 700;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cliente-form-submit:hover {
+  box-shadow: 0 8px 18px rgba(250, 176, 48, 0.28);
+  transform: translateY(-1px);
+}
+
+.cliente-panel .detail-block {
+  margin: 0;
+  grid-column: 1 / -1;
+}
+
+#cerrarClientePanel,
+#cerrarAddClientePanel {
   border: none;
   background: transparent;
   border-radius: var(--radius-sm);
@@ -967,7 +857,8 @@ h1 {
   flex-shrink: 0;
 }
 
-#cerrarClientePanel:hover {
+#cerrarClientePanel:hover,
+#cerrarAddClientePanel:hover {
   background: var(--color-hover);
 }
 
@@ -993,7 +884,7 @@ h1 {
 
 .cliente-panel-tab.active {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-objects);
 }
 
 .cliente-panel-section {
@@ -1020,7 +911,7 @@ h1 {
     bottom: unset !important;
     width: 520px;
     background: #11111b;
-    color: white;
+    color: var(--color-objects);
     border-radius: 16px;
     padding: 18px 22px;
     z-index: 9999;
@@ -1034,14 +925,6 @@ h1 {
   opacity: 1;
   visibility: visible;
 }
-/* No usado actualmente: cookies.ejs no contiene .cookie-content.
-.cookie-content{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 18px;
-}
-*/
 
 .cookie-text h2{
     margin: 0 0 10px 0;
@@ -1070,7 +953,7 @@ h1 {
 
 .reject-btn{
     background: #1d1d2b;
-    color: white;
+    color: var(--color-objects);
     border: 1px solid rgba(255,255,255,0.1);
     padding: 10px 16px;
     border-radius: 12px;
@@ -1078,7 +961,7 @@ h1 {
 }
 .accept-btn{
     background: #6366f1;
-    color: white;
+    color: var(--color-objects);
     border: none;
     padding: 10px 16px;
     border-radius: 12px;
@@ -1130,23 +1013,137 @@ h1 {
   border-radius: var(--radius-lg);
 }
 
-.history-container{
-        padding: 35px;
-        background-color: #f7f1e8;
-        min-height: 100vh;
-    }
-    .history-card{
+.history-card{
         background-color: white;
         border-radius: 15px;
         padding: 25px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
-    .history-title{
-        margin-bottom: 20px;
-    }
-    .history-title h2{
-        font-weight: bold;
-    }
-    .history-title p{
-        color: #555;
-    }
+.history-title{
+  margin-bottom: 20px;
+  }
+
+.history-title h2{
+  font-weight: bold;
+  }
+
+.history-title p{
+  color: #555;
+}
+
+/* Formulario buzon interno */
+.form-page {
+  padding: 32px;
+}
+
+.form-card {
+  width: min(720px, 100%);
+  margin: 0 auto;
+  padding: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 18px 45px rgba(28, 30, 33, 0.08);
+}
+
+.form-header {
+  padding-bottom: 22px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.form-header h1 {
+  margin: 6px 0 8px;
+  color: var(--color-text);
+  font-size: clamp(1.55rem, 3vw, 2rem);
+}
+
+.form-header p {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.form-smltxt {
+  margin: 0 0 6px;
+  color: var(--color-pdarker);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.document-form {
+  display: grid;
+  gap: 20px;
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--color-text);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.form-field input,
+.form-field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: #fffdfa;
+  color: var(--color-text);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.chisme.form-page {
+  padding-top: 50px;
+}
+
+.chisme .form-card {
+  align-items: center;
+  margin-top: 30px;
+  border-radius: 18px;
+  box-shadow: 0 16px 40px rgba(28, 30, 33, 0.15);
+}
+
+.form-field textarea {
+  min-height: 130px;
+  margin: 0;
+  resize: vertical;
+}
+
+.file-field {
+  padding: 16px;
+  border: 1px solid #d39a37;
+  border-radius: var(--radius-sm);
+  background: #fffaf0;
+}
+
+.file-field input[type="file"] {
+  padding: 8px;
+  background: var(--color-surface);
+}
+
+.file-field small {
+  display: block;
+  margin-top: 8px;
+  color: var(--color-muted);
+}
+
+
+.form-submit {
+  min-height: 46px;
+  padding: 11px 20px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: #3c2908;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.form-submit:hover {
+  filter: brightness(1.04);
+  box-shadow: 0 9px 20px rgba(250, 176, 48, 0.3);
+  transform: translateY(-1px);
+}

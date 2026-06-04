@@ -5,34 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet"href="https://unpkg.com/dropzone@6.0.0-beta.2/dist/dropzone.css">
     <title> Reporta una Accion - Beta1</title>
 </head>
 <body>
   <%- include("partials/topbar") %>
-  <%- include("partials/sidebar") %>
+
   <%- include("partials/config") %>
   <div id="overlay" class="overlay"></div>
-  <main class="chisme">
-    <section class="panel full ">
-    <h1>Formulario</h1>
+  <main class="chisme form-page">
+    <section class="panel full form-card">
+      <div class="form-header">
+        <span class="form-smltxt">Buzón interno</span>
+        <h1>Reportar una situación</h1>
+        <p>Comparte la información necesaria y adjunta evidencia si está disponible.</p>
+      </div>
 
-    <form action="/upload_file_private" method="POST" enctype="multipart/form-data">
-        <label>Nombre:</label>
-        <input type="text" name="nombre">
+      <form action="/upload_file_private" method="POST" class="document-form" id="reporteForm">
+        <div class="form-field">
+          <label for="chisme-nombre"> Situacion </label>
+          <input id="chisme-nombre" type="text" name="nombre" placeholder="Ingresa situacion...">
+        </div>
 
-        <label>Mensaje:</label>
-        <input type="text" name="mensaje">
+        <div class="form-field">
+          <label for="chisme-mensaje">Descripcion </label>
+          <textarea id="chisme-mensaje" name="mensaje" placeholder="Describe la situacion..."></textarea>
+        </div>
 
-        <label class="block mb-2.5 text-sm font-medium text-heading" for="file_input">Subir Evidencia</label>
-        <input class="cursor-pointer bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full shadow-xs placeholder:text-body" id="file_input" type="file" name="file">
+        <div class="form-field file-field">
+          <label for="file_input">Subir documento</label>
+          <input id="file_input" type="file" name="file" accept=".pdf,.jpg,.jpeg,.png">
+          <small>Formatos permitidos: PDF, JPG, JPEG y PNG.</small>
+        </div>
 
-        <button type="submit">Enviar</button>
-    </form>
-    
+        <button type="submit" class="form-submit">
+          Enviar reporte
+        </button>
+      </form>
+
     </section>
   </main>
 
 </body>
     <script src="/scripts/componentes.js"></script>
+    <script src="https://unpkg.com/dropzone@6.0.0-beta.2/dist/dropzone-min.js"></script>
+    <script src="/scripts/chisme.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </html>

@@ -9,24 +9,34 @@
 </head>
 <body class="standalone">
       <%- include("partials/topbar") %>
-  <main>
-    <section class="panel full">
+  <main class="form-page">
+    <section class="panel full form-card">
+      <span class="form-smltxt">Portal de Clientes</span>
       <h1>Envío de Documentos</h1>
 
-      <form action="/upload_file_private" method="POST" enctype="multipart/form-data">
-        <label>Nombre completo:</label>
-        <input type="text" name="nombre">
+      <form action="/upload_file_private" method="POST" enctype="multipart/form-data" class="document-form">
+        <div class="form-field">
+          <label for="cliente-nombre">Nombre completo</label>
+          <input id="cliente-nombre" type="text" name="nombre" placeholder="Nombre y apellidos">
+        </div>
 
-        <label>RFC:</label>
-        <input type="text" name="rfc" maxlength="13">
+        <div class="form-field">
+          <label for="cliente-rfc">RFC</label>
+          <input id="cliente-rfc" type="text" name="rfc" maxlength="13" placeholder="13 caracteres">
+        </div>
 
-        <label>CURP:</label>
-        <input type="text" name="curp" maxlength="18">
+        <div class="form-field">
+          <label for="cliente-curp">CURP</label>
+          <input id="cliente-curp" type="text" name="curp" maxlength="18" placeholder="18 caracteres">
+        </div>
 
-        <label for="file_input">Subir Documento</label>
-        <input id="file_input" type="file" name="file" accept=".pdf,.jpg,.jpeg,.png">
+        <div class="form-field file-field">
+          <label for="file_input">Subir documento</label>
+          <input id="file_input" type="file" name="file" accept=".pdf,.jpg,.jpeg,.png">
+          <small>Formatos permitidos: PDF, JPG y PNG.</small>
+        </div>
 
-        <button type="submit">Enviar</button>
+        <button type="submit" class="form-submit">Enviar documento</button>
       </form>
     </section>
   </main>

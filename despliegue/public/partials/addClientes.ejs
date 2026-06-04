@@ -1,0 +1,73 @@
+// Añádir clientes 
+<div id="addClienteOverlay" class="overlay"></div>
+<aside id="addClientePanel" class="cliente-panel">
+  <div class="cliente-panel-header">
+    <div>
+      <p>Registro de cliente</p>
+      <h3>Agregar cliente</h3>
+    </div>
+
+    <button type="button" id="cerrarAddClientePanel">X</button>
+  </div>
+
+  <form action="/clientes/crear" method="POST" class="cliente-form">
+    <div class="detail-grid">
+      <div>
+        <label for="nombre">Nombre / Razón Social</label>
+        <input type="text" id="nombre" name="nombre" maxlength="100" required>
+      </div>
+
+      <div>
+        <label for="tipo_persona">Tipo de persona</label>
+        <select id="tipo_persona" name="tipo_persona" required>
+          <option value="">Selecciona una opción</option>
+          <option value="Fisica">Persona Física</option>
+          <option value="Moral">Persona Moral</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="rfc">RFC</label>
+        <input type="text" id="rfc" name="rfc" maxlength="13" required>
+      </div>
+
+      <div>
+        <label for="correo">Correo</label>
+        <input type="email" id="correo" name="correo" maxlength="100" required>
+      </div>
+
+      <div>
+        <label for="telefono">Teléfono</label>
+        <input type="tel" id="telefono" name="telefono" maxlength="20" required>
+      </div>
+
+      <div class="detail-block">
+        <label for="domicilio">Domicilio</label>
+        <input type="text" id="domicilio" name="domicilio" maxlength="150" required>
+      </div>
+
+        <div id = "bloqueados" hidden>
+
+            <div>
+                <label for="estatus">Estatus</label>
+                <select id="estatus" name="estatus">
+                <option value="Activo">Activo</option>
+                <option value="Bloqueado">Bloqueado</option>
+                </select>
+            </div>
+            <div>
+                <label for="motivo_bloqueo">Motivo de bloqueo</label>
+                <input type="text" id="motivo_bloqueo" name="motivo_bloqueo" maxlength="200" placeholder="Opcional">
+            </div>
+
+            <div>
+                <label for="fecha_bloqueo">Fecha de bloqueo</label>
+                <input type="date" id="fecha_bloqueo" name="fecha_bloqueo">
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="save-btn cliente-form-submit">
+      Guardar cliente
+    </button>
+  </form>
+</aside>

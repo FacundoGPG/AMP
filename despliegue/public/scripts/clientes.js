@@ -213,10 +213,42 @@ function mostrarDetalleCliente(c) {
   abrirClientePanel();
 }
 
+function addCliente() {
+  const addClientesBtn = document.getElementById("addClientes");
+  const panelClientes = document.getElementById("addClientePanel");
+  const overlay = document.getElementById("addClienteOverlay");
+  const cerrarBtn = document.getElementById("cerrarAddClientePanel");
+  const primerCampo = document.getElementById("nombre");
+
+  if (!addClientesBtn || !panelClientes || !overlay) return;
+
+  const abrirPanel = () => {
+    panelClientes.classList.add("active");
+    overlay.classList.add("active");
+    primerCampo?.focus();
+  };
+
+  const cerrarPanel = () => {
+    panelClientes.classList.remove("active");
+    overlay.classList.remove("active");
+  };
+
+  addClientesBtn.addEventListener("click", abrirPanel);
+  overlay.addEventListener("click", cerrarPanel);
+  cerrarBtn?.addEventListener("click", cerrarPanel);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      cerrarPanel();
+    }
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   cargarTablaClientes();
   cargarTablaBloqueados();
   iniciarTabsClientes();
   iniciarPanelCliente();
   iniciarTabsPanelCliente();
+  addCliente();
 });
