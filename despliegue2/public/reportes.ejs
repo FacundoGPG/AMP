@@ -67,7 +67,6 @@
     <section class="panel full-page">
       <div class="panel-header">
         <h5>Listado de reportes</h5>
-        <!-- Exportaciones deshabilitadas temporalmente.
         <div class="d-flex gap-2">
           <a href="/reportes/exportar/csv" class="btn btn-success">
             Exportar CSV
@@ -76,7 +75,6 @@
             Exportar PDF
           </a>
         </div>
-        -->
       </div>
       <table class="blocked-table">
         <thead>
@@ -93,7 +91,7 @@
               <td><%= reporte.titulo %></td>
               <td><%= reporte.tipo %></td>
               <td><%= reporte.prioridad %></td>
-              <td><%= reporte.estatus_envio %></td>
+              <td><%= reporte.estatus %></td>
             </tr>
           <% }) %>
         </tbody>

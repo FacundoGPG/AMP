@@ -16,12 +16,12 @@ app.set("trust proxy", 1);
 /* =========================
    CREAR CARPETA PRIVATE
 ========================= */
-
+/*
 fs.mkdirSync(
   path.join(__dirname, "private"),
   { recursive: true }
 );
-
+*/
 /* =========================
    CONFIGURACIÓN EJS
 ========================= */
@@ -299,25 +299,4 @@ const server = app.listen(3001, () => {
   );
 });
 
-let isShuttingDown = false;
-
-const shutdown = () => {
-  if (isShuttingDown) {
-    return;
-  }
-
-  isShuttingDown = true;
-
-  server.close(async () => {
-    try {
-      await pool.end();
-    } catch (error) {
-      console.error("Error closing PostgreSQL pool:", error);
-    }
-
-    process.exit(0);
-  });
-};
-
-process.on("SIGINT", shutdown);
-process.on("SIGTERM", shutdown);
+                

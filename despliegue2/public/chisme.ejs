@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="/styles.css">
+    <title> Reporta una Accion - Beta1</title>
+</head>
+<body>
+  <%- include("partials/topbar") %>
+  <%- include("partials/sidebar") %>
+  <%- include("partials/config") %>
+  <div id="overlay" class="overlay"></div>
+  <main class="chisme">
+    <section class="panel full ">
+    <h1>Formulario</h1>
+
+    <form action="/upload_file_private" method="POST" enctype="multipart/form-data">
+        <label>Nombre:</label>
+        <input type="text" name="nombre">
+
+        <label>Mensaje:</label>
+        <input type="text" name="mensaje">
+
+        <label class="block mb-2.5 text-sm font-medium text-heading" for="file_input">Subir Evidencia</label>
+        <input class="cursor-pointer bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full shadow-xs placeholder:text-body" id="file_input" type="file" name="file">
+
+        <button type="submit">Enviar</button>
+    </form>
+    
+    </section>
+  </main>
+
+</body>
+    <script src="/scripts/componentes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</html>

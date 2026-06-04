@@ -1,151 +1,36 @@
-const pool = require("../config/database");
-const { Parser } = require("json2csv");
-const PDFDocument = require("pdfkit");
+const reportesModel = require('../models/reportes.model')
 
-const reportes = [
-  {
-    tipoReporte: "1",
-    periodoReporte: "202605",
-    folio: "000001",
-    organoSupervisor: "000401",
-    claveSujetoObligado: "0123456",
-    localidad: "22014001",
-    codigoPostal: "76000",
-    tipoOperacion: "01",
-    instrumentoMonetario: "01",
-    numeroCuenta: "CTA001",
-    monto: "15000.00",
-    moneda: "MXN",
-    fechaOperacion: "20260529",
-    nombre: "Juan",
-    apellidoPaterno: "Perez",
-    apellidoMaterno: "Lopez",
-    rfc: "PELJ000101ABC"
-  }
-];
 
-exports.exportarCSV = (req, res) => {
-  const campos = [
-    "tipoReporte",
-    "periodoReporte",
-    "folio",
-    "organoSupervisor",
-    "claveSujetoObligado",
-    "localidad",
-    "codigoPostal",
-    "tipoOperacion",
-    "instrumentoMonetario",
-    "numeroCuenta",
-    "monto",
-    "moneda",
-    "fechaOperacion",
-    "nombre",
-    "apellidoPaterno",
-    "apellidoMaterno",
-    "rfc"
-  ];
-
-  const parser = new Parser({
-    fields: campos,
-    delimiter: ";"
-  });
-
-  const csv = parser.parse(reportes);
-
-  res.header("Content-Type", "text/csv");
-  res.attachment("reporte_sofom.csv");
-  res.send(csv);
-};
-
-exports.exportarPDF = (req, res) => {
-  const doc = new PDFDocument();
-
-  res.setHeader("Content-Disposition", "attachment; filename=reporte_sofom.pdf");
-  res.setHeader("Content-Type", "application/pdf");
-
-  doc.pipe(res);
-
-  doc.fontSize(18).text("Reporte SOFOM");
-  doc.moveDown();
-
-  reportes.forEach(reporte => {
-    doc.text("Folio: " + reporte.folio);
-    doc.text("Cliente: " + reporte.nombre + " " + reporte.apellidoPaterno);
-    doc.text("RFC: " + reporte.rfc);
-    doc.text("Monto: $" + reporte.monto);
-    doc.text("Moneda: " + reporte.moneda);
-    doc.moveDown();
-  });
-
-  doc.end();
-};
-
-exports.get_reportes = async (req, res) => {
+exports.renderReportes = async (req, res) => {
   try {
-    const resultado = await pool.query(`
-      SELECT *
-      FROM public."Reporte"
-      ORDER BY fecha_generacion DESC
-    `);
-
+    const reportes = await reportesModel.getReportes();
     res.render("reportes", {
       pageTitle: "Reportes - Beta 1",
-      reportes: resultado.rows,
+      reportes: reportes,
       usuarioSesion: req.session.usuario,
       csrfToken: res.locals.csrfToken
     });
+  } catch (err) {
+      console.error(err);
+      res.status(500).send("Error al obtener reportes");
+  };
+}
 
+exports.crearReporte = async (req, res) => {
+  try { 
+  await reportesModel.crearReporte(req.body);
+  res.redirect("/reportes");
   } catch (err) {
     console.error(err);
     res.status(500).send("Error al obtener reportes");
   }
 };
 
-exports.post_crear = async (req, res) => {
-  try {
-    const { tipo } = req.body;
-
-    await pool.query(`
-      INSERT INTO public."Reporte"
-      (
-        id_reporte,
-        tipo,
-        fecha_generacion,
-        estatus_envio
-      )
-      VALUES
-      (
-        $1,
-        $2,
-        NOW(),
-        'Pendiente'
-      )
-    `, [
-      Math.floor(Math.random() * 100000),
-      tipo
-    ]);
-
-    res.redirect("/reportes");
-
+exports.eliminarReporte = async (req, res) => {
+  try { await reportesModel.eliminarReporte(req.params.id);
+  res.redirect("/reportes");
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error al crear reporte");
-  }
-};
-
-exports.delete_reporte = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    await pool.query(`
-      DELETE FROM public."Reporte"
-      WHERE id_reporte = $1
-    `, [id]);
-
-    res.redirect("/reportes");
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error al eliminar reporte");
+    res.status(500).send("Error al obtener reportes");
   }
 };
