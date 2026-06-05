@@ -1,3 +1,12 @@
+//nuevo
+//para subir archivos
+const multer = require("multer");
+const path = require("path");
+
+//para base de datos
+const pool = require("../config/database");
+
+//mostrar página del formulario
 exports.renderChisme = (req, res) => {
     const roles = req.session.usuario?.roles || [];
 
@@ -10,8 +19,7 @@ exports.renderChisme = (req, res) => {
     });
 };
 
-const multer = require("multer");
-const path = require("path");
+
 
 /* =========================
    CONFIGURACIÓN PUBLIC
@@ -100,8 +108,29 @@ exports.upload_file_private = async (req, res) => {
                 msg: "Error uploading file"
             });
         }
-
         console.log("Upload Successful:", req.files);
+
+        //sacar datos del formulario NUEVO
+        const nombre= req.body.nombre || "Anonimo";
+        const mensaje = req.body.mensaje || "";
+
+        //nombre del archivo
+        let nombreArchivo = null;
+        if(req.files && req.files.length > 0) {
+            nombreArchivo = req.files[0].originalname;
+        }
+
+        //para guardar en la base de datos
+        try {
+            await pool.query(`
+                INSERT INTO public."Chisme"
+                (nombre, mensaje, archivo, fecha_envio)
+                VALUES ($1, $2, $3, NOW())
+            `, [nombre, mensaje, nombreArchivo]);
+            console.log("Guardado en BD");
+        } catch (erroBD) {
+            console.error("Error en la base de datos:", errorBD);
+        }
 
         res.redirect("/testing");
     });
