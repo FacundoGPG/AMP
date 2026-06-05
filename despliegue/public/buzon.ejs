@@ -27,27 +27,24 @@
     </section>
     -->
     <!-- CARDS -->
-    <section class="buzon-cards">
-      <div class="buzon-card">
-        <p>Total de reportes</p>
-        <h2>24</h2>
-      </div>
-
-      <div class="buzon-card">
-        <p>Pendientes</p>
-        <h2>8</h2>
-      </div>
-
-      <div class="buzon-card">
-        <p>En seguimiento</p>
-        <h2>10</h2>
-      </div>
-
-      <div class="buzon-card">
-        <p>Resueltos</p>
-        <h2>6</h2>
-      </div>
-    </section>
+  <section class="buzon-cards">
+    <div class="buzon-card">
+      <p>Total de reportes</p>
+      <h2 id="total-reportes">0</h2>
+    </div>
+    <div class="buzon-card">
+      <p>Pendientes</p>
+      <h2 id="pendientes">0</h2>
+    </div>
+    <div class="buzon-card">
+      <p>En seguimiento</p>
+      <h2 id="en-seguimiento">0</h2>
+    </div>
+    <div class="buzon-card">
+      <p>Resueltos</p>
+      <h2 id="resueltos">0</h2>
+    </div>
+  </section>
 
     <!-- LAYOUT -->
     <section class="buzon-layout">
@@ -110,24 +107,25 @@
         <label>Responsable:</label>
           <select id="detail-encargado" class="detail-select">
             <option value="">Sin asignar</option>
-            <option value="Oficial de Cumplimiento">Oficial de Cumplimiento</option>
           </select>
 
         <label>Notas:</label>
-        <textarea placeholder="Agregar nota..."></textarea>
+        <textarea id="detail-notas" placeholder="Agregar nota..."></textarea>
 
-        <button class="save-btn">Guardar nota</button>
+        <button id="btn-guardar-nota" class="save-btn">Guardar nota</button>
 
       </aside>
+      
+      <div id="toast-buzon"></div>
 
     </section>
 
   </main>
 
 <!-- SCRIPTS -->
+<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
 <script src="/scripts/componentes.js"></script>
 <script src="/scripts/buzon.js"></script>
-<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
 
 </body>
 </html>

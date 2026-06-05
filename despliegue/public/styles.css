@@ -1147,3 +1147,18 @@ h1 {
   box-shadow: 0 9px 20px rgba(250, 176, 48, 0.3);
   transform: translateY(-1px);
 }
+
+#toast-buzon {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #22c55e;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  transition: opacity 0.3s;
+}
