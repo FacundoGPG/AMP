@@ -7,5 +7,6 @@ const verificarRol = require("../config/verificarRol");
 const ROLES_ADMIN = ["Administrador", "Oficial_Cumplimiento"];
 
 router.get("/alertas", isAuth, verificarRol(ROLES_ADMIN), alertasController.renderAlertas);
+router.get("/api/alertas", isAuth, verificarRol(ROLES_ADMIN), alertasController.getAlertas);
 
 module.exports = router;
