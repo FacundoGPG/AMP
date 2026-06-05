@@ -2,7 +2,7 @@ const pool = require("../config/database");
 const { Parser } = require("json2csv");
 const PDFDocument = require("pdfkit");
 
-const reportes = [
+/*const reportes = [
   {
     tipoReporte: "1",
     periodoReporte: "202605",
@@ -23,41 +23,62 @@ const reportes = [
     rfc: "PELJ000101ABC"
   }
 ];
+*/
 
-exports.exportarCSV = (req, res) => {
+exports.exportarCSV = async (req, res) => {
+  try {
+    const resultado = await pool.query(`
+      SELECT *
+      FROM public."Reporte"
+      ORDER BY fecha_generacion DESC
+    `);
+  //requisitos de reporte SOFOM campos
   const campos = [
-    "tipoReporte",
-    "periodoReporte",
     "folio",
-    "organoSupervisor",
-    "claveSujetoObligado",
-    "localidad",
-    "codigoPostal",
-    "tipoOperacion",
-    "instrumentoMonetario",
-    "numeroCuenta",
+    "fecha_generacion",
+    "nombre",
+    "apellido_paterno",
+    "apellido_materno",
+    "rfc",
     "monto",
     "moneda",
-    "fechaOperacion",
-    "nombre",
-    "apellidoPaterno",
-    "apellidoMaterno",
-    "rfc"
+    "estatus_envio",
+    "tipo_reporte",
+    "periodo_reporte",
+    "organo_supervisor",
+    "clave_sujeto_obligado",
+    "localidad",
+    "codigo_postal",
+    "tipo_operacion",
+    "instrumento_monetario",
+    "numero_cuenta",
   ];
+
 
   const parser = new Parser({
     fields: campos,
     delimiter: ";"
   });
 
-  const csv = parser.parse(reportes);
-
+  const csv = parser.parse(resultado.rows);
   res.header("Content-Type", "text/csv");
   res.attachment("reporte_sofom.csv");
   res.send(csv);
+ } catch (err) {
+  console.error(err);
+  res.status(500).send("Error al epxortas CSV");
+ }
 };
 
-exports.exportarPDF = (req, res) => {
+exports.exportarPDF = async (req, res) => {
+
+  try {
+    const resultado = await pool.query(`
+      SELECT *
+      FROM public."Reporte"
+      ORDER BY fecha_generacion DESC
+    `);
+
   const doc = new PDFDocument();
 
   res.setHeader("Content-Disposition", "attachment; filename=reporte_sofom.pdf");
@@ -70,14 +91,20 @@ exports.exportarPDF = (req, res) => {
 
   reportes.forEach(reporte => {
     doc.text("Folio: " + reporte.folio);
+    doc.text("Fecha: "+ reporte.fecha_generacion);
     doc.text("Cliente: " + reporte.nombre + " " + reporte.apellidoPaterno);
     doc.text("RFC: " + reporte.rfc);
     doc.text("Monto: $" + reporte.monto);
     doc.text("Moneda: " + reporte.moneda);
+    doc.text("Estatus: "+ reporte.estatus_envio);
     doc.moveDown();
   });
 
   doc.end();
+ }catch (err) {
+  console.error(err);
+  res.status(500).send("Error al exportar PDF");
+ }
 };
 
 exports.get_reportes = async (req, res) => {
