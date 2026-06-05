@@ -97,7 +97,7 @@ exports.upload_file = async (req, res) => {
 
 exports.upload_file_private = async (req, res) => {
 
-    upload2(req, res, function (err) {
+    upload2(req, res, async function (err) {
 
         if (err) {
 

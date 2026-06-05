@@ -28,14 +28,14 @@
     <div class="card">
         <h5 class="card-title">Total de reportes</h5>
         <h6 class="card-subtitle"></h6>
-        <p class="card-nmb"> <%= resumen.total_reportes %></p>
+        <p class="card-nmb"><%= resumen.total_reportes %></p>
     </div>
 
 
     <div class="card">
         <h5 class="card-title">Alertas activas</h5>
         <h6 class="card-subtitle"></h6>
-        <p class="card-nmb"><%=resumen.total_alertas%></p>
+        <p class="card-nmb"><%= resumen.total_alertas %></p>
     </div>
 
     <div class="card">
@@ -50,7 +50,7 @@
         <p class="card-nmb"><%= resumen.total_clientes %></p>
     </div>
 
-    <section class="panel half">
+ <section class="panel half">
         <div class="panel-header">
             <h5>Nuevas Personas Bloqueadas</h5>
             <a href="/clientes?tab=bloqueados" class="btn btn-light">Ver Listado</a>
@@ -64,113 +64,102 @@
                     <th></th>
                 </tr>
             </thead>
-
             <tbody>
+                <% bloqueados.forEach(p => { %>
                 <tr>
-                    <td>Carlos Alberto Medina Lopez</td>
-                    <td>20/05/2026 11:32</td>
+                    <td><%= p.nombre %></td>
+                    <td><%= p.fecha_bloqueo
+                            ? new Date(p.fecha_bloqueo).toLocaleString('es-MX')
+                            : '—' %>
+                    </td>
                     <td>+</td>
                 </tr>
+                <% }) %>
+
+                <% if (bloqueados.length === 0) { %>
                 <tr>
-                    <td>Grupo Financiero Delta</td>
-                    <td>20/05/2026 09:15</td>
-                    <td>+</td>
+                    <td colspan="3">Sin personas bloqueadas recientemente</td>
                 </tr>
-                <tr>
-                    <td>Comercializadora del Norte S.A.</td>
-                    <td>20/05/2026 16:45</td>
-                    <td>+</td>
-                </tr>
-                <tr>
-                    <td>Pedro Martinez</td>
-                    <td>20/05/2026 14:20</td>
-                    <td>+</td>
-                </tr>
+                <% } %>
             </tbody>
         </table>
     </section>
 
     <section class="panel half">
         <div class="panel-header">
-            <h5>Alertas Recientes</h5> 
-            <a href="/alertas" class="btn btn-light">Ver Alertas</a>
-        </div>
+        <h5>Alertas Recientes</h5>
+        <a href="/alertas" class="btn btn-light">Ver Alertas</a>
+            </div>
 
+        <% alertas.forEach(function(a) { %>
         <div class="alert-item">
-            <i class="circlePrio1"></i>
-            <p>Cliente: Carlos Alberto Medina López — Coincidencia PEP</p>
-            <span class="alert-time">Hace 10 min</span>
+            <% if (a.prioridad === 'Alta') { %>
+                <i class="circlePrio1"></i>
+            <% } else if (a.prioridad === 'Media') { %>
+                <i class="circlePrio2"></i>
+            <% } else { %>
+                <i class="circlePrio3"></i>
+            <% } %>
+            <p>Cliente: <%= a.cliente %> — <%= a.motivo %></p>
+            <span class="alert-time"><%= tiempoRelativo(a.fecha_generacion) %></span>
         </div>
+        <% }) %>
 
-        <div class="alert-item">
-            <i class="circlePrio2"></i>
-            <p>Cliente: Empresa X, S.A. de C.V. — Múltiples operaciones</p>
-            <span class="alert-time">Hace 25 min</span>
-        </div>
-
-        <div class="alert-item">
-            <i class="circlePrio1"></i>
-            <p>Cliente: Grupo Financiero Delta — Monto alto inusual</p>
-            <span class="alert-time">Hace 40 min</span>
-        </div>
-
-        <div class="alert-item">
-            <i class="circlePrio3"></i>
-            <p>Actualización Lista de Riesgo — Comparación completada</p>
-            <span class="alert-time">Hace 1 h</span>
-        </div>
+        <% if (alertas.length === 0) { %>
+        <p class="text-muted p-2">Sin alertas recientes</p>
+        <% } %>
     </section>
 
-    <section class="panel full">
-        <div class="panel-header">
-            <h5>Operaciones Recientes</h5>
-            <a href="/operations" class="btn btn-light"> Ver Operaciones</a>
+<section class="panel full">
+    <div class="panel-header">
+        <h5>Operaciones Recientes</h5>
+        <a href="/operations" class="btn btn-light">Ver Operaciones</a>
+    </div>
 
-        </div>
+    <table class="blocked-table">
+        <thead>
+            <tr>
+                <th>ID Operación</th>
+                <th>Cliente</th>
+                <th>Producto</th>
+                <th>Monto</th>
+                <th>Estatus</th>
+                <th>Riesgo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% operaciones.forEach(function(op) { %>
+            <tr>
+                <td>#<%= op.id_operacion %></td>
+                <td><%= op.cliente %></td>
+                <td><%= op.producto %></td>
+                <td>$<%= Number(op.monto).toLocaleString('es-MX', { minimumFractionDigits: 2 }) %></td>
+                <td><%= op.estado %></td>
+                <td>
+                    <% if (op.riesgo === 'Alto') { %>
+                        <span style="color:#e74c3c; font-weight:600;">Alto</span>
+                    <% } else if (op.riesgo === 'Medio') { %>
+                        <span style="color:#f39c12; font-weight:600;">Medio</span>
+                    <% } else if (op.riesgo === 'Bajo') { %>
+                        <span style="color:#2ecc71; font-weight:600;">Bajo</span>
+                    <% } else if (op.riesgo === 'Sin evaluar') { %>
+                        <span style="color:#5f6368;">Sin evaluar</span>
+                    <% } else { %>
+                        <span>—</span>
+                    <% } %>
+                </td>
+            </tr>
+            <% }) %>
 
-        <table class="blocked-table">
-            <thead>
-                <tr>
-                    <th>ID Cliente</th>
-                    <th>Tipo Producto</th>
-                    <th>Monto</th>
-                    <th>Estatus</th>
-                    <th>Vigencia</th>
-                </tr>
-            </thead>
+            <% if (operaciones.length === 0) { %>
+            <tr>
+                <td colspan="6">Sin operaciones recientes</td>
+            </tr>
+            <% } %>
+        </tbody>
+    </table>
+</section>
 
-            <tbody>
-                <tr>
-                    <td> CL-0001 </td>
-                    <td> Credito Personal </td>
-                    <td>$50,000.00</td>
-                    <td><span>Activo</span></td>
-                    <td>22/06/2026</td>
-                </tr>
-                <tr>
-                    <td> CL-0002 </td>
-                    <td>Factoraje</td>
-                    <td>$120,000.00</td>
-                    <td><span>En Proceso</span></td>
-                    <td>27/05/2026</td>
-                </tr>
-                <tr>
-                    <td> CL-0003</td>
-                    <td>Disposición</td>
-                    <td>$75,000.00</td>
-                    <td><span>Vencido</span></td>
-                    <td>04/05/2026</td>
-                </tr>
-                <tr>
-                    <td> CL-0004 </td>
-                    <td>Factoraje</td>
-                    <td>$30,000.00</td>
-                    <td><span>Activo</span></td>
-                    <td>30/06/2026</td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
 
 </main>
     <script src="./scripts/componentes.js"></script>
