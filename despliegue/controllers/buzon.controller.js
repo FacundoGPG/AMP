@@ -1,4 +1,5 @@
 const buzonModel = require("../models/buzon.model");
+const historyModel = require("../models/history.model");
 
 exports.renderBuzon = (req, res) => {
   res.render("buzon", {
@@ -65,7 +66,14 @@ exports.updateBuzon = async (req, res) => {
 
   try {
     await buzonModel.updateBuzon(req.params.id, estatus, idEncargado, notas);
+        await historyModel.registrarActividad(
+          req.session.usuario.id,
+          `Actualizó reporte #${req.params.id}`,
+          "Buzón",
+          "Completado"
+        );
     return res.json({ success: true });
+    
   } catch (error) {
     console.error("Error actualizando reporte: ", error)
     return res.status(500).json({ error: "Error al actualizar reporte" });

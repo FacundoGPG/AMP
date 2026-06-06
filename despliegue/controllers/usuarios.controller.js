@@ -4,6 +4,7 @@ const fs = require('fs');
 const router = express.Router();
 const model = require('../models/usuarios.model.js');
 const modelAlertas = require('../models/alertas.model.js');
+const historyModel = require("../models/history.model");
 
 module.exports.getAllUsers = async(req, res) => {
 
@@ -102,18 +103,29 @@ module.exports.do_login = async(req, res) => {
         req.session.Correo = usuario.Correo;
         req.session.isLoggedIn = true;
 
-        // AQUI TERMINA ROLES
+        await historyModel.registrarActividad(
+            usuario.ID_Usuario,
+            "Inicio de sesión",
+            "Usuarios",
+            "Activo"
+        );
 
-        console.log("ROL DEL USUARIO:", req.session.usuario.roles);
+        return req.session.save((error) => {
+            if (error) {
+                console.error("Error guardando sesion:", error);
+                return res.redirect("/");
+            }
 
-        const roles = req.session.usuario.roles || [];
+            console.log("ROL DEL USUARIO:", req.session.usuario.roles);
 
-        if (roles.includes("Administrador") || roles.includes("Oficial_Cumplimiento")) {
-            return res.redirect("/dashboard");
-        }
-        
-        return res.redirect("/testing");
+            const roles = req.session.usuario.roles || [];
 
+            if (roles.includes("Administrador") || roles.includes("Oficial_Cumplimiento")) {
+                return res.redirect("/dashboard");
+            }
+
+            return res.redirect("/testing");
+        });
     } catch(e) {
 
         console.error(e);

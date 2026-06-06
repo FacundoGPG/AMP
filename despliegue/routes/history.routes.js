@@ -7,5 +7,6 @@ const verificarRol = require("../config/verificarRol");
 const ROLES_ADMIN = ["Administrador", "Oficial_Cumplimiento"];
 
 router.get("/history", isAuth, verificarRol(ROLES_ADMIN), historyController.renderHistory);
+router.get("/api/historial", isAuth, verificarRol(ROLES_ADMIN), historyController.getHistorial);
 
 module.exports = router;

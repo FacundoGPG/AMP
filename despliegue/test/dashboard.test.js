@@ -2,9 +2,18 @@ const dashboardController = require("../controllers/dashboard.controller");
 const dashboardModel = require("../models/dashboard.model");
 
 
-jest.mock("../models/dashboard.model");
+  jest.mock("../models/dashboard.model");
 
-// ─── Datos de prueba ───────────────────────────────────────────
+
+  beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterAll(() => {
+    console.error.mockRestore();
+  });
+
+// Datos de prueba 
 const mockResumen = {
   total_reportes: 6,
   total_alertas: 5,
@@ -28,7 +37,7 @@ const mockOperaciones = [
   { id_cliente: 2, tipo_producto: "Factoraje",        monto: 120000, estado: "En Proceso", vigencia: new Date("2026-05-27") },
 ];
 
-// ─── Helper: req/res mock ──────────────────────────────────────
+// Helpers
 const mockReqRes = () => ({
   req: { session: { usuario: { nombre: "Demo" } } },
   res: {
@@ -38,7 +47,7 @@ const mockReqRes = () => ({
   },
 });
 
-// ─── Tests ────────────────────────────────────────────────────
+// Tests
 describe("Dashboard Controller", () => {
 
   beforeEach(() => {
@@ -49,7 +58,7 @@ describe("Dashboard Controller", () => {
     dashboardModel.getOperacionesRecientes.mockResolvedValue(mockOperaciones);
   });
 
-  // ── Render principal ──
+  // Render principal
   test("renderiza dashboard con todos los datos", async () => {
     const { req, res } = mockReqRes();
     await dashboardController.renderDashboard(req, res);
@@ -70,7 +79,7 @@ describe("Dashboard Controller", () => {
     expect(typeof args.tiempoRelativo).toBe("function");
   });
 
-  // ── Error de BD ──
+  // Error de BD
   test("responde 500 si el modelo falla", async () => {
     const { req, res } = mockReqRes();
     dashboardModel.getResumen.mockRejectedValue(new Error("DB caída"));
@@ -81,7 +90,7 @@ describe("Dashboard Controller", () => {
     expect(res.send).toHaveBeenCalledWith("Error al cargar el dashboard");
   });
 
-  // ── tiempoRelativo ──
+  // tiempoRelativo
   describe("tiempoRelativo()", () => {
     const { tiempoRelativo } = dashboardController;
 
@@ -116,7 +125,7 @@ describe("Dashboard Controller", () => {
     });
   });
 
-  // ── Datos vacíos ──
+  // Datos vacíos
   describe("cuando no hay datos", () => {
     test("bloqueados vacío no rompe el render", async () => {
       const { req, res } = mockReqRes();
@@ -150,7 +159,7 @@ describe("Dashboard Controller", () => {
     });
   });
 
-  // ── Prioridades de alertas ──
+  // Prioridades de alertas
   describe("prioridades de alertas en mock", () => {
     test("hay alertas con prioridad Alta, Media y Baja", async () => {
       const { req, res } = mockReqRes();

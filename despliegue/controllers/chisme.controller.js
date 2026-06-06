@@ -128,7 +128,7 @@ exports.upload_file_private = async (req, res) => {
                 VALUES ($1, $2, $3, NOW())
             `, [nombre, mensaje, nombreArchivo]);
             console.log("Guardado en BD");
-        } catch (erroBD) {
+        } catch (errorBD) {
             console.error("Error en la base de datos:", errorBD);
         }
 
