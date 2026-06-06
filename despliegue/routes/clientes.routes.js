@@ -8,7 +8,11 @@ const ROLES_ADMIN = ["Administrador", "Oficial_Cumplimiento"];
 
 router.get("/clientes", isAuth, verificarRol(ROLES_ADMIN), clientesController.renderClientes);
 router.post("/clientes/crear", isAuth, verificarRol(ROLES_ADMIN), clientesController.addCliente);
+router.post("/clientes/editar/:id", isAuth, verificarRol(ROLES_ADMIN), clientesController.updateCliente);
+router.post("/clientes/id:/documentos", isAuth, verificarRol(ROLES_ADMIN), clientesController.uploadDocumentos, clientesController.subirDocumentos);
 router.get("/api/clientes", isAuth, verificarRol(ROLES_ADMIN), clientesController.getClientes);
 router.get("/api/clientes/bloqueados", isAuth, verificarRol(ROLES_ADMIN), clientesController.getClientesBloqueados);
+router.get("/api/clientes/:id/documentos", isAuth, verificarRol(ROLES_ADMIN), clientesController.getDocumentos);
+router.get("/api/clientes/:id/operaciones", isAuth, verificarRol(ROLES_ADMIN), clientesController.getOperacionesDeCliente);
 
 module.exports = router;
