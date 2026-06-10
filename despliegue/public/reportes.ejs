@@ -86,15 +86,15 @@
           </tr>
         </thead>
         <tbody>
-          <% (reportes || []).forEach(reporte => { %>
-            <tr>
-              <td><%= reporte.titulo %></td>
-              <td><%= reporte.tipo %></td>
-              <td><%= reporte.prioridad %></td>
-              <td><%= reporte.estatus %></td>
-            </tr>
-          <% }) %>
-        </tbody>
+        <% (reportes || []).forEach(reporte => { %>
+          <tr>
+            <td><%= reporte.titulo || "—" %></td>
+            <td><%= reporte.tipo %></td>
+            <td><%= reporte.prioridad || "—" %></td>
+            <td><%= reporte.estatus_envio %></td>  <!-- ← era reporte.estatus -->
+          </tr>
+        <% }) %>
+      </tbody>
       </table>
     </section>
   </main>

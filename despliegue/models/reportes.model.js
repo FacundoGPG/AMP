@@ -1,57 +1,78 @@
-const sqlReportes = `
-  SELECT *
-  FROM public."Reporte"
-  ORDER BY fecha_generacion DESC
-`;
+const pool = require("../config/database");
 
-const sqlCrearReporte = `
-  INSERT INTO public."Reporte"
-  (
-    id_reporte,
-    tipo,
-    fecha_generacion,
-    estatus_envio
-  )
-  VALUES
-  (
-    $1,
-    $2,
-    NOW(),
-    'Pendiente'
-  )
-`;
+exports.getReportes = async () => {
+  const sql = `
+    SELECT
+      id_reporte,
+      tipo,
+      fecha_generacion,
+      estatus_envio,
+      titulo,
+      prioridad
+    FROM public."Reporte"
+    ORDER BY fecha_generacion DESC
+  `;
+  const result = await pool.query(sql);
+  return result.rows;
+};
 
-const sqlEnviarReporte = `
-  UPDATE public."Reporte"
-  SET
-    estatus_envio = 'Enviado',
-    fecha_envio = NOW()
-  WHERE id_reporte = $1
-`;
+exports.createReporte = async ({ id_reporte, tipo, titulo, prioridad }) => {
+  const sql = `
+    INSERT INTO public."Reporte"
+    (id_reporte, tipo, fecha_generacion, estatus_envio, titulo, prioridad)
+    VALUES ($1, $2, NOW(), 'Pendiente', $3, $4)
+    RETURNING *
+  `;
+  const result = await pool.query(sql, [id_reporte, tipo, titulo || null, prioridad || null]);
+  return result.rows[0];
+};
 
-const sqlEstatusReporte = `
-  SELECT
-    id_reporte,
-    folio,
-    estatus_envio,
-    fecha_envio
-  FROM public."Reporte"
-  WHERE id_reporte = $1
-`;
+exports.enviarReporte = async (id_reporte) => {
+  const sql = `
+    UPDATE public."Reporte"
+    SET estatus_envio = 'Enviado'
+    WHERE id_reporte = $1
+    RETURNING *
+  `;
+  const result = await pool.query(sql, [id_reporte]);
+  return result.rows[0];
+};
 
-const sqlEliminarReporte = `
-  DELETE FROM public."Reporte"
-  WHERE id_reporte = $1
-`;
+exports.getEstatusReporte = async (id_reporte) => {
+  const sql = `
+    SELECT id_reporte, estatus_envio
+    FROM public."Reporte"
+    WHERE id_reporte = $1
+  `;
+  const result = await pool.query(sql, [id_reporte]);
+  return result.rows[0];
+};
 
-const sqlActualizarEstatus = `
-  UPDATE public."Reporte"
-  SET estatus_envio = $1
-  WHERE id_reporte = $2
-`;
+exports.deleteReporte = async (id_reporte) => {
+  const sql = `
+    DELETE FROM public."Reporte"
+    WHERE id_reporte = $1
+  `;
+  await pool.query(sql, [id_reporte]);
+};
 
-const sqlBuscarReporte = `
-  SELECT *
-  FROM public."Reporte"
-  WHERE id_reporte = $1
-`;
+exports.actualizarEstatus = async (id_reporte, estatus_envio) => {
+  const sql = `
+    UPDATE public."Reporte"
+    SET estatus_envio = $1
+    WHERE id_reporte = $2
+    RETURNING *
+  `;
+  const result = await pool.query(sql, [estatus_envio, id_reporte]);
+  return result.rows[0];
+};
+
+exports.getReporteById = async (id_reporte) => {
+  const sql = `
+    SELECT *
+    FROM public."Reporte"
+    WHERE id_reporte = $1
+  `;
+  const result = await pool.query(sql, [id_reporte]);
+  return result.rows[0];
+};

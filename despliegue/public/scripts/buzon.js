@@ -106,8 +106,6 @@ function agregarClickReportes() {
  
       const fileSpan = document.getElementById("evidencia-nombre");
       const fileLink = document.getElementById("evidencia-link");
-      console.log("fileSpan:", fileSpan);
-      console.log("fileLink:", fileLink);
 
       if (fileSpan && fileLink) {
         if (reporte.ruta_evidencia) {
@@ -140,14 +138,12 @@ function getStatusClass(estatus) {
  
 
 async function cargarUsuarios() {
-  console.log("cargarUsuarios ejecutado");
   const select = document.getElementById("detail-encargado");
   if (!select) return;
  
   try {
     const response = await fetch("/api/buzon/usuarios");
     const data = await response.json();
-    console.log("usuarios recibidos:", data);
  
     if (!response.ok || !Array.isArray(data)) {
       console.error("Error en respuesta:", data);
@@ -166,7 +162,6 @@ async function cargarUsuarios() {
       select.appendChild(option);
     });
  
-    console.log("opciones después de cargar:", select.options.length);
   } catch (error) {
     console.error("Error cargando usuarios:", error);
   }
@@ -220,7 +215,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
  
   if (btnGuardar) {
-    console.log("btnGuardar encontrado");
     btnGuardar.addEventListener("click", async () => {
       console.log("click en guardar");
       console.log("reporteSeleccionado:", reporteSeleccionado);

@@ -1,43 +1,21 @@
-const pool = require("../config/database");
+const reportesModel = require("../models/reportes.model");
 const { Parser } = require("json2csv");
 const PDFDocument = require("pdfkit");
 const log = console.log;
+
 // CSV
 exports.exportarCSV = async (req, res) => {
   try {
-    const resultado = await pool.query(sqlReportes);
-
-    const campos = [
-      "folio",
-      "fecha_generacion",
-      "nombre",
-      "apellido_paterno",
-      "apellido_materno",
-      "rfc",
-      "monto",
-      "moneda",
-      "estatus_envio",
-      "tipo_reporte",
-      "periodo_reporte",
-      "organo_supervisor",
-      "clave_sujeto_obligado",
-      "localidad",
-      "codigo_postal",
-      "tipo_operacion",
-      "instrumento_monetario",
-      "numero_cuenta",
-    ];
+    const reportes = await reportesModel.getReportes();
 
     const parser = new Parser({
-      fields: campos,
+      fields: ["id_reporte", "tipo", "fecha_generacion", "estatus_envio", "titulo", "prioridad"],
       delimiter: ";"
     });
 
-    const csv = parser.parse(resultado.rows);
-
     res.header("Content-Type", "text/csv");
     res.attachment("reporte_sofom.csv");
-    res.send(csv);
+    res.send(parser.parse(reportes));
 
   } catch (err) {
     console.error(err);
@@ -45,30 +23,26 @@ exports.exportarCSV = async (req, res) => {
   }
 };
 
-
 // PDF
 exports.exportarPDF = async (req, res) => {
   try {
-    const resultado = await pool.query(sqlReportes);
+    const reportes = await reportesModel.getReportes();
 
     const doc = new PDFDocument();
-
     res.setHeader("Content-Disposition", "attachment; filename=reporte_sofom.pdf");
     res.setHeader("Content-Type", "application/pdf");
-
     doc.pipe(res);
 
     doc.fontSize(18).text("Reporte SOFOM");
     doc.moveDown();
 
-    resultado.rows.forEach(reporte => {
-      doc.text("Folio: " + reporte.folio);
-      doc.text("Fecha: " + reporte.fecha_generacion);
-      doc.text("Cliente: " + reporte.nombre + " " + reporte.apellido_paterno);
-      doc.text("RFC: " + reporte.rfc);
-      doc.text("Monto: $" + reporte.monto);
-      doc.text("Moneda: " + reporte.moneda);
-      doc.text("Estatus: " + reporte.estatus_envio);
+    reportes.forEach(r => {
+      doc.text("Folio: " + r.id_reporte);
+      doc.text("Fecha: " + r.fecha_generacion);
+      doc.text("Tipo: " + r.tipo);
+      doc.text("Titulo: " + (r.titulo || "—"));
+      doc.text("Prioridad: " + (r.prioridad || "—"));
+      doc.text("Estatus: " + r.estatus_envio);
       doc.moveDown();
     });
 
@@ -80,27 +54,21 @@ exports.exportarPDF = async (req, res) => {
   }
 };
 
-
 // XML
 exports.exportarXML = async (req, res) => {
   try {
-    const resultado = await pool.query(sqlReportes);
+    const reportes = await reportesModel.getReportes();
 
-    let xml = "";
-    xml += `<?xml version="1.0" encoding="UTF-8"?>\n`;
-    xml += `<reportes>\n`;
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<reportes>\n`;
 
-    resultado.rows.forEach((reporte) => {
+    reportes.forEach(r => {
       xml += `  <reporte>\n`;
-      xml += `    <folio>${reporte.folio}</folio>\n`;
-      xml += `    <fecha>${reporte.fecha_generacion}</fecha>\n`;
-      xml += `    <nombre>${reporte.nombre}</nombre>\n`;
-      xml += `    <apellido_paterno>${reporte.apellido_paterno}</apellido_paterno>\n`;
-      xml += `    <apellido_materno>${reporte.apellido_materno}</apellido_materno>\n`;
-      xml += `    <rfc>${reporte.rfc}</rfc>\n`;
-      xml += `    <monto>${reporte.monto}</monto>\n`;
-      xml += `    <moneda>${reporte.moneda}</moneda>\n`;
-      xml += `    <estatus_envio>${reporte.estatus_envio}</estatus_envio>\n`;
+      xml += `    <folio>${r.id_reporte}</folio>\n`;
+      xml += `    <fecha>${r.fecha_generacion}</fecha>\n`;
+      xml += `    <tipo>${r.tipo}</tipo>\n`;
+      xml += `    <titulo>${r.titulo || ""}</titulo>\n`;
+      xml += `    <prioridad>${r.prioridad || ""}</prioridad>\n`;
+      xml += `    <estatus_envio>${r.estatus_envio}</estatus_envio>\n`;
       xml += `  </reporte>\n`;
     });
 
@@ -116,22 +84,20 @@ exports.exportarXML = async (req, res) => {
   }
 };
 
-
 // TXT
 exports.exportarTXT = async (req, res) => {
   try {
-    const resultado = await pool.query(sqlReportes);
+    const reportes = await reportesModel.getReportes();
 
     let texto = "";
 
-    resultado.rows.forEach((reporte) => {
-      texto += "Folio: " + reporte.folio + "\n";
-      texto += "Fecha: " + reporte.fecha_generacion + "\n";
-      texto += "Cliente: " + reporte.nombre + " " + reporte.apellido_paterno + "\n";
-      texto += "RFC: " + reporte.rfc + "\n";
-      texto += "Monto: $" + reporte.monto + "\n";
-      texto += "Moneda: " + reporte.moneda + "\n";
-      texto += "Estatus: " + reporte.estatus_envio + "\n";
+    reportes.forEach(r => {
+      texto += "Folio: " + r.id_reporte + "\n";
+      texto += "Fecha: " + r.fecha_generacion + "\n";
+      texto += "Tipo: " + r.tipo + "\n";
+      texto += "Titulo: " + (r.titulo || "—") + "\n";
+      texto += "Prioridad: " + (r.prioridad || "—") + "\n";
+      texto += "Estatus: " + r.estatus_envio + "\n";
       texto += "-----------------------------\n";
     });
 
@@ -145,15 +111,14 @@ exports.exportarTXT = async (req, res) => {
   }
 };
 
-
 // Mostrar reportes
 exports.get_reportes = async (req, res) => {
   try {
-    const resultado = await pool.query(sqlReportes);
+    const reportes = await reportesModel.getReportes();
 
     res.render("reportes", {
       pageTitle: "Reportes - Beta 1",
-      reportes: resultado.rows,
+      reportes,
       usuarioSesion: req.session.usuario,
       csrfToken: res.locals.csrfToken
     });
@@ -164,16 +129,17 @@ exports.get_reportes = async (req, res) => {
   }
 };
 
-
 // Crear reporte
 exports.post_crear = async (req, res) => {
   try {
-    const { tipo } = req.body;
+    const { tipo, titulo, prioridad } = req.body;
 
-    await pool.query(sqlCrearReporte, [
-      Math.floor(Math.random() * 100000),
-      tipo
-    ]);
+    await reportesModel.createReporte({
+      id_reporte: Math.floor(Math.random() * 100000),
+      tipo,
+      titulo,
+      prioridad
+    });
 
     res.redirect("/reportes");
 
@@ -183,14 +149,11 @@ exports.post_crear = async (req, res) => {
   }
 };
 
-
 // Enviar reporte
 exports.enviarReporte = async (req, res) => {
   try {
     const { id } = req.params;
-
-    await pool.query(sqlEnviarReporte, [id]);
-
+    await reportesModel.enviarReporte(id);
     res.redirect("/reportes");
 
   } catch (err) {
@@ -199,15 +162,12 @@ exports.enviarReporte = async (req, res) => {
   }
 };
 
-
 // Obtener estatus
 exports.getEstatusReporte = async (req, res) => {
   try {
     const { id } = req.params;
-
-    const resultado = await pool.query(sqlEstatusReporte, [id]);
-
-    res.json(resultado.rows[0]);
+    const reporte = await reportesModel.getEstatusReporte(id);
+    res.json(reporte);
 
   } catch (err) {
     console.error(err);
@@ -215,14 +175,11 @@ exports.getEstatusReporte = async (req, res) => {
   }
 };
 
-
 // Eliminar reporte
 exports.delete_reporte = async (req, res) => {
   try {
     const { id } = req.params;
-
-    await pool.query(sqlEliminarReporte, [id]);
-
+    await reportesModel.deleteReporte(id);
     res.redirect("/reportes");
 
   } catch (err) {
@@ -231,33 +188,22 @@ exports.delete_reporte = async (req, res) => {
   }
 };
 
-
 // Actualizar estatus
 exports.actualizarEstatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { estatus_envio } = req.body;
 
-    await pool.query(sqlActualizarEstatus, [estatus_envio, id]);
+    const reporte = await reportesModel.actualizarEstatus(id, estatus_envio);
 
-    const resultado = await pool.query(sqlBuscarReporte, [id]);
-
-    if (resultado.rows.length == 0) {
-      return res.status(404).json({
-        error: "Reporte no encontrado"
-      });
+    if (!reporte) {
+      return res.status(404).json({ error: "Reporte no encontrado" });
     }
 
-    res.json({
-      mensaje: "Estatus actualizado",
-      reporte: resultado.rows[0]
-    });
+    res.json({ mensaje: "Estatus actualizado", reporte });
 
   } catch (error) {
     log(error);
-
-    res.status(500).json({
-      error: "Error al actualizar"
-    });
+    res.status(500).json({ error: "Error al actualizar" });
   }
 };
