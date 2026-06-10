@@ -1,106 +1,98 @@
 const pool = require("../config/database");
 const { Parser } = require("json2csv");
 const PDFDocument = require("pdfkit");
-const log= console.log;
-
-
+const log = console.log;
+// CSV
 exports.exportarCSV = async (req, res) => {
   try {
-    const resultado = await pool.query(`
-      SELECT *
-      FROM public."Reporte"
-      ORDER BY fecha_generacion DESC
-    `);
-  
-  const campos = [
-    "folio",
-    "fecha_generacion",
-    "nombre",
-    "apellido_paterno",
-    "apellido_materno",
-    "rfc",
-    "monto",
-    "moneda",
-    "estatus_envio",
-    "tipo_reporte",
-    "periodo_reporte",
-    "organo_supervisor",
-    "clave_sujeto_obligado",
-    "localidad",
-    "codigo_postal",
-    "tipo_operacion",
-    "instrumento_monetario",
-    "numero_cuenta",
-  ];
-  const parser = new Parser({
-    fields: campos,
-    delimiter: ";"
-  });
+    const resultado = await pool.query(sqlReportes);
 
-  const csv = parser.parse(resultado.rows);
+    const campos = [
+      "folio",
+      "fecha_generacion",
+      "nombre",
+      "apellido_paterno",
+      "apellido_materno",
+      "rfc",
+      "monto",
+      "moneda",
+      "estatus_envio",
+      "tipo_reporte",
+      "periodo_reporte",
+      "organo_supervisor",
+      "clave_sujeto_obligado",
+      "localidad",
+      "codigo_postal",
+      "tipo_operacion",
+      "instrumento_monetario",
+      "numero_cuenta",
+    ];
 
-  res.header("Content-Type", "text/csv");
-  res.attachment("reporte_sofom.csv");
-  res.send(csv);
+    const parser = new Parser({
+      fields: campos,
+      delimiter: ";"
+    });
 
- } catch (err) {
-  console.error(err);
-  res.status(500).send("Error al exportar CSV");
- }
+    const csv = parser.parse(resultado.rows);
+
+    res.header("Content-Type", "text/csv");
+    res.attachment("reporte_sofom.csv");
+    res.send(csv);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error al exportar CSV");
+  }
 };
-//pdf
+
+
+// PDF
 exports.exportarPDF = async (req, res) => {
   try {
-    const resultado = await pool.query(`
-      SELECT *
-      FROM public."Reporte"
-      ORDER BY fecha_generacion DESC
-    `);
+    const resultado = await pool.query(sqlReportes);
 
-  const doc = new PDFDocument();
+    const doc = new PDFDocument();
 
-  res.setHeader("Content-Disposition", "attachment; filename=reporte_sofom.pdf");
-  res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=reporte_sofom.pdf");
+    res.setHeader("Content-Type", "application/pdf");
 
-  doc.pipe(res);
+    doc.pipe(res);
 
-  doc.fontSize(18).text("Reporte SOFOM");
-  doc.moveDown();
-
-  resultado.rows.forEach(reporte => {
-    doc.text("Folio: " + reporte.folio);
-    doc.text("Fecha: "+ reporte.fecha_generacion);
-    doc.text("Cliente: " + reporte.nombre + " " + reporte.apellido_paterno);
-    doc.text("RFC: " + reporte.rfc);
-    doc.text("Monto: $" + reporte.monto);
-    doc.text("Moneda: " + reporte.moneda);
-    doc.text("Estatus: "+ reporte.estatus_envio);
+    doc.fontSize(18).text("Reporte SOFOM");
     doc.moveDown();
-  });
 
-  doc.end();
+    resultado.rows.forEach(reporte => {
+      doc.text("Folio: " + reporte.folio);
+      doc.text("Fecha: " + reporte.fecha_generacion);
+      doc.text("Cliente: " + reporte.nombre + " " + reporte.apellido_paterno);
+      doc.text("RFC: " + reporte.rfc);
+      doc.text("Monto: $" + reporte.monto);
+      doc.text("Moneda: " + reporte.moneda);
+      doc.text("Estatus: " + reporte.estatus_envio);
+      doc.moveDown();
+    });
 
- }catch (err) {
-  console.error(err);
-  res.status(500).send("Error al exportar PDF");
- }
+    doc.end();
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error al exportar PDF");
+  }
 };
 
-exports.exportarXML = async (req, res)=>{
+
+// XML
+exports.exportarXML = async (req, res) => {
   try {
-    const resultado = await pool.query(`
-      SELECT *
-      FROM public."Reporte"
-      ORDER BY fecha_generacion DESC
-    `);
+    const resultado = await pool.query(sqlReportes);
 
     let xml = "";
     xml += `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xml += `<reportes>\n`;
 
-    resultado.rows.forEach((reporte)=>{
-      xml += ` <reporte>\n`;
-      xml+= `  <folio>${reporte.folio}</folio>\n`;
+    resultado.rows.forEach((reporte) => {
+      xml += `  <reporte>\n`;
+      xml += `    <folio>${reporte.folio}</folio>\n`;
       xml += `    <fecha>${reporte.fecha_generacion}</fecha>\n`;
       xml += `    <nombre>${reporte.nombre}</nombre>\n`;
       xml += `    <apellido_paterno>${reporte.apellido_paterno}</apellido_paterno>\n`;
@@ -111,26 +103,29 @@ exports.exportarXML = async (req, res)=>{
       xml += `    <estatus_envio>${reporte.estatus_envio}</estatus_envio>\n`;
       xml += `  </reporte>\n`;
     });
-    xml+= `</reportes>`;
+
+    xml += `</reportes>`;
+
     res.header("Content-Type", "application/xml");
     res.attachment("reporte_sofom.xml");
     res.send(xml);
-  }catch (err){
+
+  } catch (err) {
     console.error(err);
     res.status(500).send("Error al exportar XML");
   }
 };
-//txt
-exports.exportarTXT = async (req, res)=>{
-  try{
-    const resultado = await pool.query(`
-      SELECT *
-      FROM public."Reporte"
-      ORDER BY fecha_generacion DESC
-    `);
-    let texto ="";
-    resultado.rows.forEach((reporte)=>{
-      texto+= "Folio: "+reporte.folio+"\n";
+
+
+// TXT
+exports.exportarTXT = async (req, res) => {
+  try {
+    const resultado = await pool.query(sqlReportes);
+
+    let texto = "";
+
+    resultado.rows.forEach((reporte) => {
+      texto += "Folio: " + reporte.folio + "\n";
       texto += "Fecha: " + reporte.fecha_generacion + "\n";
       texto += "Cliente: " + reporte.nombre + " " + reporte.apellido_paterno + "\n";
       texto += "RFC: " + reporte.rfc + "\n";
@@ -139,22 +134,22 @@ exports.exportarTXT = async (req, res)=>{
       texto += "Estatus: " + reporte.estatus_envio + "\n";
       texto += "-----------------------------\n";
     });
+
     res.header("Content-Type", "text/plain");
     res.attachment("reporte_sofom.txt");
     res.send(texto);
-  }catch (err) {
+
+  } catch (err) {
     console.error(err);
     res.status(500).send("Error al exportar TXT");
   }
 };
-//mostrar reportes
+
+
+// Mostrar reportes
 exports.get_reportes = async (req, res) => {
   try {
-    const resultado = await pool.query(`
-      SELECT *
-      FROM public."Reporte"
-      ORDER BY fecha_generacion DESC
-    `);
+    const resultado = await pool.query(sqlReportes);
 
     res.render("reportes", {
       pageTitle: "Reportes - Beta 1",
@@ -169,26 +164,13 @@ exports.get_reportes = async (req, res) => {
   }
 };
 
+
+// Crear reporte
 exports.post_crear = async (req, res) => {
   try {
     const { tipo } = req.body;
 
-    await pool.query(`
-      INSERT INTO public."Reporte"
-      (
-        id_reporte,
-        tipo,
-        fecha_generacion,
-        estatus_envio
-      )
-      VALUES
-      (
-        $1,
-        $2,
-        NOW(),
-        'Pendiente'
-      )
-    `, [
+    await pool.query(sqlCrearReporte, [
       Math.floor(Math.random() * 100000),
       tipo
     ]);
@@ -200,50 +182,46 @@ exports.post_crear = async (req, res) => {
     res.status(500).send("Error al crear reporte");
   }
 };
-exports.enviarReporte=async(req,res)=>{
-  try{
-    const {id} = req.params;
-    await pool.query(`
-      UPDATE public."Reporte"
-      SET
-        estatus_envio ='Enviado',
-        fecha_envio=NOW()
-      WHERE id_reporte =$1
-    `,[id]);
+
+
+// Enviar reporte
+exports.enviarReporte = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await pool.query(sqlEnviarReporte, [id]);
+
     res.redirect("/reportes");
-  }catch(err){
+
+  } catch (err) {
     console.error(err);
     res.status(500).send("Error al enviar reporte");
   }
 };
 
+
+// Obtener estatus
 exports.getEstatusReporte = async (req, res) => {
   try {
     const { id } = req.params;
-    const resultado = await pool.query(`
-      SELECT
-        id_reporte,
-        folio,
-        estatus_envio,
-        fecha_envio
-      FROM public."Reporte"
-      WHERE id_reporte = $1
-    `, [id]);
+
+    const resultado = await pool.query(sqlEstatusReporte, [id]);
+
     res.json(resultado.rows[0]);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error al obtener estatus" });
   }
 };
 
+
+// Eliminar reporte
 exports.delete_reporte = async (req, res) => {
   try {
     const { id } = req.params;
 
-    await pool.query(`
-      DELETE FROM public."Reporte"
-      WHERE id_reporte = $1
-    `, [id]);
+    await pool.query(sqlEliminarReporte, [id]);
 
     res.redirect("/reportes");
 
@@ -253,35 +231,33 @@ exports.delete_reporte = async (req, res) => {
   }
 };
 
-exports.actualizarEstatus=async(req, res)=>{
-try {
-  const { id }=req.params;
-  const { estatus_envio }=req.body;
-  await pool.query(
-    `UPDATE public."Reporte"
-    SET estatus_envio=$1
-    WHERE id_reporte = $2`,
-    [estatus_envio, id]
-  );
-  //volver a buscar el reporte
-  const resultado=await pool.query(
-    `SELECT *
-    FROM public."Reporte"
-    WHERE id_reporte=$1`,
-    [id]
-  );
-  if(resultado.rows.length==0){
-    return res.status(404).json({
-      error: "Reporte no encontrado"
+
+// Actualizar estatus
+exports.actualizarEstatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { estatus_envio } = req.body;
+
+    await pool.query(sqlActualizarEstatus, [estatus_envio, id]);
+
+    const resultado = await pool.query(sqlBuscarReporte, [id]);
+
+    if (resultado.rows.length == 0) {
+      return res.status(404).json({
+        error: "Reporte no encontrado"
+      });
+    }
+
+    res.json({
+      mensaje: "Estatus actualizado",
+      reporte: resultado.rows[0]
+    });
+
+  } catch (error) {
+    log(error);
+
+    res.status(500).json({
+      error: "Error al actualizar"
     });
   }
-  res.json({mensaje:"Estatus actualizado",
-    reporte: resultado.rows[0]
-  });
-}catch (error){
-  log(error);
-  res.status(500).json({
-    error: "Error al actualizar"
-  });
-}
 };
