@@ -13,18 +13,29 @@ const app = express();
 
 app.set("trust proxy", 1);
 
-/* =========================
-   CREAR CARPETA PRIVATE
-========================= */
+
+// CREAR CARPETA PRIVATE (comentada por vercel)
+
 /*
 fs.mkdirSync(
   path.join(__dirname, "private"),
   { recursive: true }
 );
 */
-/* =========================
-   CONFIGURACIÓN EJS
-========================= */
+
+// Crear carpeta private (crea la carpeta private es ahora condicional para que pueda
+// correr en aplicaciones como Vercel).
+
+if (process.env.NODE_ENV !== "production") {
+  const fs = require("fs");
+  const privatePath = path.join(__dirname, "private");
+  if (!fs.existsSync(privatePath)) {
+    fs.mkdirSync(privatePath, { recursive: true });
+  }
+}
+
+// CONFIGURACIÓN EJS
+
 
 app.set("view engine", "ejs");
 

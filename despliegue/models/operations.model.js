@@ -57,4 +57,3 @@ exports.Operacion = class {
     return resultado.rows;
 }
 }
-

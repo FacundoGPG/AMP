@@ -1,5 +1,5 @@
 let gridAlertas;
-let AlertasData = [];
+let AlertasCargadas = [];
 
 
 async function cargarAlertas() { 
@@ -11,7 +11,7 @@ async function cargarAlertas() {
     alertasCargadas = await response.json();
   }catch (error) {
     console.log("Error al cargar alertas", error);
-    alertasData = [];
+    alertasCargadas = [];
   }
 
   if (gridAlertas) {

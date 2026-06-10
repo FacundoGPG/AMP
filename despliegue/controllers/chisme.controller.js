@@ -2,6 +2,7 @@
 //para subir archivos
 const multer = require("multer");
 const path = require("path");
+const crypto = require("crypto");
 
 //para base de datos
 const pool = require("../config/database");
@@ -15,15 +16,16 @@ exports.renderChisme = (req, res) => {
     }
 
     res.render("chisme", {
-        pageTitle: "Chisme - Beta 1"
+        pageTitle: "Chisme - Beta 1",
+        hash: req.query.hash || null
     });
 };
 
 
 
-/* =========================
-   CONFIGURACIÓN PUBLIC
-========================= */
+
+// CONFIGURACIÓN PUBLIC
+
 
 const storage = multer.diskStorage({
 
@@ -46,9 +48,9 @@ const upload = multer({
     storage: storage
 }).array("file", 1);
 
-/* =========================
-   CONFIGURACIÓN PRIVATE
-========================= */
+
+// CONFIGURACIÓN PRIVATE
+
 
 const storage2 = multer.diskStorage({
 
@@ -67,9 +69,9 @@ const upload2 = multer({
     storage: storage2
 }).array("file", 1);
 
-/* =========================
-   SUBIR ARCHIVO PUBLIC
-========================= */
+
+//   SUBIR ARCHIVO PUBLIC
+
 
 exports.upload_file = async (req, res) => {
 
@@ -91,54 +93,70 @@ exports.upload_file = async (req, res) => {
     });
 };
 
-/* =========================
-   SUBIR ARCHIVO PRIVATE
-========================= */
+
+//  SUBIR ARCHIVO PRIVATE
+
 
 exports.upload_file_private = async (req, res) => {
 
     upload2(req, res, async function (err) {
 
         if (err) {
-
             console.error(err);
-
-            return res.status(500).json({
-                code: 500,
-                msg: "Error uploading file"
-            });
-        }
-        console.log("Upload Successful:", req.files);
-
-        //sacar datos del formulario NUEVO
-        const nombre= req.body.nombre || "Anonimo";
-        const mensaje = req.body.mensaje || "";
-
-        //nombre del archivo
-        let nombreArchivo = null;
-        if(req.files && req.files.length > 0) {
-            nombreArchivo = req.files[0].originalname;
+            return res.status(500).json({ code: 500, msg: "Error uploading file" });
         }
 
-        //para guardar en la base de datos
+        const descripcion = req.body.mensaje || "";
+        const situacion = req.body.nombre || "Sin título";
+
+        if (!descripcion.trim()) {
+            return res.status(400).send("La descripción es obligatoria");
+        }
+
+        let rutaEvidencia = null;
+        if (req.files && req.files.length > 0) {
+            rutaEvidencia = "/private/" + req.files[0].originalname;
+        }
+
+        // Generar hash anónimo SHA-256
+        const hash = crypto
+            .createHash("sha256")
+            .update(crypto.randomUUID())
+            .digest("hex");
+
         try {
+            // 1. Insertar en Alerta
+            const resultAlerta = await pool.query(`
+                INSERT INTO public."Alerta"
+                (tipo_alerta, fecha_generacion, motivo, estatus)
+                VALUES ('Buzon', NOW(), $1, 'Nueva')
+                RETURNING id_alerta
+            `, [situacion]);
+
+            const idAlerta = resultAlerta.rows[0].id_alerta;
+
+            // 2. Insertar en Alerta_Buzon con el ID generado
             await pool.query(`
-                INSERT INTO public."Chisme"
-                (nombre, mensaje, archivo, fecha_envio)
-                VALUES ($1, $2, $3, NOW())
-            `, [nombre, mensaje, nombreArchivo]);
-            console.log("Guardado en BD");
+                INSERT INTO public."Alerta_Buzon"
+                (id_alerta, descripcion_reporte, ruta_evidencia, hash_seguimiento, estatus)
+                VALUES ($1, $2, $3, $4, 'Pendiente')
+            `, [idAlerta, descripcion, rutaEvidencia, hash]);
+
+            console.log("Reporte anónimo guardado. Hash:", hash);
+
+            // 3. Redirigir con el hash como confirmación
+            return res.redirect(`/testing?hash=${hash}`);
+
         } catch (errorBD) {
             console.error("Error en la base de datos:", errorBD);
+            return res.status(500).send("Error al guardar el reporte");
         }
-
-        res.redirect("/testing");
     });
 };
 
-/* =========================
-   OBTENER ARCHIVO PRIVATE
-========================= */
+
+ //  OBTENER ARCHIVO PRIVATE
+
 
 exports.get_private_file = async (req, res) => {
 

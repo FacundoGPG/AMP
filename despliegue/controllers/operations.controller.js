@@ -1,4 +1,4 @@
-const { Operacion } = require("../models/operaciones.model");
+const { Operacion } = require("../models/operations.model");
 
 
 exports.renderOperations = (req, res) => {
@@ -37,4 +37,3 @@ exports.getOperacionesByCliente=async(req,res)=>{
     res.status(500).json({error: "Error al obtener operaciones del cliente"});
   }
 };
-

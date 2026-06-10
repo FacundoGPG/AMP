@@ -21,22 +21,35 @@ async function cargarTablaOperaciones() {
   const response = await fetch("/api/operaciones");
   operacionesData = await response.json();
 
-  gridOperaciones = new gridjs.Grid({
-    columns: ["ID Operación", "Cliente", "Producto", "Tipo", "Monto", "Fecha", "Estatus", "Canal", "Riesgo"],
-    data: operacionesData.map(op => [
-      op.ID_Operacion,
-      op.Cliente,
-      op.Producto,
-      op.Tipo_Operacion,
-      op.Monto,
-      op.Fecha,
-      op.Estado,
-      op.Canal,
-      op.Riesgo
-    ]),
-    sort: true,
-    pagination: { limit: 10 }
-  }).render(operacionesContainer);
+gridOperaciones = new gridjs.Grid({
+  columns: [
+    "ID Operación",
+    "Cliente", 
+    "Producto",
+    "Tipo",
+    "Monto",
+    {
+      name: "Fecha",
+      formatter: (cell) => cell ? new Date(cell).toLocaleString("es-MX") : ""
+    },
+    "Estatus",
+    "Canal",
+    "Riesgo"
+  ],
+  data: operacionesData.map(op => [
+    op.ID_Operacion,
+    op.Cliente,
+    op.Producto,
+    op.Tipo_Operacion,
+    op.Monto,
+    op.Fecha,
+    op.Estado,
+    op.Canal,
+    op.Riesgo
+  ]),
+  sort: true,
+  pagination: { limit: 10 }
+}).render(operacionesContainer);
  
 }
 
@@ -67,7 +80,7 @@ function applyOperacionFilters() {
     const coincideCanal = 
       canal === "" || op.Canal === canal;
     const coincideEstatus = 
-      status === "" || op.Estado === estatus;
+      estatus === "" || op.Estado === estatus;
 
 
     const fechaOp = new Date(op.Fecha);
@@ -94,7 +107,7 @@ function applyOperacionFilters() {
       op.Producto,
       op.Tipo_Operacion,
       op.Monto,
-      op.Fecha,
+      op.Fecha ? new Date(op.Fecha).toLocaleString("es-MX") : "",
       op.Estado,
       op.Canal,
       op.Riesgo
@@ -109,6 +122,8 @@ function cleanOperacionFiltros() {
   document.getElementById("filterTipoOp").value = "";
   document.getElementById("filterProductoOp").value = "";
   document.getElementById("filterRiesgoOp").value = "";
+  document.getElementById("filterCanalOp").value = "";
+  document.getElementById("filterEstatusOp").value = "";
 
   gridOperaciones.updateConfig({
     data: operacionesData.map(op => [
@@ -117,7 +132,7 @@ function cleanOperacionFiltros() {
       op.Producto,
       op.Tipo_Operacion,
       op.Monto,
-      op.Fecha,
+      op.Fecha ? new Date(op.Fecha).toLocaleString("es-MX") : "",
       op.Estado,
       op.Canal,
       op.Riesgo

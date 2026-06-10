@@ -120,9 +120,16 @@ module.exports.do_login = async(req, res) => {
 
             const roles = req.session.usuario.roles || [];
 
-            if (roles.includes("Administrador") || roles.includes("Oficial_Cumplimiento")) {
+            if (roles.includes("Administrador") || roles.includes("Oficial_Cumplimiento") || roles.includes("Auditoria")) {
                 return res.redirect("/dashboard");
             }
+            if (roles.includes("Empleado")) {
+                return res.redirect("/testing");
+            }
+            if (roles.includes("Cliente")) {
+                return res.redirect("/testing");
+            }
+            return res.redirect("/dashboard");
 
             return res.redirect("/testing");
         });

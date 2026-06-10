@@ -21,7 +21,7 @@
         <p>Comparte la información necesaria y adjunta evidencia si está disponible.</p>
       </div>
 
-      <form action="/upload_file_private" method="POST" class="document-form" id="reporteForm">
+      <form action="/upload_file_private" method="POST" enctype="multipart/form-data" class="document-form" id="reporteForm">
         <div class="form-field">
           <label for="chisme-nombre"> Situacion </label>
           <input id="chisme-nombre" type="text" name="nombre" placeholder="Ingresa situacion...">
@@ -37,6 +37,13 @@
           <input id="file_input" type="file" name="file" accept=".pdf,.jpg,.jpeg,.png">
           <small>Formatos permitidos: PDF, JPG, JPEG y PNG.</small>
         </div>
+
+        <% if (locals.hash) { %>
+          <div class="alert alert-success">
+            Tu reporte fue enviado. Guarda este código para darle seguimiento:
+            <strong><%= hash %></strong>
+          </div>
+        <% } %>
 
         <button type="submit" class="form-submit">
           Enviar reporte

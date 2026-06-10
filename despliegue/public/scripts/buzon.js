@@ -104,8 +104,21 @@ function agregarClickReportes() {
         status.className = getStatusClass(reporte.estatus);
       }
  
-      const fileSpan = document.querySelector(".file-item span");
-      if (fileSpan) fileSpan.textContent = reporte.ruta_evidencia || "Sin archivos";
+      const fileSpan = document.getElementById("evidencia-nombre");
+      const fileLink = document.getElementById("evidencia-link");
+      console.log("fileSpan:", fileSpan);
+      console.log("fileLink:", fileLink);
+
+      if (fileSpan && fileLink) {
+        if (reporte.ruta_evidencia) {
+          fileSpan.textContent = reporte.ruta_evidencia.split("/").pop();
+          fileLink.href = `/get_private_file/${reporte.ruta_evidencia.split("/").pop()}`;
+          fileLink.style.display = "inline";
+        } else {
+          fileSpan.textContent = "Sin archivos";
+          fileLink.style.display = "none";
+        }
+      }
  
       const notasEl = document.getElementById("detail-notas");
       if (notasEl) notasEl.value = reporte.notas || "";
