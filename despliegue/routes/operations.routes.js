@@ -9,5 +9,8 @@ const ROLES_ADMIN = ["Administrador", "Oficial_Cumplimiento"];
 router.get("/operations", isAuth, verificarRol(ROLES_ADMIN), operationsController.renderOperations);
 router.get("/operaciones", (req, res) => res.redirect("/operations"));
 router.get("/api/operaciones", isAuth, verificarRol(ROLES_ADMIN), operationsController.getOperaciones);
+router.get("/api/operaciones/perfil", isAuth, verificarRol(ROLES_ADMIN), operationsController.getPerfilTransaccional);
+router.get("/api/operaciones/clientes/:id", isAuth, verificarRol(ROLES_ADMIN), operationsController.getOperaciones)
+
 
 module.exports = router;
