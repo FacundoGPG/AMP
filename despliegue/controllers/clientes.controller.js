@@ -1,4 +1,5 @@
 const clientesModel = require("../models/clientes.model");
+const historyModel = require("../models/history.model");
 const multer = require("multer");
 const path = require("path");
 
@@ -171,6 +172,7 @@ exports.updateCliente = async (req, res) => {
   }
 
   try {
+    const clienteAnterior = await clientesModel.getClienteById(id_cliente);
     const clienteActualizado = await clientesModel.updateCliente(id_cliente, {
       nombre: nombre.trim(),
       tipo_persona,
@@ -185,6 +187,15 @@ exports.updateCliente = async (req, res) => {
 
     if (!clienteActualizado) {
       return res.status(404).send("Cliente no encontrado");
+    }
+
+    if (clienteAnterior && clienteAnterior.estatus !== estatus) {
+      await historyModel.registrarActividad(
+        req.session.usuario.id,
+        `Cambio estatus del cliente #${id_cliente} (${clienteAnterior.estatus} -> ${estatus})`,
+        "Clientes",
+        "Completado"
+      );
     }
 
     return res.redirect("/clientes");
@@ -238,6 +249,18 @@ exports.getDocumentos = async (req, res) => {
   }
 };
 
+exports.validarDocumento = async (req, res) => {
+  try {
+    const { estatus } = req.body;
+    const idUsuario = req.session.usuario?.id;
+    await clientesModel.validarDocumento(req.params.id, idUsuario, estatus);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error validando documento:", error);
+    res.status(500).json({ error: "Error al validar documento" });
+  }
+};
+
 exports.getOperacionesDeCliente = async (req, res) => {
   try {
     const operaciones = await clientesModel.getOperacionesByCliente(req.params.id);
@@ -245,5 +268,137 @@ exports.getOperacionesDeCliente = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al obtener operaciones" });
+  }
+};
+
+exports.getUmbralesCliente = async (req, res) => {
+  try {
+    const umbrales = await clientesModel.getUmbralesByCliente(req.params.id);
+    res.json(umbrales);
+  } catch (error) {
+    console.error("Error obteniendo umbrales:", error);
+    res.status(500).json({ error: "Error al obtener umbrales" });
+  }
+};
+
+exports.toggleUmbralCliente = async (req, res) => {
+  const idCliente = req.params.id;
+  const idUmbral = req.params.idUmbral;
+  const { activo } = req.body;
+  const idUsuario = req.session.usuario.id;
+
+  try {
+    const resultado = await clientesModel.toggleUmbral(idCliente, idUmbral, activo, idUsuario);
+
+    await historyModel.registrarActividad(
+      idUsuario,
+      `${activo ? "Activo" : "Desactivo"} umbral #${idUmbral} para cliente #${idCliente}`,
+      "Clientes",
+      "Completado"
+    );
+
+    res.json(resultado);
+  } catch (error) {
+    console.error("Error actualizando umbral:", error);
+    res.status(500).json({ error: "Error al actualizar umbral" });
+  }
+};
+
+exports.getContratosCliente = async (req, res) => {
+  try {
+    const contratos = await clientesModel.getContratosByCliente(req.params.id);
+    res.json(contratos);
+  } catch (error) {
+    console.error("Error obteniendo contratos:", error);
+    res.status(500).json({ error: "Error al obtener contratos" });
+  }
+};
+
+exports.createContrato = async (req, res) => {
+  const idCliente = req.params.id;
+  const { id_producto, fecha_inicio, fecha_fin, saldo } = req.body;
+
+  if (!id_producto || !fecha_inicio || !saldo) {
+    return res.status(400).json({ error: "Producto, fecha de inicio y saldo son obligatorios" });
+  }
+
+  try {
+    const contrato = await clientesModel.createContrato({
+      id_cliente: idCliente,
+      id_producto,
+      fecha_inicio,
+      fecha_fin,
+      saldo
+    });
+
+    await historyModel.registrarActividad(
+      req.session.usuario.id,
+      `Creo contrato #${contrato.id_contrato} para cliente #${idCliente}`,
+      "Contratos",
+      "Completado"
+    );
+
+    res.status(201).json(contrato);
+  } catch (error) {
+    console.error("Error creando contrato:", error);
+    res.status(500).json({ error: "Error al crear contrato" });
+  }
+};
+
+exports.getProductos = async (req, res) => {
+  try {
+    const productos = await clientesModel.getProductos();
+    res.json(productos);
+  } catch (error) {
+    console.error("Error obteniendo productos:", error);
+    res.status(500).json({ error: "Error al obtener productos" });
+  }
+};
+
+exports.getValidacionesCliente = async (req, res) => {
+  try {
+    const validaciones = await clientesModel.getValidacionesByCliente(req.params.id);
+    res.json(validaciones);
+  } catch (error) {
+    console.error("Error obteniendo validaciones:", error);
+    res.status(500).json({ error: "Error al obtener validaciones" });
+  }
+};
+
+exports.validarClienteListas = async (req, res) => {
+  const idCliente = req.params.id;
+  const idUsuario = req.session.usuario.id;
+
+  try {
+    const cliente = await clientesModel.getClienteById(idCliente);
+    if (!cliente) {
+      return res.status(404).json({ error: "Cliente no encontrado" });
+    }
+
+    const resultado = await clientesModel.validarContraListas(idCliente, idUsuario);
+
+    if (resultado.coincidencias > 0) {
+      await historyModel.registrarActividad(
+        idUsuario,
+        `Validacion de cliente #${idCliente} (${cliente.nombre}): ${resultado.coincidencias} coincidencia(s)`,
+        "Clientes",
+        "Alerta"
+      );
+    }
+
+    res.json(resultado);
+  } catch (error) {
+    console.error("Error validando cliente:", error);
+    res.status(500).json({ error: "Error al validar cliente" });
+  }
+};
+
+exports.getAlertasDeCliente = async (req, res) => {
+  try {
+    const alertas = await clientesModel.getAlertasByCliente(req.params.id);
+    res.json(alertas);
+  } catch (error) {
+    console.error("Error obteniendo alertas:", error);
+    res.status(500).json({ error: "Error al obtener alertas" });
   }
 };

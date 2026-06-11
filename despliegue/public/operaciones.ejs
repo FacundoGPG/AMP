@@ -12,6 +12,7 @@
   <%- include("partials/topbar") %>
   <%- include("partials/sidebar") %>
   <%- include("partials/config") %>
+  <%- include("partials/addOperacion") %>
 
   <div id="overlay" class="overlay"></div>
 
@@ -79,13 +80,15 @@
   <section class="panel full-page">
     <div class="panel-header">
       <h5>Listado de Operaciones</h5>
-      <button type="button" id="exportOperacionesCSV" class="btn btn-success">Exportar Operaicones</button>
+      <div class="addCliente">
+        <button type="button" id="exportOperacionesCSV" class="btn btn-light">Exportar Operaciones</button>
+        <button class="btn btn-light" id="btn-nueva-operacion">+ Nueva operacion</button>
+      </div>
     </div>
 
     <div id="operaciones-table"></div>
 
   </section>
-
   
 </main>
     <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>

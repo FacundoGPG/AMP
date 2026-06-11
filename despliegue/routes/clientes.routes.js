@@ -15,5 +15,14 @@ router.get("/api/clientes", isAuth, verificarRol(ROLES_ADMIN), clientesControlle
 router.get("/api/clientes/bloqueados", isAuth, verificarRol(ROLES_ADMIN), clientesController.getClientesBloqueados);
 router.get("/api/clientes/:id/documentos", isAuth, verificarRol(ROLES_ADMIN), clientesController.getDocumentos);
 router.get("/api/clientes/:id/operaciones", isAuth, verificarRol(ROLES_ADMIN), clientesController.getOperacionesDeCliente);
+router.get("/api/clientes/:id/umbrales", isAuth, verificarRol(ROLES_ADMIN), clientesController.getUmbralesCliente);
+router.post("/api/clientes/:id/umbrales/:idUmbral", isAuth, verificarRol(ROLES_ESCRITURA), clientesController.toggleUmbralCliente);
+router.get("/api/clientes/:id/contratos", isAuth, verificarRol(ROLES_ADMIN), clientesController.getContratosCliente);
+router.post("/api/clientes/:id/contratos", isAuth, verificarRol(ROLES_ESCRITURA), clientesController.createContrato);
+router.get("/api/productos", isAuth, verificarRol(ROLES_ADMIN), clientesController.getProductos);
+router.get("/api/clientes/:id/validaciones", isAuth, verificarRol(ROLES_ADMIN), clientesController.getValidacionesCliente);
+router.post("/api/clientes/:id/validar-listas", isAuth, verificarRol(ROLES_ESCRITURA), clientesController.validarClienteListas);
+router.get("/api/clientes/:id/alertas", isAuth, verificarRol(ROLES_ADMIN), clientesController.getAlertasDeCliente);
+router.post("/api/clientes/documentos/:id/validar", isAuth, verificarRol(ROLES_ADMIN), clientesController.validarDocumento);
 
 module.exports = router;

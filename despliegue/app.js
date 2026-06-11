@@ -294,6 +294,11 @@ app.use(
 
 app.use(
   "/",
+  require("./routes/casos.routes")
+);
+
+app.use(
+  "/",
   require("./routes/chisme.routes")
 );
 

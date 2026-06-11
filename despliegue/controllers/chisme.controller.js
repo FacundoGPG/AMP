@@ -17,6 +17,42 @@ exports.renderChisme = (req, res) => {
     });
 };
 
+exports.upload_documento_cliente = async (req, res) => {
+    upload2(req, res, async function (err) {
+        if (err) {
+            return res.status(500).json({ msg: "Error subiendo archivo" });
+        }
+
+        const { rfc, curp } = req.body;
+        let rutaArchivo = null;
+        let nombreArchivo = null;
+
+        if (req.files && req.files.length > 0) {
+            nombreArchivo = req.files[0].originalname;
+            rutaArchivo = "/private/" + nombreArchivo;
+        }
+
+        try {
+            const clienteResult = await pool.query(`
+                SELECT id_cliente FROM public."Cliente" WHERE rfc = $1 LIMIT 1
+            `, [rfc?.trim().toUpperCase()]);
+
+            const idCliente = clienteResult.rows[0]?.id_cliente || null;
+
+            await pool.query(`
+                INSERT INTO public."Documento"
+                  (id_cliente, tipo_documento, nombre_archivo, ruta_archivo, estatus_validacion, fecha_carga)
+                VALUES ($1, $2, $3, $4, 'Pendiente', NOW())
+            `, [idCliente, `RFC:${rfc} CURP:${curp}`, nombreArchivo, rutaArchivo]);
+
+            return res.redirect("/testing?enviado=true");
+        } catch (error) {
+            console.error("Error guardando documento:", error);
+            return res.status(500).send("Error al guardar documento");
+        }
+    });
+};
+
 
 
 

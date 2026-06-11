@@ -45,7 +45,7 @@ function exportarCSV(options, fields, data) {
   const config = normalizarOpcionesExport(options, fields, data);
   const csv = parseCSV(config.data || [], {
     fields: config.fields,
-    delimiter: config.delimiter || ";"
+    delimiter: config.delimiter || ","
   });
   const contenidoCSV = "\uFEFF" + csv;
   const blob = new Blob([contenidoCSV], { type: "text/csv;charset=utf-8;" });

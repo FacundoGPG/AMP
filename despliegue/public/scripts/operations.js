@@ -1,40 +1,96 @@
 let gridOperaciones;
 let operacionesData = [];
-let operacionesFiltradas = [];
+let clientesOpData = [];
 
-function normalizarFiltro(valor) {
-  return String(valor || "").trim().toLowerCase();
+
+async function cargarClientesSelector() {
+  try {
+    const res = await fetch("/api/clientes");
+    clientesOpData = await res.json();
+    const select = document.getElementById("op-cliente");
+    select.innerHTML = `<option value="">Selecciona un cliente...</option>` +
+      clientesOpData.map(c => `<option value="${c.id_cliente}">${c.nombre}</option>`).join("");
+  } catch {
+    console.error("Error cargando clientes");
+  }
 }
 
-function valorOperacion(op, campo) {
-  const aliases = {
-    ID_Operacion: ["ID_Operacion", "id_operacion"],
-    Cliente: ["Cliente", "cliente"],
-    Producto: ["Producto", "producto"],
-    Tipo_Operacion: ["Tipo_Operacion", "tipo_operacion"],
-    Monto: ["Monto", "monto"],
-    Fecha: ["Fecha", "fecha"],
-    Estado: ["Estado", "estado"],
-    Canal: ["Canal", "canal"],
-    Riesgo: ["Riesgo", "riesgo"]
-  };
+async function cargarContratosSelector(idCliente) {
+  const select = document.getElementById("op-contrato");
+  select.disabled = true;
+  select.innerHTML = `<option value="">Cargando...</option>`;
 
-  const llave = aliases[campo]?.find((alias) => op[alias] !== undefined);
-  return llave ? op[llave] : "";
+  try {
+    const res = await fetch(`/api/clientes/${idCliente}/contratos`);
+    const contratos = await res.json();
+
+    if (!contratos.length) {
+      select.innerHTML = `<option value="">Sin contratos activos</option>`;
+      return;
+    }
+
+    select.innerHTML = contratos.map(c =>
+      `<option value="${c.id_contrato}">${c.producto} — Saldo: $${Number(c.saldo).toLocaleString('es-MX')}</option>`
+    ).join("");
+    select.disabled = false;
+  } catch {
+    select.innerHTML = `<option value="">Error al cargar contratos</option>`;
+  }
 }
 
-function mapOperacionRow(op) {
-  return [
-    valorOperacion(op, "ID_Operacion"),
-    valorOperacion(op, "Cliente"),
-    valorOperacion(op, "Producto"),
-    valorOperacion(op, "Tipo_Operacion"),
-    valorOperacion(op, "Monto"),
-    valorOperacion(op, "Fecha"),
-    valorOperacion(op, "Estado"),
-    valorOperacion(op, "Canal"),
-    valorOperacion(op, "Riesgo")
-  ];
+async function guardarOperacion() {
+  const id_contrato   = document.getElementById("op-contrato").value;
+  const tipo_operacion = document.getElementById("op-tipo").value;
+  const monto         = document.getElementById("op-monto").value;
+  const canal         = document.getElementById("op-canal").value;
+  const fecha         = document.getElementById("op-fecha").value;
+  const errorEl       = document.getElementById("op-error");
+
+  if (!id_contrato || !tipo_operacion || !monto || !canal || !fecha) {
+    errorEl.textContent = "Todos los campos son obligatorios.";
+    errorEl.style.display = "block";
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/operaciones", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id_contrato, tipo_operacion, monto, canal, fecha })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      errorEl.textContent = data.error || "Error al guardar";
+      errorEl.style.display = "block";
+      return;
+    }
+
+    // Mostrar alertas generadas si las hay
+    if (data.alertas?.length) {
+      alert(`Operación guardada. Se generaron ${data.alertas.length} alerta(s) automática(s).`);
+    }
+
+
+    cerrarAddOperacionPanel();
+    cargarTablaOperaciones();
+  } catch {
+    errorEl.textContent = "Error de conexión";
+    errorEl.style.display = "block";
+  }
+}
+
+function abrirAddOperacionPanel() {
+  document.getElementById("addOperacionPanel").classList.add("active");
+  document.getElementById("addOperacionOverlay").classList.add("active");
+  cargarClientesSelector();
+}
+
+function cerrarAddOperacionPanel() {
+  document.getElementById("addOperacionPanel").classList.remove("active");
+  document.getElementById("addOperacionOverlay").classList.remove("active");
+  document.getElementById("op-error").style.display = "none";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -43,13 +99,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const applyBtn = document.getElementById("applyFiltersOp");
   const clearBtn = document.getElementById("clearFiltersOp");
-  const exportBtn = document.getElementById("exportOperacionesCSV");
 
   if (applyBtn) applyBtn.addEventListener("click", applyOperacionFilters);
   if (clearBtn) clearBtn.addEventListener("click", cleanOperacionFiltros);
-  if (exportBtn) exportBtn.addEventListener("click", exportarOperacionesFiltradas);
+
+  document.getElementById("btn-nueva-operacion")?.addEventListener("click", abrirAddOperacionPanel);
+  document.getElementById("cerrarAddOperacionPanel")?.addEventListener("click", cerrarAddOperacionPanel);
+  document.getElementById("addOperacionOverlay")?.addEventListener("click", cerrarAddOperacionPanel);
+  document.getElementById("btn-guardar-operacion")?.addEventListener("click", guardarOperacion);
+  document.getElementById("exportOperacionesCSV")?.addEventListener("click", exportarOperacionesCSV);
+  document.getElementById("op-cliente")?.addEventListener("change", (e) => {
+    if (e.target.value) cargarContratosSelector(e.target.value);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") cerrarAddOperacionPanel();
+  });
 
 });
+
+
 
 
 async function cargarTablaOperaciones() {
@@ -58,7 +127,23 @@ async function cargarTablaOperaciones() {
 
   const response = await fetch("/api/operaciones");
   operacionesData = await response.json();
-  operacionesFiltradas = operacionesData;
+
+  const data = operacionesData.map(op => [
+    op.ID_Operacion,
+    op.Cliente,
+    op.Producto,
+    op.Tipo_Operacion,
+    op.Monto,
+    op.Fecha,
+    op.Estado,
+    op.Canal,
+    op.Riesgo
+  ]);
+
+  if (gridOperaciones) {
+    gridOperaciones.updateConfig({ data }).forceRender();
+    return;
+  }
 
 gridOperaciones = new gridjs.Grid({
   columns: [
@@ -75,7 +160,7 @@ gridOperaciones = new gridjs.Grid({
     "Canal",
     "Riesgo"
   ],
-  data: operacionesData.map(mapOperacionRow),
+  data,
   sort: true,
   pagination: { limit: 10 }
 }).render(operacionesContainer);
@@ -83,7 +168,7 @@ gridOperaciones = new gridjs.Grid({
 }
 
 function applyOperacionFilters() {
-  const texto = normalizarFiltro(document.getElementById("searchClientOp").value);
+  const texto = document.getElementById("searchClientOp").value.toLowerCase().trim();
   const tipo = document.getElementById("filterTipoOp").value.trim();
   const producto = document.getElementById("filterProductoOp").value.trim();
   const riesgo = document.getElementById("filterRiesgoOp").value.trim();
@@ -97,22 +182,22 @@ function applyOperacionFilters() {
     
     const coincideTexto =
       texto === "" ||
-      normalizarFiltro(valorOperacion(op, "ID_Operacion")).includes(texto) ||
-      normalizarFiltro(valorOperacion(op, "Cliente")).includes(texto);
+      String(op.ID_Operacion).toLowerCase().includes(texto) ||
+      op.Cliente.toLowerCase().includes(texto);
 
     const coincideTipo = 
-      tipo === "" || valorOperacion(op, "Tipo_Operacion") === tipo;
+      tipo === "" || op.Tipo_Operacion === tipo;
     const coincideProducto = 
-      producto === "" || valorOperacion(op, "Producto") === producto;
+      producto === "" || op.Producto === producto;
     const coincideRiesgo = 
-      riesgo === "" || normalizarFiltro(valorOperacion(op, "Riesgo")) === normalizarFiltro(riesgo);
+      riesgo === "" || op.Riesgo === riesgo;
     const coincideCanal = 
-      canal === "" || valorOperacion(op, "Canal") === canal;
+      canal === "" || op.Canal === canal;
     const coincideEstatus = 
-      estatus === "" || valorOperacion(op, "Estado") === estatus;
+      estatus === "" || op.Estado === estatus;
 
 
-    const fechaOp = new Date(valorOperacion(op, "Fecha"));
+    const fechaOp = new Date(op.Fecha);
     const coincideFechaDesde = 
       !dateFrom || fechaOp >= new Date(dateFrom);
     const coincideFechaHasta = 
@@ -122,19 +207,46 @@ function applyOperacionFilters() {
       coincideTexto &&
       coincideTipo &&
       coincideProducto &&
+      coincideRiesgo &&
       coincideCanal &&
       coincideEstatus &&
       coincideFechaDesde &&
-      coincideFechaHasta &&
-      coincideRiesgo
+      coincideFechaHasta
     );
   });
 
-  operacionesFiltradas = filtradas;
-
   gridOperaciones.updateConfig({
-    data: filtradas.map(mapOperacionRow)
+    data: filtradas.map(op => [
+      op.ID_Operacion,
+      op.Cliente,
+      op.Producto,
+      op.Tipo_Operacion,
+      op.Monto,
+      op.Fecha ? new Date(op.Fecha).toLocaleString("es-MX") : "",
+      op.Estado,
+      op.Canal,
+      op.Riesgo
+    ])
   }).forceRender();
+}
+
+function exportarOperacionesCSV() {
+  exportarCSV({
+    nombreBase: "operaciones",
+    delimiter: ",",
+    fields: [
+      { label: "ID Operacion", value: "ID_Operacion" },
+      { label: "Cliente", value: "Cliente" },
+      { label: "Producto", value: "Producto" },
+      { label: "Tipo", value: "Tipo_Operacion" },
+      { label: "Monto", value: "Monto" },
+      { label: "Fecha", value: "Fecha" },
+      { label: "Estatus", value: "Estado" },
+      { label: "Canal", value: "Canal" },
+      { label: "Riesgo", value: "Riesgo" }
+    ],
+    data: operacionesData
+  });
 }
 
 function cleanOperacionFiltros() {
@@ -146,28 +258,18 @@ function cleanOperacionFiltros() {
   document.getElementById("filterRiesgoOp").value = "";
   document.getElementById("filterCanalOp").value = "";
   document.getElementById("filterEstatusOp").value = "";
-  operacionesFiltradas = operacionesData;
 
   gridOperaciones.updateConfig({
-    data: operacionesData.map(mapOperacionRow)
+    data: operacionesData.map(op => [
+      op.ID_Operacion,
+      op.Cliente,
+      op.Producto,
+      op.Tipo_Operacion,
+      op.Monto,
+      op.Fecha ? new Date(op.Fecha).toLocaleString("es-MX") : "",
+      op.Estado,
+      op.Canal,
+      op.Riesgo
+    ])
   }).forceRender();
-}
-
-function exportarOperacionesFiltradas() {
-  exportarCSV({
-    nombreBase: "operaciones_filtradas",
-    delimiter: ",",
-    fields: [
-      { label: "ID Operacion", value: (op) => valorOperacion(op, "ID_Operacion") },
-      { label: "Cliente", value: (op) => valorOperacion(op, "Cliente") },
-      { label: "Producto", value: (op) => valorOperacion(op, "Producto") },
-      { label: "Tipo", value: (op) => valorOperacion(op, "Tipo_Operacion") },
-      { label: "Monto", value: (op) => valorOperacion(op, "Monto") },
-      { label: "Fecha", value: (op) => valorOperacion(op, "Fecha") },
-      { label: "Estatus", value: (op) => valorOperacion(op, "Estado") },
-      { label: "Canal", value: (op) => valorOperacion(op, "Canal") },
-      { label: "Riesgo", value: (op) => valorOperacion(op, "Riesgo") }
-    ],
-    data: operacionesFiltradas
-  });
 }

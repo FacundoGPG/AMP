@@ -54,6 +54,7 @@
         <div class="clientes-tabs">
         <button class="tab-btn <%= tabActiva === 'clientes' ? 'active' : '' %>" data-table="clientes-section">Clientes</button>
         <button class="tab-btn <%= tabActiva === 'bloqueados' ? 'active' : '' %>" data-table="bloqueados-section">Personas Bloqueadas</button>
+        <button class="tab-btn <%= tabActiva === 'listas' ? 'active' : '' %>" data-table="listas-section">Listas de Riesgo</button>
         </div>
         <div class="addCliente">
         <button class="btn btn-light" id="exportClientesCSV">Exportar Clientes</button>
@@ -72,7 +73,54 @@
         <div id="bloqueados-table"></div>
     </div>
 
+    <div id="listas-section" class="table-section <%= tabActiva === 'listas' ? 'active' : '' %>">
+        <div class="clientes-header" style="margin-bottom: 1rem;">
+            <h2>Listas de Riesgo</h2>
+            <button class="btn btn-light" id="btn-agregar-lista">+ Agregar lista</button>
+        </div>
+        <div id="listas-table"></div>
+    </div>
+
     </section>
+
+    <div id="lista-modal" class="modal-overlay" style="display:none">
+        <div class="modal-box">
+            <div class="modal-header">
+            <h5 id="lista-modal-titulo">Agregar lista</h5>
+            <button id="lista-modal-cerrar" class="btn-close-modal">✕</button>
+            </div>
+            <div class="modal-body">
+            <input type="hidden" id="lista-modal-id">
+
+            <div class="mb-3">
+                <label class="form-label">Tipo de lista</label>
+                <select id="lista-modal-tipo" class="form-select">
+                <option value="PEP">PEP</option>
+                <option value="Lista_Negra">Lista Negra</option>
+                <option value="Sancion">Sanción</option>
+                <option value="Otro">Otro</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Nombre</label>
+                <input type="text" id="lista-modal-nombre" class="form-control" placeholder="Ej. Lista OFAC, PEP México">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Fuente</label>
+                <input type="text" id="lista-modal-fuente" class="form-control" placeholder="Ej. SHCP, ONU, OFAC">
+            </div>
+
+            <div id="lista-modal-error" class="text-danger small" style="display:none"></div>
+            </div>
+            <div class="modal-footer">
+            <button id="lista-modal-cancelar" class="btn btn-light">Cancelar</button>
+            <button id="lista-modal-guardar" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+        </div>
+
 
 </main>
 
@@ -80,5 +128,7 @@
 <script src="/scripts/componentes.js"></script>
 <script src="/scripts/exportar-csv.js"></script>
 <script src="/scripts/clientes.js"></script>
+
+
 </body>
 </html>

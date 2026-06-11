@@ -11,5 +11,6 @@ router.get("/testing", isAuth, verificarRol(ROLES_TODOS), controller.renderChism
 router.post("/upload_file", isAuth, verificarRol(ROLES_TODOS), controller.upload_file);
 router.post("/upload_file_private", isAuth, verificarRol(ROLES_TODOS), controller.upload_file_private);
 router.get("/get_private_file/:file", isAuth, verificarRol(ROLES_ADMIN), controller.get_private_file);
+router.post("/api/documentos/upload", isAuth, verificarRol(ROLES_TODOS), controller.upload_documento_cliente);
 
 module.exports = router;
