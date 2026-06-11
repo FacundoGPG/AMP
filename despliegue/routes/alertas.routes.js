@@ -10,6 +10,6 @@ router.get("/alertas", isAuth, verificarRol(ROLES_ADMIN), alertasController.rend
 router.get("/api/alertas", isAuth, verificarRol(ROLES_ADMIN), alertasController.getAlertas);
 router.get("/api/alertas/operacion/:id", isAuth, verificarRol(ROLES_ADMIN), alertasController.getAlertasByOperacion);
 router.post("/api/alertas/:id/estatus", isAuth, verificarRol(ROLES_ADMIN), alertasController.updateEstatusAlerta);
-
+router.get("/apu/alertas/:id/historial", isAuth, verificarRol(ROLES_ADMIN), alertasController.getHistorialAlerta);
 
 module.exports = router;
