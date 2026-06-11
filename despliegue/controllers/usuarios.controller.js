@@ -1,24 +1,18 @@
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
-const router = express.Router();
 const model = require('../models/usuarios.model.js');
-const modelAlertas = require('../models/alertas.model.js');
 const historyModel = require("../models/history.model");
+const { limpiarIntentosLogin } = require("../config/login-rate-limit");
 
 module.exports.getAllUsers = async(req, res) => {
-
-    let correo = "";
-    let contrasena = "";
-
-    let usuarios = model.ObtenerUsuariosActivos(correo, contrasena);
-    let alertas = modelAlertas.ObtenerAlertas();
-
-    res.render('./', {
-        title: "Obtener Usuarios",
-        usuarios: usuarios,
-        alertas: alertas
-    });
+    try {
+        const usuarios = await model.ObtenerUsuariosActivos();
+        res.render('./', {
+            title: "Obtener Usuarios",
+            usuarios: usuarios
+        });
+    } catch (error) {
+        console.error("Error al obtener usuarios:", error);
+        res.status(500).send("Error al obtener usuarios");
+    }
 }
 
 module.exports.getAllUsersActivos = async(req, res) => {
@@ -90,6 +84,8 @@ module.exports.do_login = async(req, res) => {
             return res.redirect("/");
         }
 
+        limpiarIntentosLogin(req);
+
         // AQUI ES PARA ROLES
 
         req.session.usuario = {
@@ -123,15 +119,10 @@ module.exports.do_login = async(req, res) => {
             if (roles.includes("Administrador") || roles.includes("Oficial_Cumplimiento") || roles.includes("Auditoria")) {
                 return res.redirect("/dashboard");
             }
-            if (roles.includes("Empleado")) {
-                return res.redirect("/testing");
-            }
-            if (roles.includes("Cliente")) {
+            if (roles.includes("Empleado") || roles.includes("Cliente")) {
                 return res.redirect("/testing");
             }
             return res.redirect("/dashboard");
-
-            return res.redirect("/testing");
         });
     } catch(e) {
 
@@ -139,6 +130,7 @@ module.exports.do_login = async(req, res) => {
         return res.redirect("/");
     }
 }
+
 
 module.exports.get_logged = async (req, res) => {
 

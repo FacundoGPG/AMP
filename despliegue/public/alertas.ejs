@@ -12,16 +12,18 @@
   <%- include("partials/topbar") %>
   <%- include("partials/sidebar") %>
   <%- include("partials/config") %>
+  <%- include("partials/panelAlertas") %>
   <div id="overlay" class="overlay"></div>
 
  
  <main class="dashboard">
   <!-- FILTROS -->
   <section class="panel full">
-  <div class="panel-header">
-    <h5>Filtros</h5>
-    <button type="button" id="clearFilters" class="btn btn-light">Limpiar filtros</button>
-  </div>
+
+    <div class="panel-header">
+      <h5>Filtros</h5>
+      <button type="button" id="clearFilters" class="btn btn-light">Limpiar filtros</button>
+    </div>
 
   <div class="filters">
     <input id="searchClient" type="text" placeholder="Buscar por cliente o ID">
@@ -52,14 +54,20 @@
   <section class="panel full-page">
     <div class="panel-header">
       <h5>Listado de Alertas</h5>
+      <button type="button" id="exportAlertasCSV" class="btn btn-light">Exportar CSV</button>
     </div>
+
       <div id="alertas-table"></div>
+
+
   </section>
 </main>  
   <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
   <script src="./scripts/filtros.js"></script>
+  <script src="./scripts/exportar-csv.js"></script>
   <script src="./scripts/alertas.js"></script>
   <script src="./scripts/componentes.js"></script>
+  <script src="/scripts/casos.js"></script>
 
 </body>
 </html>

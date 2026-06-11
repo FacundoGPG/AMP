@@ -19,7 +19,7 @@ exports.getOperaciones = async (req, res) => {
 
 exports.getPerfilTransaccional = async (req, res)=>{
   try{
-    const operaciones= await Operacion.getPerfilTransaccional();
+    const perfil = await Operacion.getPerfilTransaccional();
     res.json(perfil);
   } catch (err){
     console.error(err);
@@ -35,5 +35,34 @@ exports.getOperacionesByCliente=async(req,res)=>{
   }catch(err){
     console.error(err);
     res.status(500).json({error: "Error al obtener operaciones del cliente"});
+  }
+};
+
+exports.createOperacion = async (req, res) => {
+  const { id_contrato, tipo_operacion, monto, canal, fecha } = req.body;
+
+  if (!id_contrato || !tipo_operacion || !monto || !canal || !fecha) {
+    return res.status(400).json({ error: "Todos los campos son obligatorios" });
+  }
+
+  try {
+    const operacion = await Operacion.createOperacion({
+      id_contrato,
+      tipo_operacion,
+      monto,
+      canal,
+      fecha
+    });
+
+    const alertas = await Operacion.verificarUmbralesYGenerarAlertas(
+      operacion.id_operacion,
+      id_contrato,
+      monto
+    );
+
+    res.status(201).json({ operacion, alertas });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al crear operacion" });
   }
 };

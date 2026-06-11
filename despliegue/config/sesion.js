@@ -55,6 +55,13 @@ class sesion extends session.Store {
     return new Date(Date.now() + (maxAge || 24 * 60 * 60 * 1000));
   }
 
+  esLimiteConexionSesion(error) {
+    return (
+      error?.code === "EMAXCONNSESSION" ||
+      /max clients reached in session mode/i.test(error?.message || "")
+    );
+  }
+
   async get(sid, callback) {
     try {
       await this.ready;
@@ -66,6 +73,12 @@ class sesion extends session.Store {
 
       callback(null, result.rows[0] ? result.rows[0].ses : null);
     } catch (error) {
+      if (this.esLimiteConexionSesion(error)) {
+        console.warn("Session store get skipped: PostgreSQL session pool limit reached");
+        callback(null, null);
+        return;
+      }
+
       callback(error);
     }
   }

@@ -1,10 +1,6 @@
-//nuevo
-//para subir archivos
 const multer = require("multer");
 const path = require("path");
 const crypto = require("crypto");
-
-//para base de datos
 const pool = require("../config/database");
 
 //mostrar página del formulario
@@ -18,6 +14,42 @@ exports.renderChisme = (req, res) => {
     res.render("chisme", {
         pageTitle: "Chisme - Beta 1",
         hash: req.query.hash || null
+    });
+};
+
+exports.upload_documento_cliente = async (req, res) => {
+    upload2(req, res, async function (err) {
+        if (err) {
+            return res.status(500).json({ msg: "Error subiendo archivo" });
+        }
+
+        const { rfc, curp } = req.body;
+        let rutaArchivo = null;
+        let nombreArchivo = null;
+
+        if (req.files && req.files.length > 0) {
+            nombreArchivo = req.files[0].originalname;
+            rutaArchivo = "/private/" + nombreArchivo;
+        }
+
+        try {
+            const clienteResult = await pool.query(`
+                SELECT id_cliente FROM public."Cliente" WHERE rfc = $1 LIMIT 1
+            `, [rfc?.trim().toUpperCase()]);
+
+            const idCliente = clienteResult.rows[0]?.id_cliente || null;
+
+            await pool.query(`
+                INSERT INTO public."Documento"
+                  (id_cliente, tipo_documento, nombre_archivo, ruta_archivo, estatus_validacion, fecha_carga)
+                VALUES ($1, $2, $3, $4, 'Pendiente', NOW())
+            `, [idCliente, `RFC:${rfc} CURP:${curp}`, nombreArchivo, rutaArchivo]);
+
+            return res.redirect("/testing?enviado=true");
+        } catch (error) {
+            console.error("Error guardando documento:", error);
+            return res.status(500).send("Error al guardar documento");
+        }
     });
 };
 
@@ -70,7 +102,6 @@ const upload2 = multer({
 }).array("file", 1);
 
 
-//   SUBIR ARCHIVO PUBLIC
 
 
 exports.upload_file = async (req, res) => {
@@ -94,7 +125,6 @@ exports.upload_file = async (req, res) => {
 };
 
 
-//  SUBIR ARCHIVO PRIVATE
 
 
 exports.upload_file_private = async (req, res) => {
@@ -125,7 +155,7 @@ exports.upload_file_private = async (req, res) => {
             .digest("hex");
 
         try {
-            // 1. Insertar en Alerta
+            // Insertar en Alerta
             const resultAlerta = await pool.query(`
                 INSERT INTO public."Alerta"
                 (tipo_alerta, fecha_generacion, motivo, estatus)
@@ -135,7 +165,7 @@ exports.upload_file_private = async (req, res) => {
 
             const idAlerta = resultAlerta.rows[0].id_alerta;
 
-            // 2. Insertar en Alerta_Buzon con el ID generado
+            // Insertar en Alerta_Buzon con el ID generado
             await pool.query(`
                 INSERT INTO public."Alerta_Buzon"
                 (id_alerta, descripcion_reporte, ruta_evidencia, hash_seguimiento, estatus)
@@ -144,7 +174,7 @@ exports.upload_file_private = async (req, res) => {
 
             console.log("Reporte anónimo guardado. Hash:", hash);
 
-            // 3. Redirigir con el hash como confirmación
+            // Redirigir con el hash como confirmación
             return res.redirect(`/testing?hash=${hash}`);
 
         } catch (errorBD) {
@@ -155,7 +185,6 @@ exports.upload_file_private = async (req, res) => {
 };
 
 
- //  OBTENER ARCHIVO PRIVATE
 
 
 exports.get_private_file = async (req, res) => {

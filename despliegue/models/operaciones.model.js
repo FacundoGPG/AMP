@@ -13,10 +13,23 @@ exports.Operacion = class {
                 o.fecha AS "Fecha",
                 o.estado AS "Estado",
                 o.canal AS "Canal",
-                CASE 
-                    WHEN MAX(a.prioridad) = 'Alta'  THEN 'Alto'
-                    WHEN MAX(a.prioridad) = 'Media' THEN 'Medio'
-                    WHEN MAX(a.prioridad) = 'Baja'  THEN 'Bajo'
+                CASE
+                    WHEN MAX(
+                        CASE
+                            WHEN a.prioridad = 'Alta' THEN 3
+                            WHEN a.prioridad = 'Media' THEN 2
+                            WHEN a.prioridad = 'Baja' THEN 1
+                            ELSE 0
+                        END
+                    ) = 3 THEN 'Alto'
+                    WHEN MAX(
+                        CASE
+                            WHEN a.prioridad = 'Alta' THEN 3
+                            WHEN a.prioridad = 'Media' THEN 2
+                            WHEN a.prioridad = 'Baja' THEN 1
+                            ELSE 0
+                        END
+                    ) = 2 THEN 'Medio'
                     ELSE 'Bajo'
                 END AS "Riesgo"
             FROM public."Operacion" o

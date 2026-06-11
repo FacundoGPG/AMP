@@ -55,9 +55,12 @@
         Configuración
       </button>
 
-      <a href="/logout" class="dropdown-item logout">
-        Cerrar sesión
-      </a>
+      <form action="/logout" method="POST" style="margin:0">
+        <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+        <button type="submit" class="dropdown-item logout">
+          Cerrar sesión
+        </button>
+      </form>
 
     </div>
 
