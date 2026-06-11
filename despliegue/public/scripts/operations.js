@@ -1,5 +1,41 @@
 let gridOperaciones;
 let operacionesData = [];
+let operacionesFiltradas = [];
+
+function normalizarFiltro(valor) {
+  return String(valor || "").trim().toLowerCase();
+}
+
+function valorOperacion(op, campo) {
+  const aliases = {
+    ID_Operacion: ["ID_Operacion", "id_operacion"],
+    Cliente: ["Cliente", "cliente"],
+    Producto: ["Producto", "producto"],
+    Tipo_Operacion: ["Tipo_Operacion", "tipo_operacion"],
+    Monto: ["Monto", "monto"],
+    Fecha: ["Fecha", "fecha"],
+    Estado: ["Estado", "estado"],
+    Canal: ["Canal", "canal"],
+    Riesgo: ["Riesgo", "riesgo"]
+  };
+
+  const llave = aliases[campo]?.find((alias) => op[alias] !== undefined);
+  return llave ? op[llave] : "";
+}
+
+function mapOperacionRow(op) {
+  return [
+    valorOperacion(op, "ID_Operacion"),
+    valorOperacion(op, "Cliente"),
+    valorOperacion(op, "Producto"),
+    valorOperacion(op, "Tipo_Operacion"),
+    valorOperacion(op, "Monto"),
+    valorOperacion(op, "Fecha"),
+    valorOperacion(op, "Estado"),
+    valorOperacion(op, "Canal"),
+    valorOperacion(op, "Riesgo")
+  ];
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   cargarTablaOperaciones();
@@ -7,9 +43,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const applyBtn = document.getElementById("applyFiltersOp");
   const clearBtn = document.getElementById("clearFiltersOp");
+  const exportBtn = document.getElementById("exportOperacionesCSV");
 
   if (applyBtn) applyBtn.addEventListener("click", applyOperacionFilters);
   if (clearBtn) clearBtn.addEventListener("click", cleanOperacionFiltros);
+  if (exportBtn) exportBtn.addEventListener("click", exportarOperacionesFiltradas);
 
 });
 
@@ -20,6 +58,7 @@ async function cargarTablaOperaciones() {
 
   const response = await fetch("/api/operaciones");
   operacionesData = await response.json();
+  operacionesFiltradas = operacionesData;
 
 gridOperaciones = new gridjs.Grid({
   columns: [
@@ -36,17 +75,7 @@ gridOperaciones = new gridjs.Grid({
     "Canal",
     "Riesgo"
   ],
-  data: operacionesData.map(op => [
-    op.ID_Operacion,
-    op.Cliente,
-    op.Producto,
-    op.Tipo_Operacion,
-    op.Monto,
-    op.Fecha,
-    op.Estado,
-    op.Canal,
-    op.Riesgo
-  ]),
+  data: operacionesData.map(mapOperacionRow),
   sort: true,
   pagination: { limit: 10 }
 }).render(operacionesContainer);
@@ -54,7 +83,7 @@ gridOperaciones = new gridjs.Grid({
 }
 
 function applyOperacionFilters() {
-  const texto = document.getElementById("searchClientOp").value.toLowerCase().trim();
+  const texto = normalizarFiltro(document.getElementById("searchClientOp").value);
   const tipo = document.getElementById("filterTipoOp").value.trim();
   const producto = document.getElementById("filterProductoOp").value.trim();
   const riesgo = document.getElementById("filterRiesgoOp").value.trim();
@@ -68,22 +97,22 @@ function applyOperacionFilters() {
     
     const coincideTexto =
       texto === "" ||
-      String(op.ID_Operacion).toLowerCase().includes(texto) ||
-      op.Cliente.toLowerCase().includes(texto);
+      normalizarFiltro(valorOperacion(op, "ID_Operacion")).includes(texto) ||
+      normalizarFiltro(valorOperacion(op, "Cliente")).includes(texto);
 
     const coincideTipo = 
-      tipo === "" || op.Tipo_Operacion === tipo;
+      tipo === "" || valorOperacion(op, "Tipo_Operacion") === tipo;
     const coincideProducto = 
-      producto === "" || op.Producto === producto;
+      producto === "" || valorOperacion(op, "Producto") === producto;
     const coincideRiesgo = 
-      riesgo === "" || op.Riesgo === riesgo;
+      riesgo === "" || normalizarFiltro(valorOperacion(op, "Riesgo")) === normalizarFiltro(riesgo);
     const coincideCanal = 
-      canal === "" || op.Canal === canal;
+      canal === "" || valorOperacion(op, "Canal") === canal;
     const coincideEstatus = 
-      estatus === "" || op.Estado === estatus;
+      estatus === "" || valorOperacion(op, "Estado") === estatus;
 
 
-    const fechaOp = new Date(op.Fecha);
+    const fechaOp = new Date(valorOperacion(op, "Fecha"));
     const coincideFechaDesde = 
       !dateFrom || fechaOp >= new Date(dateFrom);
     const coincideFechaHasta = 
@@ -96,22 +125,15 @@ function applyOperacionFilters() {
       coincideCanal &&
       coincideEstatus &&
       coincideFechaDesde &&
-      coincideFechaHasta
+      coincideFechaHasta &&
+      coincideRiesgo
     );
   });
 
+  operacionesFiltradas = filtradas;
+
   gridOperaciones.updateConfig({
-    data: filtradas.map(op => [
-      op.ID_Operacion,
-      op.Cliente,
-      op.Producto,
-      op.Tipo_Operacion,
-      op.Monto,
-      op.Fecha ? new Date(op.Fecha).toLocaleString("es-MX") : "",
-      op.Estado,
-      op.Canal,
-      op.Riesgo
-    ])
+    data: filtradas.map(mapOperacionRow)
   }).forceRender();
 }
 
@@ -124,18 +146,28 @@ function cleanOperacionFiltros() {
   document.getElementById("filterRiesgoOp").value = "";
   document.getElementById("filterCanalOp").value = "";
   document.getElementById("filterEstatusOp").value = "";
+  operacionesFiltradas = operacionesData;
 
   gridOperaciones.updateConfig({
-    data: operacionesData.map(op => [
-      op.ID_Operacion,
-      op.Cliente,
-      op.Producto,
-      op.Tipo_Operacion,
-      op.Monto,
-      op.Fecha ? new Date(op.Fecha).toLocaleString("es-MX") : "",
-      op.Estado,
-      op.Canal,
-      op.Riesgo
-    ])
+    data: operacionesData.map(mapOperacionRow)
   }).forceRender();
+}
+
+function exportarOperacionesFiltradas() {
+  exportarCSV({
+    nombreBase: "operaciones_filtradas",
+    delimiter: ",",
+    fields: [
+      { label: "ID Operacion", value: (op) => valorOperacion(op, "ID_Operacion") },
+      { label: "Cliente", value: (op) => valorOperacion(op, "Cliente") },
+      { label: "Producto", value: (op) => valorOperacion(op, "Producto") },
+      { label: "Tipo", value: (op) => valorOperacion(op, "Tipo_Operacion") },
+      { label: "Monto", value: (op) => valorOperacion(op, "Monto") },
+      { label: "Fecha", value: (op) => valorOperacion(op, "Fecha") },
+      { label: "Estatus", value: (op) => valorOperacion(op, "Estado") },
+      { label: "Canal", value: (op) => valorOperacion(op, "Canal") },
+      { label: "Riesgo", value: (op) => valorOperacion(op, "Riesgo") }
+    ],
+    data: operacionesFiltradas
+  });
 }

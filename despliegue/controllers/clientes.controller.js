@@ -158,9 +158,16 @@ exports.updateCliente = async (req, res) => {
     telefono,
     estatus
   ];
+  const estatusPermitidos = ["Activo", "Bloqueado"];
+  const motivoBloqueoLimpio = motivo_bloqueo?.trim() || null;
 
-  if (camposObligatorios.some((c) => !c?.trim())) {
-    return res.status(400).send("Faltan campos obligatorios");
+  if (
+    camposObligatorios.some((c) => !c?.trim()) ||
+    !estatusPermitidos.includes(estatus) ||
+    (estatus === "Bloqueado" && !motivoBloqueoLimpio) ||
+    motivoBloqueoLimpio?.length > 200
+  ) {
+    return res.status(400).send("Los datos del cliente son incompletos o invalidos");
   }
 
   try {
@@ -172,8 +179,8 @@ exports.updateCliente = async (req, res) => {
       correo: correo.trim().toLowerCase(),
       telefono: telefono.trim(),
       estatus,
-      motivo_bloqueo: motivo_bloqueo?.trim() || null,
-      fecha_bloqueo: fecha_bloqueo || null
+      motivo_bloqueo: estatus === "Bloqueado" ? motivoBloqueoLimpio : null,
+      fecha_bloqueo: estatus === "Bloqueado" ? fecha_bloqueo || new Date().toISOString().slice(0, 10) : null
     });
 
     if (!clienteActualizado) {

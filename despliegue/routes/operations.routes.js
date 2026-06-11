@@ -4,7 +4,7 @@ const operationsController = require("../controllers/operations.controller");
 const isAuth = require("../config/is-auth");
 const verificarRol = require("../config/verificarRol");
 
-const ROLES_ADMIN = ["Administrador", "Oficial_Cumplimiento"];
+const ROLES_ADMIN = ["Administrador", "Oficial_Cumplimiento", "Auditoria"];
 
 router.get("/operations", isAuth, verificarRol(ROLES_ADMIN), operationsController.renderOperations);
 router.get("/operaciones", (req, res) => res.redirect("/operations"));

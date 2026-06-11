@@ -10,6 +10,15 @@ const { doubleCsrf } = require("csrf-csrf");
 const sesion = require("./config/sesion");
 const pool = require("./config/database");
 const app = express();
+const usarStorePostgresSesion =
+  (
+    process.env.SESSION_STORE === "postgres" ||
+    (
+      process.env.NODE_ENV === "production" &&
+      process.env.SESSION_STORE !== "memory"
+    )
+  ) &&
+  Boolean(process.env.DATABASE_URL);
 
 app.set("trust proxy", 1);
 
@@ -44,9 +53,9 @@ app.set(
   path.join(__dirname, "public")
 );
 
-/* =========================
-   MIDDLEWARES
-========================= */
+
+//   MIDDLEWARES
+
 
 app.use(cors({
   origin: ["http://localhost:3001"],
@@ -98,7 +107,7 @@ app.use(cookieParser());
 
 app.use(
   session({
-    store: process.env.DATABASE_URL
+    store: usarStorePostgresSesion
       ? new sesion()
       : undefined,
 
@@ -133,9 +142,9 @@ app.use(
   )
 );
 
-/* =========================
-   CSRF
-========================= */
+
+//   CSRF
+
 
 const {
   generateCsrfToken,
@@ -161,9 +170,9 @@ const {
     req.headers["x-csrf-token"]
 });
 
-/* =========================
-   PROTECCIÓN CSRF
-========================= */
+
+//   PROTECCIÓN CSRF
+
 /*
 app.use((req, res, next) => {
 
@@ -182,9 +191,9 @@ app.use((req, res, next) => {
 });
 */
 
-/* =========================
-   RUTAS PRINCIPALES
-========================= */
+
+//   RUTAS PRINCIPALES
+
 
 app.get("/", (req, res) => {
 
@@ -203,9 +212,9 @@ app.get("/health", (req, res) => {
   });
 });
 
-/* =========================
-   COOKIES
-========================= */
+
+//   COOKIES
+
 
 app.get("/test_cookie", (req, res) => {
 
@@ -235,20 +244,24 @@ app.get("/test_value_cookie", (req, res) => {
   );
 });
 
-/* =========================
-   SESIONES
-========================= */
 
-app.get("/logout", (req, res) => {
-  req.session.destroy(() => {
+ //  SESIONES
 
+
+app.post("/logout", (req, res) => {
+  req.session.destroy((error) => {
+    if (error) {
+      console.error("Error al destruir sesión:", error);
+      return res.status(500).json({ error: "Error al cerrar sesión" });
+    }
+    res.clearCookie("connect.sid");
     res.redirect("/");
   });
 });
 
-/* =========================
-   BACKEND ROUTES
-========================= */
+
+//   BACKEND ROUTES
+
 
 app.use(
   "/usuarios",
@@ -260,13 +273,18 @@ app.use(
   require("./routes/reportes.routes")
 );
 
-/* =========================
-   FRONTEND ROUTES
-========================= */
+
+//   FRONTEND ROUTES
+
 
 app.use(
   "/",
   require("./routes/dashboard.routes")
+);
+
+app.use(
+  "/",
+  require("./routes/listas.routes")
 );
 
 app.use(
@@ -299,9 +317,9 @@ app.use(
   require("./routes/history.routes")
 );
 
-/* =========================
-   SERVER
-========================= */
+
+//   SERVER
+
 
 const server = app.listen(3001, () => {
 

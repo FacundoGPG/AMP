@@ -81,7 +81,7 @@ exports.addCliente = async ({
 
   try {
     const result = await pool.query(sql, values);
-    return result.rows[0]; //se regres al cliente recien creado
+    return result.rows[0]; 
   } catch (error) {
     if (error.code !== "23505" || error.constraint !== "pk_cliente") {
       throw error;
@@ -100,7 +100,7 @@ exports.addCliente = async ({
   }
 };
 
-//nuevo 
+
 exports.updateCliente = async (id_cliente, {
   nombre, 
   tipo_persona,
@@ -164,7 +164,7 @@ exports.addDocumento = async ({
   return result.rows[0];
 };
 
-//obtener todos los documentos de un cliente en especifico
+
 exports.getDocumentosByCliente = async (id_cliente) =>{
   const sql = `
       SELECT
@@ -183,27 +183,47 @@ exports.getDocumentosByCliente = async (id_cliente) =>{
 };
 
 exports.getOperacionesByCliente = async (id_cliente) =>{
-  const sql = `
-    SELECT
-      o.id_operacion,
-      o.tipo_operacion,
-      o.monto,
-      o.fecha,
-      o.estado,
-      o.canal,
-      co.id_contrato,
-      co.id_producto,
-      c.id_cliente,
-      c.nombre AS cliente,
-      c.rfc
-    FROM public."Operacion" o
-    JOIN public."Contrato" co
-      ON o.id_contrato = co.id_contrato
-    JOIN public."Cliente" c
-      ON co.id_cliente = c.id_cliente
-    WHERE c.id_cliente = $1
-    ORDER BY o.fecha DESC
-  `;
+const sql = `
+  SELECT
+    o.id_operacion,
+    o.tipo_operacion,
+    o.monto,
+    o.fecha,
+    o.estado,
+    o.canal,
+    co.id_contrato,
+    co.id_producto,
+    p.nombre AS producto,
+    co.id_cliente,
+    COUNT(DISTINCT aa.id_alerta) AS total_alertas,
+    COUNT(DISTINCT ca.id_caso) AS total_casos
+  FROM public."Operacion" o
+  JOIN public."Contrato" co
+    ON co.id_contrato = o.id_contrato
+  LEFT JOIN public."Producto" p
+    ON p.id_producto = co.id_producto
+  LEFT JOIN public."Alerta_Automatica" aa
+    ON aa.id_operacion = o.id_operacion
+  LEFT JOIN public."Alerta" a
+    ON a.id_alerta = aa.id_alerta
+  LEFT JOIN public."Caso_Alerta" cal
+    ON cal.id_alerta = a.id_alerta
+  LEFT JOIN public."Caso" ca
+    ON ca.id_caso = cal.id_caso
+  WHERE co.id_cliente = $1
+  GROUP BY
+    o.id_operacion,
+    o.tipo_operacion,
+    o.monto,
+    o.fecha,
+    o.estado,
+    o.canal,
+    co.id_contrato,
+    co.id_producto,
+    p.nombre,
+    co.id_cliente
+  ORDER BY o.fecha DESC
+`;
   const result = await pool.query(sql, [id_cliente]);
   return result.rows;
 };

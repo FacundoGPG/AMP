@@ -1,73 +1,41 @@
 const pool = require("../config/database");
 const log = console.log;
 
-exports.ObtenerUsuarios = function(correo, contrasena) {
+exports.ObtenerUsuarios = async function() {
+    const sql = `
+        SELECT
+            u.id_usuario AS id,
+            u.nombre,
+            u.apellido,
+            u.correo,
+            ARRAY_AGG(r.nombre) FILTER (WHERE r.nombre IS NOT NULL) AS roles
+        FROM public."Usuario" u
+        LEFT JOIN public."Usuario_Rol" ur ON ur.id_usuario = u.id_usuario
+        LEFT JOIN public."Rol" r ON r.id_rol = ur.id_rol
+        GROUP BY u.id_usuario
+        ORDER BY u.id_usuario ASC
+    `;
+    const result = await pool.query(sql);
+    return result.rows;
+};
 
-    log("Obtener Usuarios");
-
-    let usuarios = [];
-
-    usuarios.push({
-        id: 1,
-        nombre: "Samuel",
-        active: true
-    });
-
-    usuarios.push({
-        id: 2,
-        nombre: "Lisa",
-        active: true
-    });
-
-    usuarios.push({
-        id: 3,
-        nombre: "Bob",
-        active: false
-    });
-
-    usuarios.push({
-        id: 4,
-        nombre: "Alicia",
-        active: true
-    });
-
-    return usuarios;
-}
-
-exports.ObtenerUsuariosActivos = function(correo, contrasena) {
-
-    log("Obtener Usuarios");
-
-    let usuarios = [];
-
-    usuarios.push({
-        id: 1,
-        nombre: "Samuel",
-        active: true
-    });
-
-    usuarios.push({
-        id: 2,
-        nombre: "Lisa",
-        active: true
-    });
-
-    usuarios.push({
-        id: 3,
-        nombre: "Bob",
-        active: false
-    });
-
-    usuarios.push({
-        id: 4,
-        nombre: "Alicia",
-        active: true
-    });
-
-    let activeUsers = usuarios.filter(user => user.active);
-
-    return activeUsers;
-}
+exports.ObtenerUsuariosActivos = async function() {
+    const sql = `
+        SELECT
+            u.id_usuario AS id,
+            u.nombre,
+            u.apellido,
+            u.correo,
+            ARRAY_AGG(r.nombre) FILTER (WHERE r.nombre IS NOT NULL) AS roles
+        FROM public."Usuario" u
+        LEFT JOIN public."Usuario_Rol" ur ON ur.id_usuario = u.id_usuario
+        LEFT JOIN public."Rol" r ON r.id_rol = ur.id_rol
+        GROUP BY u.id_usuario
+        ORDER BY u.id_usuario ASC
+    `;
+    const result = await pool.query(sql);
+    return result.rows;
+};
 
 /*
     CRUD

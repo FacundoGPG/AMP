@@ -1,5 +1,6 @@
 let gridAlertas;
-let AlertasCargadas = [];
+let alertasCargadas = [];
+let alertasFiltradas = [];
 
 
 async function cargarAlertas() { 
@@ -9,9 +10,11 @@ async function cargarAlertas() {
   try {
     const response = await fetch("/api/alertas");
     alertasCargadas = await response.json();
+    alertasFiltradas = alertasCargadas;
   }catch (error) {
     console.log("Error al cargar alertas", error);
     alertasCargadas = [];
+    alertasFiltradas = [];
   }
 
   if (gridAlertas) {
@@ -76,6 +79,8 @@ function applyFiltersAlertas() {
     return coincideTexto && coincideTipo && coincideEstatus && coincideFechaDesde && coincideFechaHasta;
   });
 
+  alertasFiltradas = filtradas;
+
   gridAlertas.updateConfig({
     data: filtradas.map(a => [
       a.id_alerta,
@@ -97,16 +102,36 @@ function cleanFiltros() {
   document.getElementById("dateTo").value = "";
   document.getElementById("filterType").value = "";
   document.getElementById("filterStatus").value = "";
+  alertasFiltradas = alertasCargadas;
 
   gridAlertas.updateConfig({ data: obtenerDataAlertas() }).forceRender();
+}
+
+function exportarAlertasFiltradas() {
+  exportarCSV({
+    nombreBase: "alertas_filtradas",
+    delimiter: ",",
+    fields: [
+      { label: "ID Alerta", value: "id_alerta" },
+      { label: "Fecha", value: "fecha_generacion" },
+      { label: "Cliente", value: "cliente" },
+      { label: "Tipo de Alerta", value: "tipo_alerta" },
+      { label: "Motivo", value: "motivo" },
+      { label: "Prioridad", value: "prioridad" },
+      { label: "Estatus", value: "estatus" }
+    ],
+    data: alertasFiltradas
+  });
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
   const applyBtn = document.getElementById("applyFilters");
   const clearBtn = document.getElementById("clearFilters");
+  const exportBtn = document.getElementById("exportAlertasCSV");
 
   await cargarAlertas();
 
   if (applyBtn) applyBtn.addEventListener("click", applyFiltersAlertas);
   if (clearBtn) clearBtn.addEventListener("click", cleanFiltros);
+  if (exportBtn) exportBtn.addEventListener("click", exportarAlertasFiltradas);
 });

@@ -3,6 +3,7 @@ const router = express.Router();
 const verificarRol = require("../config/verificarRol.js");
 const controllerUsuarios = require("../controllers/usuarios.controller.js");
 const isAuth = require("../config/is-auth.js");
+const { verificarCooldownLogin } = require("../config/login-rate-limit.js");
 
 const ROLES_ADMIN = ["Administrador", "Oficial_Cumplimiento"];
 
@@ -17,10 +18,11 @@ router.get("/editar_usuario", isAuth, verificarRol(ROLES_ADMIN), controllerUsuar
 router.post("/editar_usuario", isAuth, verificarRol(ROLES_ADMIN), controllerUsuarios.editUserForm);
 router.post("/eliminar_usuario", isAuth, verificarRol(ROLES_ADMIN), controllerUsuarios.deleteUser);
 
-// Autenticación
+
 router.get("/test_json", (req, res) => res.status(200).json({ code: 200, msg: "Ok" }));
 router.get("/login", controllerUsuarios.render_login);
-router.post("/login", controllerUsuarios.do_login);
+router.post("/login", verificarCooldownLogin, controllerUsuarios.do_login);
+
 router.get("/logged", isAuth, controllerUsuarios.get_logged);
 router.get("/registro", controllerUsuarios.get_registro);
 router.post("/registro", controllerUsuarios.post_registro);

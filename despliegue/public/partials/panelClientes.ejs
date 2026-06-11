@@ -13,7 +13,7 @@
         </button>
 
         <button type="button" class="btn btn-light cliente-panel-tab" data-panel-tab="cliente-operaciones-tab">
-            Operaciones
+            Contratos
         </button>
 
         <button type="button" class="btn btn-light cliente-panel-tab" data-panel-tab="cliente-alertas-tab">
@@ -52,6 +52,38 @@
             <strong id="cliente-detail-domicilio">---</strong>
         </div>
     </div>
+    <form id="clienteEstadoForm" method="POST" class="cliente-form cliente-status-form">
+        <input type="hidden" id="estado-cliente-nombre" name="nombre">
+        <input type="hidden" id="estado-cliente-tipo" name="tipo_persona">
+        <input type="hidden" id="estado-cliente-rfc" name="rfc">
+        <input type="hidden" id="estado-cliente-domicilio" name="domicilio">
+        <input type="hidden" id="estado-cliente-correo" name="correo">
+        <input type="hidden" id="estado-cliente-telefono" name="telefono">
+        <input type="hidden" id="estado-cliente-fecha-bloqueo" name="fecha_bloqueo">
+
+        <div>
+            <label for="estado-cliente-select">Estado del cliente</label>
+            <select id="estado-cliente-select" name="estatus" required>
+                <option value="Activo">Activo</option>
+                <option value="Bloqueado">Bloqueado</option>
+            </select>
+        </div>
+
+        <div id="estado-cliente-motivo-wrap" class="cliente-status-reason" hidden>
+            <label for="estado-cliente-motivo">Motivo de bloqueo</label>
+            <textarea
+                id="estado-cliente-motivo"
+                name="motivo_bloqueo"
+                maxlength="200"
+                rows="3"
+                placeholder="Describe el motivo del bloqueo"
+            ></textarea>
+        </div>
+
+        <button type="submit" id="guardarEstadoCliente" class="save-btn cliente-panel-action">
+            Guardar estado
+        </button>
+    </form>
     </section>
 
     <section id="cliente-operaciones-tab" class="cliente-panel-section">

@@ -729,7 +729,13 @@ h1 {
   background: rgba(0,0,0,0.04);
 }
 
+#bloqueados-table tbody .gridjs-tr {
+  cursor: pointer;
+}
 
+#bloqueados-table tbody .gridjs-tr:hover {
+  background: rgba(0,0,0,0.04);
+}
 
 .cliente-panel {
   position: fixed;
@@ -809,7 +815,8 @@ h1 {
 }
 
 .cliente-form input,
-.cliente-form select {
+.cliente-form select,
+.cliente-form textarea {
   width: 100%;
   min-height: 44px;
   padding: 10px 12px;
@@ -822,9 +829,15 @@ h1 {
 }
 
 .cliente-form input:focus,
-.cliente-form select:focus {
+.cliente-form select:focus,
+.cliente-form textarea:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(250, 176, 48, 0.2);
+}
+
+.cliente-form textarea {
+  min-height: 88px;
+  resize: vertical;
 }
 
 .cliente-form-submit {
@@ -842,6 +855,56 @@ h1 {
 .cliente-panel .detail-block {
   margin: 0;
   grid-column: 1 / -1;
+}
+
+.cliente-panel-action {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 6px;
+  font-weight: 700;
+}
+
+.cliente-status-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 8px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border);
+}
+
+.cliente-status-reason {
+  display: grid;
+  gap: 8px;
+}
+
+.cliente-preview-list {
+  display: grid;
+  gap: 10px;
+}
+
+.cliente-preview-item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  background: var(--color-surface);
+}
+
+.cliente-preview-item div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cliente-preview-item strong,
+.cliente-preview-item span,
+.cliente-preview-item p {
+  overflow-wrap: anywhere;
+}
+
+.cliente-preview-item p {
+  margin: 6px 0 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
 }
 
 #cerrarClientePanel,

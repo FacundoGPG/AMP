@@ -31,7 +31,7 @@ async function cargarTablaReportes() {
     data: obtenerDataReportes(),
     search: false,
     sort: true,
-    pagination: { limit: 5 }
+    pagination: { limit: 10 }
   }).render(container);
  
   setTimeout(agregarClickReportes, 300);

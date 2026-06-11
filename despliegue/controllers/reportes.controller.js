@@ -10,7 +10,7 @@ exports.exportarCSV = async (req, res) => {
 
     const parser = new Parser({
       fields: ["id_reporte", "tipo", "fecha_generacion", "estatus_envio", "titulo", "prioridad"],
-      delimiter: ";"
+      delimiter: ","
     });
 
     res.header("Content-Type", "text/csv");

@@ -56,6 +56,7 @@
         <button class="tab-btn <%= tabActiva === 'bloqueados' ? 'active' : '' %>" data-table="bloqueados-section">Personas Bloqueadas</button>
         </div>
         <div class="addCliente">
+        <button class="btn btn-light" id="exportClientesCSV">Exportar Clientes</button>
         <button class="btn btn-light" id="addClientes"> Añadir Cliente </button>
         </div>
         
@@ -77,6 +78,7 @@
 
 <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
 <script src="/scripts/componentes.js"></script>
+<script src="/scripts/exportar-csv.js"></script>
 <script src="/scripts/clientes.js"></script>
 </body>
 </html>

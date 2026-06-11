@@ -1,10 +1,6 @@
-//nuevo
-//para subir archivos
 const multer = require("multer");
 const path = require("path");
 const crypto = require("crypto");
-
-//para base de datos
 const pool = require("../config/database");
 
 //mostrar página del formulario
@@ -70,7 +66,6 @@ const upload2 = multer({
 }).array("file", 1);
 
 
-//   SUBIR ARCHIVO PUBLIC
 
 
 exports.upload_file = async (req, res) => {
@@ -94,7 +89,6 @@ exports.upload_file = async (req, res) => {
 };
 
 
-//  SUBIR ARCHIVO PRIVATE
 
 
 exports.upload_file_private = async (req, res) => {
@@ -125,7 +119,7 @@ exports.upload_file_private = async (req, res) => {
             .digest("hex");
 
         try {
-            // 1. Insertar en Alerta
+            // Insertar en Alerta
             const resultAlerta = await pool.query(`
                 INSERT INTO public."Alerta"
                 (tipo_alerta, fecha_generacion, motivo, estatus)
@@ -135,7 +129,7 @@ exports.upload_file_private = async (req, res) => {
 
             const idAlerta = resultAlerta.rows[0].id_alerta;
 
-            // 2. Insertar en Alerta_Buzon con el ID generado
+            // Insertar en Alerta_Buzon con el ID generado
             await pool.query(`
                 INSERT INTO public."Alerta_Buzon"
                 (id_alerta, descripcion_reporte, ruta_evidencia, hash_seguimiento, estatus)
@@ -144,7 +138,7 @@ exports.upload_file_private = async (req, res) => {
 
             console.log("Reporte anónimo guardado. Hash:", hash);
 
-            // 3. Redirigir con el hash como confirmación
+            // Redirigir con el hash como confirmación
             return res.redirect(`/testing?hash=${hash}`);
 
         } catch (errorBD) {
@@ -155,7 +149,6 @@ exports.upload_file_private = async (req, res) => {
 };
 
 
- //  OBTENER ARCHIVO PRIVATE
 
 
 exports.get_private_file = async (req, res) => {

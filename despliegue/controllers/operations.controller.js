@@ -1,4 +1,4 @@
-const { Operacion } = require("../models/operations.model");
+const { Operacion } = require("../models/operaciones.model");
 
 
 exports.renderOperations = (req, res) => {

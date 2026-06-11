@@ -4,7 +4,7 @@ const buzonController = require("../controllers/buzon.controller");
 const isAuth = require("../config/is-auth");
 const verificarRol = require("../config/verificarRol");
 
-const ROLES_ADMIN = ["Administrador", "Oficial_Cumplimiento"];
+const ROLES_ADMIN = ["Administrador", "Oficial_Cumplimiento", "Auditoria"];
 
 router.get("/buzon", isAuth, verificarRol(ROLES_ADMIN), buzonController.renderBuzon);
 router.get("/api/buzon", isAuth, verificarRol(ROLES_ADMIN), buzonController.getBuzon);
