@@ -105,6 +105,19 @@ app.use(express.json());
 
 app.use(cookieParser());
 
+app.get("/health", (req, res) => {
+
+  res.status(200).json({
+    status: "ok"
+  });
+});
+
+app.use(
+  express.static(
+    path.join(__dirname, "public")
+  )
+);
+
 app.use(
   session({
     store: usarStorePostgresSesion
@@ -135,12 +148,6 @@ app.use((req, res, next) => {
 
   next();
 });
-
-app.use(
-  express.static(
-    path.join(__dirname, "public")
-  )
-);
 
 
 //   CSRF
@@ -204,14 +211,6 @@ app.get("/", (req, res) => {
     csrfToken
   });
 });
-
-app.get("/health", (req, res) => {
-
-  res.status(200).json({
-    status: "ok"
-  });
-});
-
 
 //   COOKIES
 
