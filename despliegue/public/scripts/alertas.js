@@ -41,7 +41,7 @@ function obtenerDataAlertas() {
   return alertasCargadas.map(a => [
     a.id_alerta,
     a.fecha_generacion ? new Date(a.fecha_generacion).toLocaleString("es-MX") : "",
-    a.cliente,        
+    a.cliente, 
     a.tipo_alerta,
     a.motivo,
     a.prioridad || "—",
