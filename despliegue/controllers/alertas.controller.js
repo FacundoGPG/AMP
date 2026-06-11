@@ -42,3 +42,16 @@ exports.updateEstatusAlerta= async (req, res)=>{
     res.status(500).json({error:"Error al actualizar alerta"});
   }
 };
+//historial
+//trae el historial de cambios de una alerta 
+//respuesta formato json
+exports.getHistorialAlerta = async(req,res)=>{
+  const id_alerta=req.params.id; //id del link
+  try{
+    const historial=await alertasModel.getHistorialAlerta(id_alerta);
+    res.json(historial);
+  }catch (err){
+    console.error(err);
+    res.status(500).json({ error: "Error al obetener el historial"});
+  }
+};
