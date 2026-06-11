@@ -16,7 +16,7 @@ exports.getAlertas = async () => {
 
   return result.rows;
 };
-
+//trae las listas ordenadas
 exports.getAlertasByOperacion=async(id_operacion)=>{
   const result= await pool.query(`
     SELECT
@@ -43,5 +43,24 @@ exports.updateEstatusAlerta=async(id_alerta, estatus)=>{
     RETURNING *
   `,[id_alerta, estatus]);
   return result.rows[0];
+};
+//historial
+//$1 se reemplaza con id_alerta
+//da el historial completo
+exports.getHistorialAlerta = async(id_alerta)=>{
+  const result=await pool.query(`
+    SELECT
+      id_historial,
+      id_alerta,
+      estado_anterior,
+      estado_nuevo,
+      accion,
+      usuario_responsable,
+      fecha_cambio
+    FROM public."Historial_Alerta"
+    WHERE id_alerta=$1
+    ORDER BY fecha_cambio DESC
+    `,[id_alerta]);
+    return result.rows;
 };
 
