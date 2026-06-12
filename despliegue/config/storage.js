@@ -3,8 +3,9 @@ const { createClient } = require("@supabase/supabase-js");
 const BUCKET = "documentos";
 
 function getSupabase() {
-  console.log("SUPABASE_URL:", process.env.SUPABASE_URL ? "definida" : "UNDEFINED");
-  console.log("SUPABASE_SERVICE_KEY:", process.env.SUPABASE_SERVICE_KEY ? "definida" : "UNDEFINED");
+  console.log("ENV CHECK - SUPABASE_URL:", process.env.SUPABASE_URL ? "OK" : "MISSING");
+  console.log("ENV CHECK - SERVICE_KEY:", process.env.SUPABASE_SERVICE_KEY ? "OK" : "MISSING");
+  console.log("Todas las env vars:", Object.keys(process.env).filter(k => k.includes("SUPA")));
   
   return createClient(
     process.env.SUPABASE_URL,
