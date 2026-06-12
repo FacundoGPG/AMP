@@ -4,6 +4,10 @@ let clientesBloqueadosCargados = [];
 let listasData = [];
 let productosData = [];
 
+if (typeof Dropzone !== "undefined") {
+  Dropzone.autoDiscover = false;
+}
+
 
 
 async function cargarTablaClientes() {
@@ -474,7 +478,9 @@ function abrirModalAgregarLista() {
   document.getElementById("lista-modal-nombre").value = "";
   document.getElementById("lista-modal-fuente").value = "";
   document.getElementById("lista-modal-error").style.display = "none";
-  document.getElementById("lista-modal").style.display = "flex";
+  document.getElementById("lista-upload-titulo").textContent = "Cargar lista CSV";
+  reiniciarListaCsvDropzone();
+  abrirPanelLista();
 }
 
 function abrirModalEditarLista(lista) {
@@ -484,11 +490,61 @@ function abrirModalEditarLista(lista) {
   document.getElementById("lista-modal-nombre").value = lista.nombre;
   document.getElementById("lista-modal-fuente").value = lista.fuente;
   document.getElementById("lista-modal-error").style.display = "none";
-  document.getElementById("lista-modal").style.display = "flex";
+  document.getElementById("lista-upload-titulo").textContent = "¿Actualizar Lista?";
+  reiniciarListaCsvDropzone();
+  abrirPanelLista();
+}
+
+function abrirPanelLista() {
+  document.getElementById("listaOverlay")?.classList.add("active");
+  document.getElementById("listaPanel")?.classList.add("active");
+  document.getElementById("lista-modal-nombre")?.focus();
 }
 
 function cerrarModalLista() {
-  document.getElementById("lista-modal").style.display = "none";
+  document.getElementById("listaOverlay")?.classList.remove("active");
+  document.getElementById("listaPanel")?.classList.remove("active");
+}
+
+let listaCsvDropzone = null;
+
+function iniciarListaCsvDropzone() {
+  const dropzoneElement = document.getElementById("listaCsvDropzone");
+  if (!dropzoneElement || typeof Dropzone === "undefined") return;
+
+  Dropzone.autoDiscover = false;
+
+  listaCsvDropzone = new Dropzone(dropzoneElement, {
+    url: "/target",
+    paramName: "file",
+    autoProcessQueue: false,
+    maxFiles: 1,
+    maxFilesize: 10,
+    acceptedFiles: ".csv,text/csv",
+    addRemoveLinks: true,
+    dictDefaultMessage: "Arrastra el CSV o haz clic para seleccionarlo",
+    dictRemoveFile: "Eliminar archivo",
+    dictInvalidFileType: "Solo se permiten archivos CSV",
+    dictMaxFilesExceeded: "Solo puedes subir un archivo"
+  });
+
+  listaCsvDropzone.on("addedfile", async () => {
+    const status = document.getElementById("lista-csv-status");
+    if (status) status.textContent = "CSV cargado. Ejecutando validacion contra listas...";
+    await validarClienteListas();
+    if (status) status.textContent = "Validacion contra listas ejecutada.";
+  });
+}
+
+function reiniciarListaCsvDropzone() {
+  if (listaCsvDropzone) {
+    listaCsvDropzone.removeAllFiles(true);
+  }
+
+  const status = document.getElementById("lista-csv-status");
+  if (status) {
+    status.textContent = "Sube un archivo CSV para volver a ejecutar la validacion contra listas.";
+  }
 }
 
 async function guardarLista() {
@@ -627,7 +683,13 @@ async function cargarRiesgoCliente(idCliente) {
 }
 
 async function validarClienteListas() {
-  if (!clienteSeleccionado) return;
+  if (!clienteSeleccionado) {
+    const status = document.getElementById("lista-csv-status");
+    if (status) {
+      status.textContent = "Selecciona un cliente antes de validar contra listas.";
+    }
+    return;
+  }
 
   const btn = document.getElementById("btn-validar-listas");
   btn.disabled = true;
@@ -853,8 +915,14 @@ document.addEventListener("DOMContentLoaded", () => {
     ?.addEventListener("click", cerrarModalLista);
   document.getElementById("lista-modal-cancelar")
     ?.addEventListener("click", cerrarModalLista);
-  document.getElementById("lista-modal-guardar")
-    ?.addEventListener("click", guardarLista);
+  document.getElementById("lista-form")
+    ?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      guardarLista();
+    });
+  document.getElementById("listaOverlay")
+    ?.addEventListener("click", cerrarModalLista);
+  iniciarListaCsvDropzone();
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") cerrarModalLista();

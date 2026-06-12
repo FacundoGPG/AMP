@@ -3,12 +3,12 @@ if (typeof Dropzone !== "undefined") {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("reporteForm");
-  const dropzoneElement = document.getElementById("evidenciaDropzone");
+  const form = document.getElementById("clienteDocumentoForm");
+  const dropzoneElement = document.getElementById("clienteDocumentoDropzone");
 
   if (!form || !dropzoneElement || typeof Dropzone === "undefined") return;
 
-  const evidenciaDropzone = new Dropzone(dropzoneElement, {
+  const documentoDropzone = new Dropzone(dropzoneElement, {
     url: form.action,
     paramName: "file",
     autoProcessQueue: false,
@@ -16,24 +16,25 @@ document.addEventListener("DOMContentLoaded", () => {
     maxFilesize: 10,
     acceptedFiles: ".pdf,.jpg,.jpeg,.png",
     addRemoveLinks: true,
-    dictDefaultMessage: "Arrastra la evidencia o haz clic para seleccionarla",
+    dictDefaultMessage: "Arrastra el documento o haz clic para seleccionarlo",
     dictRemoveFile: "Eliminar archivo",
     dictMaxFilesExceeded: "Solo puedes subir un archivo"
   });
 
   form.addEventListener("submit", (event) => {
-    if (!evidenciaDropzone.getQueuedFiles().length) return;
+    if (!documentoDropzone.getQueuedFiles().length) return;
 
     event.preventDefault();
-    evidenciaDropzone.processQueue();
+    documentoDropzone.processQueue();
   });
 
-  evidenciaDropzone.on("sending", (file, xhr, formData) => {
+  documentoDropzone.on("sending", (file, xhr, formData) => {
     formData.append("nombre", form.elements.nombre.value);
-    formData.append("mensaje", form.elements.mensaje.value);
+    formData.append("rfc", form.elements.rfc.value);
+    formData.append("curp", form.elements.curp.value);
   });
 
-  evidenciaDropzone.on("success", () => {
-    window.location.assign("/testing");
+  documentoDropzone.on("success", () => {
+    window.location.assign("/testing?enviado=true");
   });
 });

@@ -1,0 +1,70 @@
+<div id="listaOverlay" class="overlay"></div>
+<aside id="listaPanel" class="cliente-panel">
+  <div class="cliente-panel-header">
+    <div>
+      <p>Configuracion de listas</p>
+      <h3 id="lista-modal-titulo">Agregar lista</h3>
+    </div>
+
+    <button type="button" id="lista-modal-cerrar" aria-label="Cerrar formulario">X</button>
+  </div>
+
+  <form id="lista-form" class="cliente-form">
+    <input type="hidden" id="lista-modal-id">
+
+    <div class="detail-grid">
+      <div>
+        <label for="lista-modal-tipo">Tipo de lista</label>
+        <select id="lista-modal-tipo" required>
+          <option value="PEP">PEP</option>
+          <option value="Lista_Negra">Lista Negra</option>
+          <option value="Sancion">Sancion</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="lista-modal-nombre">Nombre</label>
+        <input
+          type="text"
+          id="lista-modal-nombre"
+          maxlength="120"
+          placeholder="Ej. Lista OFAC, PEP Mexico"
+          required
+        >
+      </div>
+
+      <div class="detail-block">
+        <label for="lista-modal-fuente">Fuente</label>
+        <input
+          type="text"
+          id="lista-modal-fuente"
+          maxlength="120"
+          placeholder="Ej. SHCP, ONU, OFAC"
+          required
+        >
+      </div>
+    </div>
+
+    <div id="lista-modal-error" class="text-danger small" style="display:none"></div>
+
+    <section id="lista-upload-section" class="lista-upload-section">
+      <div class="panel-section-header">
+        <h4 id="lista-upload-titulo">Cargar lista CSV</h4>
+      </div>
+      <div id="listaCsvDropzone" class="dropzone lista-dropzone"></div>
+      <small id="lista-csv-status" class="lista-csv-status">
+        Sube un archivo CSV para volver a ejecutar la validacion contra listas.
+      </small>
+    </section>
+
+    <div class="lista-panel-actions">
+      <button type="button" id="lista-modal-cancelar" class="btn btn-light">
+        Cancelar
+      </button>
+      <button type="submit" id="lista-modal-guardar" class="save-btn">
+        Guardar
+      </button>
+    </div>
+  </form>
+</aside>
