@@ -1,6 +1,6 @@
 const pool = require("../config/database");
 
-exports.getHistorial = async () => {
+exports.getHistorial = async (idUsuario = null) => {
   const result = await pool.query(`
     SELECT
       h.id_historial,
@@ -11,8 +11,9 @@ exports.getHistorial = async () => {
       h.estado
     FROM public."Historial" h
     JOIN public."Usuario" u ON u.id_usuario = h.id_usuario
+    WHERE ($1::integer IS NULL OR h.id_usuario = $1)
     ORDER BY h.fecha DESC
-  `);
+  `, [idUsuario]);
   return result.rows;
 };
 

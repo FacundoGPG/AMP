@@ -2,13 +2,22 @@ const multer = require("multer");
 const path = require("path");
 const crypto = require("crypto");
 const pool = require("../config/database");
+const { subirArchivo } = require("../config/storage");
+const clientesModel = require("../models/clientes.model");
 
 //mostrar página del formulario
-exports.renderChisme = (req, res) => {
+exports.renderChisme = async (req, res) => {
     const roles = req.session.usuario?.roles || [];
 
     if (roles.includes("Cliente")) {
-        return res.render("cliente", { pageTitle: "Portal del Cliente" });
+        const id_usuario = req.session.usuario?.id;
+        const tienePendiente = await clientesModel.tienePendiente(id_usuario);
+
+        return res.render("cliente", {
+            pageTitle: "Portal del Cliente",
+            enviado:   req.query.enviado === "true",
+            pendiente: tienePendiente
+        });
     }
 
     res.render("chisme", {
@@ -17,40 +26,62 @@ exports.renderChisme = (req, res) => {
     });
 };
 
+// Multer en memoria — el archivo nunca toca el disco
+const uploadMemoria = multer({ storage: multer.memoryStorage() }).single("file");
+
 exports.upload_documento_cliente = async (req, res) => {
-    upload2(req, res, async function (err) {
-        if (err) {
-            return res.status(500).json({ msg: "Error subiendo archivo" });
-        }
+  uploadMemoria(req, res, async function (err) {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error al recibir el archivo");
+    }
 
-        const { rfc, curp } = req.body;
-        let rutaArchivo = null;
-        let nombreArchivo = null;
+    const id_usuario = req.session.usuario?.id;
+    if (!id_usuario) return res.status(401).send("No autenticado");
 
-        if (req.files && req.files.length > 0) {
-            nombreArchivo = req.files[0].originalname;
-            rutaArchivo = "/private/" + nombreArchivo;
-        }
+    // Verificar que no tenga un documento pendiente
+    const tienePendiente = await clientesModel.tienePendiente(id_usuario);
+    if (tienePendiente) {
+      return res.render("cliente", {
+        pageTitle: "Portal del Cliente",
+        enviado: false,
+        pendiente: true
+      });
+    }
 
-        try {
-            const clienteResult = await pool.query(`
-                SELECT id_cliente FROM public."Cliente" WHERE rfc = $1 LIMIT 1
-            `, [rfc?.trim().toUpperCase()]);
+    if (!req.file) return res.status(400).send("No se recibió ningún archivo");
 
-            const idCliente = clienteResult.rows[0]?.id_cliente || null;
+    try {
+      // Subir a Supabase Storage
+      const { url, ruta } = await subirArchivo(
+        req.file.buffer,
+        req.file.originalname,
+        req.file.mimetype
+      );
 
-            await pool.query(`
-                INSERT INTO public."Documento"
-                  (id_cliente, tipo_documento, nombre_archivo, ruta_archivo, estatus_validacion, fecha_carga)
-                VALUES ($1, $2, $3, $4, 'Pendiente', NOW())
-            `, [idCliente, `RFC:${rfc} CURP:${curp}`, nombreArchivo, rutaArchivo]);
+      const datos_cliente = {
+        nombre:       req.body.nombre?.trim(),
+        tipo_persona: req.body.tipo_persona,
+        rfc:          req.body.rfc?.trim().toUpperCase(),
+        curp:         req.body.curp?.trim().toUpperCase(),
+        correo:       req.body.correo?.trim().toLowerCase(),
+        telefono:     req.body.telefono?.trim(),
+        domicilio:    req.body.domicilio?.trim()
+      };
 
-            return res.redirect("/testing?enviado=true");
-        } catch (error) {
-            console.error("Error guardando documento:", error);
-            return res.status(500).send("Error al guardar documento");
-        }
-    });
+      await clientesModel.addDocumentoCliente({
+        id_usuario,
+        nombre_archivo: req.file.originalname,
+        ruta_archivo:   url,
+        datos_cliente
+      });
+
+      return res.redirect("/testing?enviado=true");
+    } catch (error) {
+      console.error("Error guardando documento:", error);
+      return res.status(500).send("Error al guardar el documento");
+    }
+  });
 };
 
 
@@ -81,25 +112,7 @@ const upload = multer({
 }).array("file", 1);
 
 
-// CONFIGURACIÓN PRIVATE
 
-
-const storage2 = multer.diskStorage({
-
-    destination: function (req, file, callback) {
-
-        callback(null, "./private/");
-    },
-
-    filename: function (req, file, callback) {
-
-        callback(null, file.originalname);
-    }
-});
-
-const upload2 = multer({
-    storage: storage2
-}).array("file", 1);
 
 
 
@@ -128,60 +141,62 @@ exports.upload_file = async (req, res) => {
 
 
 exports.upload_file_private = async (req, res) => {
+  uploadMemoria(req, res, async function (err) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ code: 500, msg: "Error uploading file" });
+    }
 
-    upload2(req, res, async function (err) {
+    const descripcion = req.body.mensaje || "";
+    const situacion   = req.body.nombre  || "Sin título";
 
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ code: 500, msg: "Error uploading file" });
-        }
+    if (!descripcion.trim()) {
+      return res.status(400).send("La descripción es obligatoria");
+    }
 
-        const descripcion = req.body.mensaje || "";
-        const situacion = req.body.nombre || "Sin título";
+    let rutaEvidencia = null;
 
-        if (!descripcion.trim()) {
-            return res.status(400).send("La descripción es obligatoria");
-        }
+    if (req.file) {
+      try {
+        const { url } = await subirArchivo(
+          req.file.buffer,
+          req.file.originalname,
+          req.file.mimetype
+        );
+        rutaEvidencia = url;
+      } catch (storageError) {
+        console.error("Error subiendo a Storage:", storageError);
+        return res.status(500).send("Error al subir el archivo");
+      }
+    }
 
-        let rutaEvidencia = null;
-        if (req.files && req.files.length > 0) {
-            rutaEvidencia = "/private/" + req.files[0].originalname;
-        }
+    const hash = crypto
+      .createHash("sha256")
+      .update(crypto.randomUUID())
+      .digest("hex");
 
-        // Generar hash anónimo SHA-256
-        const hash = crypto
-            .createHash("sha256")
-            .update(crypto.randomUUID())
-            .digest("hex");
+    try {
+      const resultAlerta = await pool.query(`
+        INSERT INTO public."Alerta"
+        (tipo_alerta, fecha_generacion, motivo, estatus)
+        VALUES ('Buzon', NOW(), $1, 'Nueva')
+        RETURNING id_alerta
+      `, [situacion]);
 
-        try {
-            // Insertar en Alerta
-            const resultAlerta = await pool.query(`
-                INSERT INTO public."Alerta"
-                (tipo_alerta, fecha_generacion, motivo, estatus)
-                VALUES ('Buzon', NOW(), $1, 'Nueva')
-                RETURNING id_alerta
-            `, [situacion]);
+      const idAlerta = resultAlerta.rows[0].id_alerta;
 
-            const idAlerta = resultAlerta.rows[0].id_alerta;
+      await pool.query(`
+        INSERT INTO public."Alerta_Buzon"
+        (id_alerta, descripcion_reporte, ruta_evidencia, hash_seguimiento, estatus)
+        VALUES ($1, $2, $3, $4, 'Pendiente')
+      `, [idAlerta, descripcion, rutaEvidencia, hash]);
 
-            // Insertar en Alerta_Buzon con el ID generado
-            await pool.query(`
-                INSERT INTO public."Alerta_Buzon"
-                (id_alerta, descripcion_reporte, ruta_evidencia, hash_seguimiento, estatus)
-                VALUES ($1, $2, $3, $4, 'Pendiente')
-            `, [idAlerta, descripcion, rutaEvidencia, hash]);
-
-            console.log("Reporte anónimo guardado. Hash:", hash);
-
-            // Redirigir con el hash como confirmación
-            return res.redirect(`/testing?hash=${hash}`);
-
-        } catch (errorBD) {
-            console.error("Error en la base de datos:", errorBD);
-            return res.status(500).send("Error al guardar el reporte");
-        }
-    });
+      return res.redirect(`/testing?hash=${hash}`);
+    } catch (errorBD) {
+      console.error("Error en la base de datos:", errorBD);
+      return res.status(500).send("Error al guardar el reporte");
+    }
+  });
 };
 
 
@@ -210,3 +225,4 @@ exports.get_private_file = async (req, res) => {
         }
     });
 };
+

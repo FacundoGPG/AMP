@@ -14,6 +14,7 @@
   <%- include("partials/sidebar") %>
   <%- include("partials/config") %>
   <%- include("partials/panelUsuario") %>
+  <%- include("partials/panelUmbralAdmin") %>
   <div id="overlay" class="overlay"></div>
 
   <main class="dashboard">
@@ -40,6 +41,7 @@
         <div class="clientes-tabs">
           <button class="tab-btn active" data-table="usuarios-section">Usuarios</button>
           <button class="tab-btn" data-table="crear-section">Crear usuario</button>
+          <button class="tab-btn" data-table="umbrales-section">Catálogo de umbrales</button>
         </div>
       </div>
 
@@ -91,8 +93,18 @@
           <button class="save-btn" style="margin-top:1rem; width:100%;" id="btn-crear-usuario">Crear usuario</button>
         </div>
       </div>
+
+      <!-- TAB: UMBRALES -->
+      <div id="umbrales-section" class="table-section">
+        <div class="clientes-header" style="margin-bottom: 1rem;">
+          <h2>Catálogo de umbrales</h2>
+          <button class="btn btn-light" id="btn-nuevo-umbral-global">+ Nuevo umbral</button>
+        </div>
+        <div id="umbrales-table"></div>
+      </div>
+
+
     </section>
-    
 
   </main>
 
@@ -104,5 +116,6 @@
   <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
   <script src="/scripts/componentes.js"></script>
   <script src="/scripts/admin.js"></script>
+  <script src="/scripts/umbrales-admin.js"></script>
 </body>
 </html>

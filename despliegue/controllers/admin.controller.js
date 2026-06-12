@@ -144,3 +144,115 @@ exports.renderAdmin = (req, res) => {
     usuarioSesion: req.session.usuario 
   });
 };
+
+// GET /api/umbrales
+exports.getUmbrales = async (req, res) => {
+  try {
+    const clientesModel = require("../models/clientes.model");
+    const umbrales = await clientesModel.getUmbralesAdmin();
+    res.json(umbrales);
+  } catch (error) {
+    console.error("Error obteniendo umbrales:", error);
+    res.status(500).json({ error: "Error al obtener umbrales" });
+  }
+};
+
+// PUT /api/umbrales/:id
+exports.updateUmbral = async (req, res) => {
+  const { nombre, tipo_alerta, valor_limite, nivel, descripcion } = req.body;
+  const id = req.params.id;
+
+  const NIVELES_VALIDOS = ["Alta", "Media", "Critica"];
+  if (!nombre?.trim() || !tipo_alerta?.trim() || !nivel?.trim() || valor_limite === undefined) {
+    return res.status(400).json({ error: "Todos los campos son obligatorios" });
+  }
+  if (!NIVELES_VALIDOS.includes(nivel)) {
+    return res.status(400).json({ error: "Nivel no válido" });
+  }
+  if (isNaN(Number(valor_limite)) || Number(valor_limite) < 0) {
+    return res.status(400).json({ error: "valor_limite debe ser un número positivo" });
+  }
+
+  try {
+    const clientesModel = require("../models/clientes.model");
+    const actualizado = await clientesModel.updateUmbral(id, {
+      nombre: nombre.trim(),
+      tipo_alerta: tipo_alerta.trim(),
+      valor_limite: Number(valor_limite),
+      nivel,
+      descripcion: descripcion?.trim() ?? ""
+    });
+
+    if (!actualizado) return res.status(404).json({ error: "Umbral no encontrado" });
+
+    await historyModel.registrarActividad(
+      req.session.usuario.id,
+      `Editó umbral #${id} (${nombre}), nuevo límite: $${valor_limite}`,
+      "Umbrales",
+      "Activo"
+    );
+
+    res.json(actualizado);
+  } catch (error) {
+    console.error("Error actualizando umbral:", error);
+    res.status(500).json({ error: "Error al actualizar umbral" });
+  }
+};
+
+exports.createUmbral = async (req, res) => {
+  const { nombre, tipo_alerta, valor_limite, nivel, descripcion } = req.body;
+
+  const NIVELES_VALIDOS = ["Alta", "Media", "Critica"];
+  if (!nombre?.trim() || !tipo_alerta?.trim() || !nivel?.trim() || valor_limite === undefined) {
+    return res.status(400).json({ error: "Todos los campos son obligatorios" });
+  }
+  if (!NIVELES_VALIDOS.includes(nivel)) {
+    return res.status(400).json({ error: "Nivel no válido" });
+  }
+  if (isNaN(Number(valor_limite)) || Number(valor_limite) < 0) {
+    return res.status(400).json({ error: "valor_limite debe ser un número positivo" });
+  }
+
+  try {
+    const clientesModel = require("../models/clientes.model");
+const result = await clientesModel.createUmbralGlobal({
+      nombre: nombre.trim(),
+      tipo_alerta: tipo_alerta.trim(),
+      valor_limite: Number(valor_limite),
+      nivel,
+      descripcion: descripcion?.trim() ?? "",
+      id_cliente: req.body.id_cliente ? Number(req.body.id_cliente) : null
+    });
+
+    await historyModel.registrarActividad(
+      req.session.usuario.id,
+      `Creó umbral global "${nombre}" con límite $${valor_limite}`,
+      "Umbrales",
+      "Activo"
+    );
+
+    res.status(201).json(result);
+  } catch (error) {
+    console.error("Error creando umbral:", error);
+    res.status(500).json({ error: "Error al crear umbral" });
+  }
+};
+
+exports.deleteUmbral = async (req, res) => {
+  try {
+    const clientesModel = require("../models/clientes.model");
+    await clientesModel.deleteUmbralGlobal(req.params.id);
+
+    await historyModel.registrarActividad(
+      req.session.usuario.id,
+      `Eliminó umbral global #${req.params.id}`,
+      "Umbrales",
+      "Activo"
+    );
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("Error eliminando umbral:", error);
+    res.status(500).json({ error: "Error al eliminar umbral" });
+  }
+};

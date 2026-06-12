@@ -267,6 +267,7 @@ exports.getClientesconContratos = async(id_cliente)=>{
   return result.rows;
 };
 
+
 exports.getUmbralesByCliente = async (id_cliente) => {
   const sql = `
     SELECT
@@ -276,12 +277,15 @@ exports.getUmbralesByCliente = async (id_cliente) => {
       u.valor_limite,
       u.nivel,
       u.descripcion,
+      u.es_personalizado,
       COALESCE(cu.activo, false) AS activo
     FROM public."Umbral" u
     LEFT JOIN public."Cliente_Umbral" cu
       ON cu.id_umbral = u.id_umbral
       AND cu.id_cliente = $1
-    ORDER BY u.nivel ASC, u.tipo_alerta ASC
+    WHERE u.es_personalizado = false
+       OR u.id_cliente = $1
+    ORDER BY u.es_personalizado ASC, u.nivel ASC, u.nombre ASC
   `;
   const result = await pool.query(sql, [id_cliente]);
   return result.rows;
@@ -299,6 +303,90 @@ exports.toggleUmbral = async (id_cliente, id_umbral, activo, id_usuario) => {
   const result = await pool.query(sql, [id_cliente, id_umbral, activo, id_usuario]);
   return result.rows[0];
 };
+
+exports.getUmbralesAdmin = async () => {
+  const sql = `
+    SELECT
+      id_umbral,
+      nombre,
+      tipo_alerta,
+      valor_limite,
+      nivel,
+      descripcion,
+      es_personalizado,
+      id_cliente
+    FROM public."Umbral"
+    WHERE es_personalizado = false
+    ORDER BY nivel ASC, nombre ASC
+  `;
+  const result = await pool.query(sql);
+  return result.rows;
+};
+
+exports.updateUmbral = async (id_umbral, { nombre, tipo_alerta, valor_limite, nivel, descripcion }) => {
+  const sql = `
+    UPDATE public."Umbral"
+    SET nombre = $1, tipo_alerta = $2, valor_limite = $3, nivel = $4, descripcion = $5
+    WHERE id_umbral = $6
+    RETURNING *
+  `;
+  const result = await pool.query(sql, [nombre, tipo_alerta, valor_limite, nivel, descripcion, id_umbral]);
+  return result.rows[0];
+};
+
+
+
+exports.createUmbralPersonalizado = async (id_cliente, { nombre, tipo_alerta, valor_limite, nivel, descripcion }) => {
+  const sql = `
+    INSERT INTO public."Umbral"
+      (nombre, tipo_alerta, valor_limite, nivel, descripcion, es_personalizado, id_cliente)
+    VALUES ($1, $2, $3, $4, $5, true, $6)
+    RETURNING *
+  `;
+  const result = await pool.query(sql, [nombre, tipo_alerta, valor_limite, nivel, descripcion ?? "", id_cliente]);
+  return result.rows[0];
+};
+
+
+exports.deleteUmbralPersonalizado = async (id_umbral, id_cliente) => {
+  await pool.query(`
+    DELETE FROM public."Cliente_Umbral"
+    WHERE id_umbral = $1 AND id_cliente = $2
+  `, [id_umbral, id_cliente]);
+
+  const result = await pool.query(`
+    DELETE FROM public."Umbral"
+    WHERE id_umbral = $1
+      AND es_personalizado = true
+      AND id_cliente = $2
+    RETURNING id_umbral
+  `, [id_umbral, id_cliente]);
+
+  return result.rows[0];
+};
+
+exports.deleteUmbralGlobal = async (id_umbral) => {
+  await pool.query(`
+    DELETE FROM public."Cliente_Umbral" WHERE id_umbral = $1
+  `, [id_umbral]);
+
+  await pool.query(`
+    DELETE FROM public."Umbral" WHERE id_umbral = $1
+  `, [id_umbral]);
+};
+
+exports.createUmbralGlobal = async ({ nombre, tipo_alerta, valor_limite, nivel, descripcion, id_cliente }) => {
+  const es_personalizado = id_cliente != null;
+  const result = await pool.query(`
+    INSERT INTO public."Umbral"
+      (nombre, tipo_alerta, valor_limite, nivel, descripcion, es_personalizado, id_cliente)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    RETURNING *
+  `, [nombre, tipo_alerta, valor_limite, nivel, descripcion, es_personalizado, id_cliente]);
+  return result.rows[0];
+};
+
+
 
 exports.getContratosByCliente = async (id_cliente) => {
   const sql = `
@@ -348,7 +436,7 @@ exports.getClienteById = async (id_cliente) => {
 
 exports.getValidacionesByCliente = async (id_cliente) => {
   const sql = `
-    SELECT
+    SELECT DISTINCT ON (vl.id_lista)
       vl.fecha_validacion,
       vl.resultado,
       vl.coincidencia,
@@ -358,7 +446,7 @@ exports.getValidacionesByCliente = async (id_cliente) => {
     FROM public."Validacion_Lista" vl
     JOIN public."Lista_Riesgo" lr ON lr.id_lista = vl.id_lista
     WHERE vl.id_cliente = $1
-    ORDER BY vl.fecha_validacion DESC
+    ORDER BY vl.id_lista, vl.fecha_validacion DESC
   `;
   const result = await pool.query(sql, [id_cliente]);
   return result.rows;
@@ -422,4 +510,83 @@ exports.getAlertasByCliente = async (id_cliente) => {
   `;
   const result = await pool.query(sql, [id_cliente]);
   return result.rows;
+};
+
+
+// Subida de documento desde portal del cliente (con datos del formulario)
+exports.addDocumentoCliente = async ({ id_usuario, nombre_archivo, ruta_archivo, datos_cliente }) => {
+  const sql = `
+    INSERT INTO public."Documento"
+    (id_usuario, tipo_documento, nombre_archivo, ruta_archivo, estatus_validacion, fecha_carga, datos_cliente)
+    VALUES ($1, 'Identificacion', $2, $3, 'Pendiente', NOW(), $4)
+    RETURNING *
+  `;
+  const result = await pool.query(sql, [id_usuario, nombre_archivo, ruta_archivo, JSON.stringify(datos_cliente)]);
+  return result.rows[0];
+};
+
+// Obtener documentos pendientes de validación (sin cliente creado aún)
+exports.getDocumentosPendientes = async () => {
+  const sql = `
+    SELECT
+      d.id_documento,
+      d.id_usuario,
+      u.nombre || ' ' || u.apellido AS nombre_usuario,
+      u.correo,
+      d.nombre_archivo,
+      d.ruta_archivo,
+      d.estatus_validacion,
+      d.fecha_carga,
+      d.datos_cliente
+    FROM public."Documento" d
+    JOIN public."Usuario" u ON u.id_usuario = d.id_usuario
+    WHERE d.id_cliente IS NULL
+    AND d.estatus_validacion IN ('Pendiente', 'Rechazado')
+    ORDER BY d.fecha_carga DESC
+  `;
+  const result = await pool.query(sql);
+  return result.rows;
+};
+
+// Validar documento y crear cliente
+exports.validarYCrearCliente = async (id_documento, id_usuario_oficial, datosEditados) => {
+  const { nombre, tipo_persona, rfc, correo, telefono, domicilio } = datosEditados;
+
+  // Crear el cliente
+  const clienteResult = await pool.query(`
+    INSERT INTO public."Cliente"
+    (nombre, tipo_persona, rfc, domicilio, correo, telefono, estatus, fecha_registro)
+    VALUES ($1, $2, $3, $4, $5, $6, 'Activo', NOW())
+    RETURNING id_cliente
+  `, [nombre, tipo_persona, rfc, domicilio, correo, telefono]);
+
+  const idCliente = clienteResult.rows[0].id_cliente;
+
+  // Vincular documento al cliente y marcar como validado
+  await pool.query(`
+    UPDATE public."Documento"
+    SET id_cliente = $1, estatus_validacion = 'Validado',
+        fecha_validacion = NOW(), id_usuario = $2
+    WHERE id_documento = $3
+  `, [idCliente, id_usuario_oficial, id_documento]);
+
+  return idCliente;
+};
+
+// Rechazar documento
+exports.rechazarDocumento = async (id_documento, id_usuario_oficial) => {
+  await pool.query(`
+    UPDATE public."Documento"
+    SET estatus_validacion = 'Rechazado', fecha_validacion = NOW(), id_usuario = $1
+    WHERE id_documento = $2
+  `, [id_usuario_oficial, id_documento]);
+};
+
+exports.tienePendiente = async (id_usuario) => {
+  const result = await pool.query(`
+    SELECT id_documento FROM public."Documento"
+    WHERE id_usuario = $1 AND estatus_validacion = 'Pendiente'
+    LIMIT 1
+  `, [id_usuario]);
+  return result.rows.length > 0;
 };

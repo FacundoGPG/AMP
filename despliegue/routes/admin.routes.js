@@ -12,6 +12,9 @@ router.get("/admin", isAuth, soloAdminYOficial, adminController.renderAdmin);
 router.post("/admin/usuarios", isAuth, soloAdminYOficial, adminController.crearUsuario);
 router.put("/admin/usuarios/:id", isAuth, soloAdminYOficial, adminController.editarUsuario);
 router.delete("/admin/usuarios/:id", isAuth, soloAdminYOficial, adminController.eliminarUsuario);
-
+router.get("/api/umbrales",     isAuth, soloAdminYOficial, adminController.getUmbrales);
+router.put("/api/umbrales/:id", isAuth, soloAdminYOficial, adminController.updateUmbral);
+router.post("/api/umbrales", isAuth, soloAdminYOficial, adminController.createUmbral);
+router.delete("/api/umbrales/:id", isAuth, soloAdminYOficial, adminController.deleteUmbral);
 
 module.exports = router;

@@ -54,13 +54,8 @@ exports.createOperacion = async (req, res) => {
       fecha
     });
 
-    const alertas = await Operacion.verificarUmbralesYGenerarAlertas(
-      operacion.id_operacion,
-      id_contrato,
-      monto
-    );
-
     res.status(201).json({ operacion, alertas });
+    
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error al crear operacion" });

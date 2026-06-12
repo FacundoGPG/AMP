@@ -402,3 +402,134 @@ exports.getAlertasDeCliente = async (req, res) => {
     res.status(500).json({ error: "Error al obtener alertas" });
   }
 };
+
+
+
+// GET /api/documentos/pendientes — lista para el Oficial
+exports.getDocumentosPendientes = async (req, res) => {
+  try {
+    const docs = await clientesModel.getDocumentosPendientes();
+    res.json(docs);
+  } catch (error) {
+    console.error("Error obteniendo documentos pendientes:", error);
+    res.status(500).json({ error: "Error al obtener documentos" });
+  }
+};
+
+// POST /api/documentos/:id/validar — Oficial valida y crea cliente
+exports.validarDocumento = async (req, res) => {
+  const id_usuario_oficial = req.session.usuario?.id;
+  try {
+    const idCliente = await clientesModel.validarYCrearCliente(
+      req.params.id, id_usuario_oficial, req.body
+    );
+    res.json({ ok: true, idCliente });
+  } catch (error) {
+    console.error("Error validando documento:", error);
+    res.status(500).json({ error: "Error al validar documento" });
+  }
+};
+
+// POST /api/documentos/:id/rechazar
+exports.rechazarDocumento = async (req, res) => {
+  const id_usuario_oficial = req.session.usuario?.id;
+  try {
+    await clientesModel.rechazarDocumento(req.params.id, id_usuario_oficial);
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("Error rechazando documento:", error);
+    res.status(500).json({ error: "Error al rechazar documento" });
+  }
+};
+
+
+exports.getUmbralesAdmin = async (req, res) => {
+  try {
+    const umbrales = await clientesModel.getUmbralesAdmin();
+    res.json(umbrales);
+  } catch (error) {
+    console.error("Error obteniendo catálogo de umbrales:", error);
+    res.status(500).json({ error: "Error al obtener umbrales" });
+  }
+};
+
+exports.updateUmbralAdmin = async (req, res) => {
+  const { nombre, tipo_alerta, valor_limite, nivel, descripcion } = req.body;
+  const id_umbral = req.params.id;
+
+  const NIVELES_VALIDOS = ["Alta", "Media", "Baja"];
+  if (!nombre?.trim() || !tipo_alerta?.trim() || !nivel?.trim() || valor_limite === undefined) {
+    return res.status(400).json({ error: "Todos los campos son obligatorios" });
+  }
+  if (!NIVELES_VALIDOS.includes(nivel)) {
+    return res.status(400).json({ error: "Nivel no válido" });
+  }
+  if (isNaN(Number(valor_limite)) || Number(valor_limite) < 0) {
+    return res.status(400).json({ error: "valor_limite debe ser un número positivo" });
+  }
+
+  try {
+    const actualizado = await clientesModel.updateUmbral(id_umbral, {
+      nombre: nombre.trim(),
+      tipo_alerta: tipo_alerta.trim(),
+      valor_limite: Number(valor_limite),
+      nivel,
+      descripcion: descripcion?.trim() ?? ""
+    });
+
+    if (!actualizado) return res.status(404).json({ error: "Umbral no encontrado" });
+
+    res.json(actualizado);
+  } catch (error) {
+    console.error("Error actualizando umbral:", error);
+    res.status(500).json({ error: "Error al actualizar umbral" });
+  }
+};
+
+
+exports.createUmbralPersonalizado = async (req, res) => {
+  const id_cliente = req.params.id;
+  const { nombre, tipo_alerta, valor_limite, nivel, descripcion } = req.body;
+
+  const NIVELES_VALIDOS = ["Alta", "Media", "Baja"];
+  if (!nombre?.trim() || !tipo_alerta?.trim() || !nivel?.trim() || valor_limite === undefined) {
+    return res.status(400).json({ error: "Todos los campos son obligatorios" });
+  }
+  if (!NIVELES_VALIDOS.includes(nivel)) {
+    return res.status(400).json({ error: "Nivel no válido" });
+  }
+  if (isNaN(Number(valor_limite)) || Number(valor_limite) < 0) {
+    return res.status(400).json({ error: "valor_limite debe ser un número positivo" });
+  }
+
+  try {
+    const umbral = await clientesModel.createUmbralPersonalizado(id_cliente, {
+      nombre: nombre.trim(),
+      tipo_alerta: tipo_alerta.trim(),
+      valor_limite: Number(valor_limite),
+      nivel,
+      descripcion
+    });
+
+
+    res.status(201).json(umbral);
+  } catch (error) {
+    console.error("Error creando umbral personalizado:", error);
+    res.status(500).json({ error: "Error al crear umbral personalizado" });
+  }
+};
+
+exports.deleteUmbralPersonalizado = async (req, res) => {
+  const { id, idUmbral } = req.params;
+
+  try {
+    const eliminado = await clientesModel.deleteUmbralPersonalizado(idUmbral, id);
+    if (!eliminado) {
+      return res.status(404).json({ error: "Umbral no encontrado o no es personalizado de este cliente" });
+    }
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("Error eliminando umbral personalizado:", error);
+    res.status(500).json({ error: "Error al eliminar umbral personalizado" });
+  }
+};

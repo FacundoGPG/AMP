@@ -24,5 +24,10 @@ router.get("/api/clientes/:id/validaciones", isAuth, verificarRol(ROLES_ADMIN), 
 router.post("/api/clientes/:id/validar-listas", isAuth, verificarRol(ROLES_ESCRITURA), clientesController.validarClienteListas);
 router.get("/api/clientes/:id/alertas", isAuth, verificarRol(ROLES_ADMIN), clientesController.getAlertasDeCliente);
 router.post("/api/clientes/documentos/:id/validar", isAuth, verificarRol(ROLES_ADMIN), clientesController.validarDocumento);
+router.get("/api/documentos/pendientes", isAuth, verificarRol(ROLES_ESCRITURA), clientesController.getDocumentosPendientes);
+router.post("/api/documentos/:id/validar", isAuth, verificarRol(ROLES_ESCRITURA), clientesController.validarDocumento);
+router.post("/api/documentos/:id/rechazar", isAuth, verificarRol(ROLES_ESCRITURA), clientesController.rechazarDocumento);
+router.post("/api/clientes/:id/umbrales", isAuth, verificarRol(ROLES_ESCRITURA), clientesController.createUmbralPersonalizado);
+router.delete("/api/clientes/:id/umbrales/:idUmbral", isAuth, verificarRol(ROLES_ESCRITURA), clientesController.deleteUmbralPersonalizado);
 
 module.exports = router;

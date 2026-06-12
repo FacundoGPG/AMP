@@ -1,12 +1,7 @@
 let clientesCargados = [];
 let clienteSeleccionado = null;
 let clientesBloqueadosCargados = [];
-let listasData = [];
 let productosData = [];
-
-if (typeof Dropzone !== "undefined") {
-  Dropzone.autoDiscover = false;
-}
 
 
 
@@ -420,276 +415,8 @@ function iniciarExportacionClientes() {
 
 
 
-// LISTAS DE CONFIGURACION
-
-
-async function cargarListas() {
-  const contenedor = document.getElementById("listas-table");
-  if (!contenedor) return;
-
-  try {
-    const res    = await fetch("/api/listas");
-    const listas = await res.json();
-
-    new gridjs.Grid({
-      columns: ["ID", "Tipo", "Nombre", "Fuente", "Acciones"],
-      data: listas.map(l => [
-        l.id_lista,
-        l.tipo_lista,
-        l.nombre,
-        l.fuente,
-        gridjs.html(`
-          <button class="btn btn-sm btn-light btn-editar-lista" data-id="${l.id_lista}">Editar</button>
-          <button class="btn btn-sm btn-danger btn-eliminar-lista" data-id="${l.id_lista}" data-nombre="${l.nombre}">Eliminar</button>
-        `)
-      ]),
-      search: true,
-      sort: true,
-      pagination: { limit: 10 }
-    }).render(contenedor);
-
-    // Guardar listas para los botones
-    listasData = listas;
-
-    // Delegación de eventos
-    contenedor.addEventListener("click", (e) => {
-      const btnEditar   = e.target.closest(".btn-editar-lista");
-      const btnEliminar = e.target.closest(".btn-eliminar-lista");
-
-      if (btnEditar) {
-        const lista = listasData.find(l => l.id_lista == btnEditar.dataset.id);
-        if (lista) abrirModalEditarLista(lista);
-      }
-
-      if (btnEliminar) {
-        eliminarLista(btnEliminar.dataset.id, btnEliminar.dataset.nombre);
-      }
-    });
-
-  } catch {
-    contenedor.innerHTML = "<p class='text-danger'>Error al cargar listas.</p>";
-  }
-}
-
-function abrirModalAgregarLista() {
-  document.getElementById("lista-modal-titulo").textContent = "Agregar lista";
-  document.getElementById("lista-modal-id").value = "";
-  document.getElementById("lista-modal-tipo").selectedIndex = 0;
-  document.getElementById("lista-modal-nombre").value = "";
-  document.getElementById("lista-modal-fuente").value = "";
-  document.getElementById("lista-modal-error").style.display = "none";
-  document.getElementById("lista-upload-titulo").textContent = "Cargar lista CSV";
-  reiniciarListaCsvDropzone();
-  abrirPanelLista();
-}
-
-function abrirModalEditarLista(lista) {
-  document.getElementById("lista-modal-titulo").textContent = "Editar lista";
-  document.getElementById("lista-modal-id").value = lista.id_lista;
-  document.getElementById("lista-modal-tipo").value = lista.tipo_lista;
-  document.getElementById("lista-modal-nombre").value = lista.nombre;
-  document.getElementById("lista-modal-fuente").value = lista.fuente;
-  document.getElementById("lista-modal-error").style.display = "none";
-  document.getElementById("lista-upload-titulo").textContent = "¿Actualizar Lista?";
-  reiniciarListaCsvDropzone();
-  abrirPanelLista();
-}
-
-function abrirPanelLista() {
-  document.getElementById("listaOverlay")?.classList.add("active");
-  document.getElementById("listaPanel")?.classList.add("active");
-  document.getElementById("lista-modal-nombre")?.focus();
-}
-
-function cerrarModalLista() {
-  document.getElementById("listaOverlay")?.classList.remove("active");
-  document.getElementById("listaPanel")?.classList.remove("active");
-}
-
-let listaCsvDropzone = null;
-
-function iniciarListaCsvDropzone() {
-  const dropzoneElement = document.getElementById("listaCsvDropzone");
-  if (!dropzoneElement || typeof Dropzone === "undefined") return;
-
-  Dropzone.autoDiscover = false;
-
-  listaCsvDropzone = new Dropzone(dropzoneElement, {
-    url: "/target",
-    paramName: "file",
-    autoProcessQueue: false,
-    maxFiles: 1,
-    maxFilesize: 10,
-    acceptedFiles: ".csv,text/csv",
-    addRemoveLinks: true,
-    dictDefaultMessage: "Arrastra el CSV o haz clic para seleccionarlo",
-    dictRemoveFile: "Eliminar archivo",
-    dictInvalidFileType: "Solo se permiten archivos CSV",
-    dictMaxFilesExceeded: "Solo puedes subir un archivo"
-  });
-
-  listaCsvDropzone.on("addedfile", async () => {
-    const status = document.getElementById("lista-csv-status");
-    if (status) status.textContent = "CSV cargado. Ejecutando validacion contra listas...";
-    await validarClienteListas();
-    if (status) status.textContent = "Validacion contra listas ejecutada.";
-  });
-}
-
-function reiniciarListaCsvDropzone() {
-  if (listaCsvDropzone) {
-    listaCsvDropzone.removeAllFiles(true);
-  }
-
-  const status = document.getElementById("lista-csv-status");
-  if (status) {
-    status.textContent = "Sube un archivo CSV para volver a ejecutar la validacion contra listas.";
-  }
-}
-
-async function guardarLista() {
-  const id     = document.getElementById("lista-modal-id").value;
-  const tipo   = document.getElementById("lista-modal-tipo").value;
-  const nombre = document.getElementById("lista-modal-nombre").value.trim();
-  const fuente = document.getElementById("lista-modal-fuente").value.trim();
-  const errorEl = document.getElementById("lista-modal-error");
-
-  if (!nombre || !fuente) {
-    errorEl.textContent = "Nombre y fuente son obligatorios.";
-    errorEl.style.display = "block";
-    return;
-  }
-
-  const esEdicion = id !== "";
-  const url    = esEdicion ? `/api/listas/${id}` : "/api/listas";
-  const method = esEdicion ? "PUT" : "POST";
-
-  try {
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tipo_lista: tipo, nombre, fuente })
-    });
-
-    if (!res.ok) {
-      const data = await res.json();
-      errorEl.textContent = data.error || "Error al guardar";
-      errorEl.style.display = "block";
-      return;
-    }
-
-    cerrarModalLista();
-    document.getElementById("listas-table").innerHTML = "";
-    cargarListas();
-  } catch {
-    errorEl.textContent = "Error de conexión";
-    errorEl.style.display = "block";
-  }
-}
-
-async function eliminarLista(id, nombre) {
-  if (!confirm(`¿Eliminar la lista "${nombre}"?`)) return;
-
-  try {
-    const res = await fetch(`/api/listas/${id}`, { method: "DELETE" });
-    if (res.ok) {
-      document.getElementById("listas-table").innerHTML = "";
-      cargarListas();
-    } else {
-      alert("Error al eliminar");
-    }
-  } catch {
-    alert("Error de conexión");
-  }
-}
-
-
-
-async function cargarRiesgoCliente(idCliente) {
-  const listasEl   = document.getElementById("cliente-listas-list");
-  const umbralesEl = document.getElementById("cliente-umbrales-list");
-
-  if (listasEl)   listasEl.textContent   = "Cargando...";
-  if (umbralesEl) umbralesEl.textContent = "Cargando...";
-
-  // Validaciones contra listas
-  try {
-    const res  = await fetch(`/api/clientes/${idCliente}/validaciones`);
-    const data = await res.json();
-
-    if (!data.length) {
-      listasEl.innerHTML = "<span class='text-muted'>Sin validaciones registradas.</span>";
-    } else {
-      listasEl.innerHTML = data.map(v => `
-        <div class="riesgo-item ${v.coincidencia === 'Coincidencia' ? 'riesgo-alerta' : ''}">
-          <strong>${v.tipo_lista} — ${v.nombre_lista}</strong>
-          <span>${v.resultado} ${v.coincidencia === 'Coincidencia' ? '⚠️' : '✓'}</span>
-          <small>${new Date(v.fecha_validacion).toLocaleDateString('es-MX')}</small>
-        </div>
-      `).join("");
-    }
-  } catch {
-    if (listasEl) listasEl.innerHTML = "<span class='text-danger'>Error al cargar validaciones.</span>";
-  }
-
-  // Umbrales
-  try {
-    const res  = await fetch(`/api/clientes/${idCliente}/umbrales`);
-    const data = await res.json();
-
-    umbralesEl.innerHTML = data.map(u => `
-      <div class="umbral-item">
-        <div class="umbral-info">
-          <strong>${u.tipo_alerta}</strong>
-          <small>${u.descripcion}</small>
-          <span class="umbral-nivel nivel-${u.nivel?.toLowerCase()}">${u.nivel}</span>
-        </div>
-        <label class="umbral-toggle">
-          <input
-            type="checkbox"
-            class="toggle-umbral"
-            data-id-umbral="${u.id_umbral}"
-            data-id-cliente="${idCliente}"
-            ${u.activo ? 'checked' : ''}
-          >
-          <span>${u.activo ? 'Activo' : 'Inactivo'}</span>
-        </label>
-      </div>
-    `).join("");
-
-    umbralesEl.querySelectorAll(".toggle-umbral").forEach(checkbox => {
-      checkbox.addEventListener("change", async (e) => {
-        const idUmbral  = e.target.dataset.idUmbral;
-        const idCliente = e.target.dataset.idCliente;
-        const activo    = e.target.checked;
-
-        try {
-          await fetch(`/api/clientes/${idCliente}/umbrales/${idUmbral}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ activo })
-          });
-          e.target.nextElementSibling.textContent = activo ? "Activo" : "Inactivo";
-        } catch {
-          alert("Error al actualizar umbral");
-          e.target.checked = !activo;
-        }
-      });
-    });
-
-  } catch {
-    if (umbralesEl) umbralesEl.innerHTML = "<span class='text-muted'>Sin umbrales configurados.</span>";
-  }
-}
-
 async function validarClienteListas() {
-  if (!clienteSeleccionado) {
-    const status = document.getElementById("lista-csv-status");
-    if (status) {
-      status.textContent = "Selecciona un cliente antes de validar contra listas.";
-    }
-    return;
-  }
+  if (!clienteSeleccionado) return;
 
   const btn = document.getElementById("btn-validar-listas");
   btn.disabled = true;
@@ -890,15 +617,17 @@ async function cargarAlertasCliente(idCliente) {
 }
 
 
+
+
 document.addEventListener("DOMContentLoaded", () => {
   cargarTablaClientes();
   cargarTablaBloqueados();
-  cargarListas();
   iniciarTabsClientes();
   iniciarPanelCliente();
   iniciarTabsPanelCliente();
   addCliente();
   iniciarExportacionClientes();
+  cargarDocumentosPendientes();
 
   document.getElementById("btn-nuevo-contrato")
     ?.addEventListener("click", abrirModalNuevoContrato);
@@ -909,24 +638,14 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btn-validar-listas")
     ?.addEventListener("click", validarClienteListas);
 
-  document.getElementById("btn-agregar-lista")
-    ?.addEventListener("click", abrirModalAgregarLista);
-  document.getElementById("lista-modal-cerrar")
-    ?.addEventListener("click", cerrarModalLista);
-  document.getElementById("lista-modal-cancelar")
-    ?.addEventListener("click", cerrarModalLista);
-  document.getElementById("lista-form")
-    ?.addEventListener("submit", (e) => {
-      e.preventDefault();
-      guardarLista();
-    });
-  document.getElementById("listaOverlay")
-    ?.addEventListener("click", cerrarModalLista);
-  iniciarListaCsvDropzone();
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") cerrarModalLista();
-  });
+  document.getElementById("valdoc-modal-cerrar")
+    ?.addEventListener("click", cerrarModalValidarDocumento);
+  document.getElementById("valdoc-modal-cancelar")
+    ?.addEventListener("click", cerrarModalValidarDocumento);
+  document.getElementById("valdoc-modal-validar")
+    ?.addEventListener("click", validarDocumentoYCrearCliente);
+  document.getElementById("valdoc-modal-rechazar")
+    ?.addEventListener("click", rechazarDocumento);
 });
 
 
@@ -978,5 +697,135 @@ async function cargarDocumentosCliente(idCliente) {
     `).join("");
   } catch {
     contenedor.innerHTML = "<span class='text-danger'>Error al cargar documentos.</span>";
+  }
+}
+
+async function cargarDocumentosPendientes() {
+  const contenedor = document.getElementById("documentos-table");
+  if (!contenedor) return;
+
+  try {
+    const res  = await fetch("/api/documentos/pendientes");
+    const data = await res.json();
+
+    if (!data.length) {
+      contenedor.innerHTML = "<p class='text-muted'>No hay documentos pendientes de validación.</p>";
+      return;
+    }
+
+    new gridjs.Grid({
+      columns: [
+        "ID",
+        "Usuario",
+        "Correo",
+        "Archivo",
+        "Fecha",
+        "Estatus",
+        "Acciones"
+      ],
+      data: data.map(d => [
+        d.id_documento,
+        d.nombre_usuario,
+        d.correo,
+        d.nombre_archivo,
+        formatearFecha(d.fecha_carga),
+        d.estatus_validacion,
+        gridjs.html(`
+          <button class="btn btn-sm btn-primary btn-revisar-doc" data-id="${d.id_documento}" data-datos='${JSON.stringify(d.datos_cliente).replace(/'/g, "&#39;")}' data-nombre="${d.nombre_usuario}">
+            Revisar
+          </button>
+        `)
+      ]),
+      search: true,
+      sort: true,
+      pagination: { limit: 10 }
+    }).render(contenedor);
+
+    contenedor.addEventListener("click", (e) => {
+      const btn = e.target.closest(".btn-revisar-doc");
+      if (!btn) return;
+      const id = btn.dataset.id;
+      const nombre = btn.dataset.nombre;
+      const datos = JSON.parse(btn.dataset.datos || "{}");
+      abrirModalValidarDocumento(id, nombre, datos);
+    });
+
+  } catch (err) {
+    console.error(err);
+    contenedor.innerHTML = "<p class='text-danger'>Error al cargar documentos pendientes.</p>";
+  }
+}
+
+function abrirModalValidarDocumento(idDocumento, nombreUsuario, datos) {
+  document.getElementById("valdoc-id").value = idDocumento;
+  document.getElementById("valdoc-nombre").value = datos.nombre || nombreUsuario;
+  document.getElementById("valdoc-tipo").value = datos.tipo_persona || "";
+  document.getElementById("valdoc-rfc").value = datos.rfc || "";
+  document.getElementById("valdoc-correo").value = datos.correo || "";
+  document.getElementById("valdoc-telefono").value = datos.telefono || "";
+  document.getElementById("valdoc-domicilio").value = datos.domicilio || "";
+  document.getElementById("valdoc-error").style.display = "none";
+  document.getElementById("modal-validar-doc").style.display = "flex";
+}
+
+function cerrarModalValidarDocumento() {
+  document.getElementById("modal-validar-doc").style.display = "none";
+}
+
+async function validarDocumentoYCrearCliente() {
+  const id       = document.getElementById("valdoc-id").value;
+  const errorEl  = document.getElementById("valdoc-error");
+
+  const datos = {
+    nombre:      document.getElementById("valdoc-nombre").value.trim(),
+    tipo_persona: document.getElementById("valdoc-tipo").value,
+    rfc:         document.getElementById("valdoc-rfc").value.trim(),
+    correo:      document.getElementById("valdoc-correo").value.trim(),
+    telefono:    document.getElementById("valdoc-telefono").value.trim(),
+    domicilio:   document.getElementById("valdoc-domicilio").value.trim()
+  };
+
+  if (!datos.nombre || !datos.rfc || !datos.correo || !datos.telefono || !datos.domicilio || !datos.tipo_persona) {
+    errorEl.textContent = "Todos los campos son obligatorios antes de validar.";
+    errorEl.style.display = "block";
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/documentos/${id}/validar`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(datos)
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      errorEl.textContent = data.error || "Error al validar";
+      errorEl.style.display = "block";
+      return;
+    }
+
+    cerrarModalValidarDocumento();
+    document.getElementById("documentos-table").innerHTML = "";
+    cargarDocumentosPendientes();
+  } catch {
+    errorEl.textContent = "Error de conexión";
+    errorEl.style.display = "block";
+  }
+}
+
+async function rechazarDocumento() {
+  const id = document.getElementById("valdoc-id").value;
+  if (!confirm("¿Rechazar este documento? El usuario podrá volver a subir uno nuevo.")) return;
+
+  try {
+    const res = await fetch(`/api/documentos/${id}/rechazar`, { method: "POST" });
+    if (res.ok) {
+      cerrarModalValidarDocumento();
+      document.getElementById("documentos-table").innerHTML = "";
+      cargarDocumentosPendientes();
+    }
+  } catch {
+    alert("Error de conexión");
   }
 }

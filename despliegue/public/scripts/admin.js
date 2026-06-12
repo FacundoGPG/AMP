@@ -2,6 +2,10 @@ let usuariosCargados = [];
 let usuarioSeleccionado = null;
 let gridUsuarios;
 
+const sesionEl = document.getElementById("sesion-data");
+window.__usuarioId__    = Number(sesionEl?.dataset.id || 0);
+window.__usuarioRoles__ = (sesionEl?.dataset.roles || "").split(",").filter(Boolean);
+
 async function cargarUsuarios() {
   const container = document.getElementById("usuarios-table");
   if (!container) return;
@@ -134,9 +138,6 @@ function iniciarTabs() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const sesionEl = document.getElementById("sesion-data");
-  window.__usuarioId__    = Number(sesionEl?.dataset.id || 0);
-  window.__usuarioRoles__ = (sesionEl?.dataset.roles || "").split(",").filter(Boolean);
   await cargarUsuarios();
   iniciarTabs();
 
@@ -174,8 +175,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       cerrarPanelUsuario();
-      await cargarUsuarios();
       document.getElementById("usuarios-table").innerHTML = "";
+      await cargarUsuarios();
     } catch {
       errorEl.textContent = "Error de conexión.";
       errorEl.style.display = "block";
@@ -196,9 +197,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
+      cerrarPanelUsuario();
       document.getElementById("usuarios-table").innerHTML = "";
       await cargarUsuarios();
-      cerrarPanelUsuario();
     } catch {
       alert("Error de conexión.");
     }
@@ -242,10 +243,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("crear-contrasena").value = "";
       document.getElementById("crear-rol").value = "";
 
-      // Ir a tab de listado
       document.getElementById("usuarios-table").innerHTML = "";
-      await cargarUsuarios();
-      document.querySelector('[data-table="usuarios-section"]')?.click();
       await cargarUsuarios();
     } catch {
       errorEl.textContent = "Error de conexión.";

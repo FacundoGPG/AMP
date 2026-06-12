@@ -1,12 +1,10 @@
-if (typeof Dropzone !== "undefined") {
-  Dropzone.autoDiscover = false;
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("reporteForm");
   const dropzoneElement = document.getElementById("evidenciaDropzone");
 
   if (!form || !dropzoneElement || typeof Dropzone === "undefined") return;
+
+  Dropzone.autoDiscover = false;
 
   const evidenciaDropzone = new Dropzone(dropzoneElement, {
     url: form.action,
@@ -16,9 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
     maxFilesize: 10,
     acceptedFiles: ".pdf,.jpg,.jpeg,.png",
     addRemoveLinks: true,
-    dictDefaultMessage: "Arrastra la evidencia o haz clic para seleccionarla",
-    dictRemoveFile: "Eliminar archivo",
-    dictMaxFilesExceeded: "Solo puedes subir un archivo"
+    dictDefaultMessage: "",
+    dictRemoveFile: "Eliminar archivo"
   });
 
   form.addEventListener("submit", (event) => {

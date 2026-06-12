@@ -83,12 +83,11 @@ exports.createCaso = async (descripcion, idAlerta, idUsuario) => {
 };
 
 exports.updateEstatus = async (id, estatus) => {
-  const fechaCierre = estatus === 'Cerrado' ? new Date() : null;
   await pool.query(`
     UPDATE public."Caso"
-    SET estatus = $1, fecha_cierre = $3
+    SET estatus = $1
     WHERE id_caso = $2
-  `, [estatus, id, fechaCierre]);
+  `, [estatus, id]);
 };
 
 exports.addComentario = async (idCaso, idUsuario, comentario) => {

@@ -908,8 +908,7 @@ h1 {
 }
 
 #cerrarClientePanel,
-#cerrarAddClientePanel,
-#lista-modal-cerrar {
+#cerrarAddClientePanel {
   border: none;
   background: transparent;
   border-radius: var(--radius-sm);
@@ -922,52 +921,8 @@ h1 {
 }
 
 #cerrarClientePanel:hover,
-#cerrarAddClientePanel:hover,
-#lista-modal-cerrar:hover {
+#cerrarAddClientePanel:hover {
   background: var(--color-hover);
-}
-
-.lista-panel-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 14px;
-}
-
-.lista-panel-actions .btn,
-.lista-panel-actions .save-btn {
-  min-height: 44px;
-  font-weight: 700;
-}
-
-.lista-upload-section {
-  margin-top: 18px;
-  padding-top: 18px;
-  border-top: 1px solid var(--color-border);
-}
-
-.lista-upload-section .panel-section-header {
-  margin-bottom: 10px;
-}
-
-.lista-upload-section h4 {
-  margin: 0;
-  font-size: 1rem;
-  color: var(--color-text);
-}
-
-.lista-csv-status {
-  display: block;
-  margin-top: 8px;
-  color: var(--color-muted);
-}
-
-.dropzone {
-  border: 1px dashed var(--color-border) !important;
-  border-radius: var(--radius-sm);
-  background: #fafafa;
-  color: var(--color-muted);
-  min-height: 120px;
 }
 
 .cliente-panel-tabs {
@@ -1269,4 +1224,61 @@ h1 {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 9999;
   transition: opacity 0.3s;
+}
+
+
+/* PANEL UMBRAL */
+#umbralPanel {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  left: auto;
+  transform: none;
+  width: 420px;
+  max-width: 95%;
+  height: 100vh;
+  max-height: 100vh;
+  border-radius: 0;
+  opacity: 1;
+  visibility: hidden;
+  transition: right 0.25s ease, visibility 0.25s ease;
+  z-index: 4200;
+}
+
+#umbralPanel.active {
+  right: 0;
+  visibility: visible;
+  transform: none;
+}
+
+#umbralOverlay {
+  z-index: 4150;
+}
+
+/* PANEL UMBRAL ADMIN */
+#umbralAdminPanel {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  left: auto;
+  transform: none;
+  width: 420px;
+  max-width: 95%;
+  height: 100vh;
+  max-height: 100vh;
+  border-radius: 0;
+  opacity: 1;
+  visibility: hidden;
+  transition: right 0.25s ease, visibility 0.25s ease;
+  z-index: 4200;
+}
+
+#umbralAdminPanel.active {
+  right: 0;
+  visibility: visible;
+  transform: none;
+}
+
+#umbralAdminOverlay {
+  z-index: 4150;
 }

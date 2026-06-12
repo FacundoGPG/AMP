@@ -8,7 +8,9 @@ exports.renderHistory = (req, res) => {
 
 exports.getHistorial = async (req, res) => {
   try {
-    const historial = await historyModel.getHistorial();
+    const soloMias = req.query.mias === "true";
+    const idUsuario = soloMias ? req.session.usuario.id : null;
+    const historial = await historyModel.getHistorial(idUsuario);
     res.json(historial);
   } catch (error) {
     console.error("Error cargando historial:", error);
