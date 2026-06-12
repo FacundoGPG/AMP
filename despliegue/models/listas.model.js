@@ -31,6 +31,7 @@ exports.addLista = async ({ tipo_lista, nombre, fuente }) => {
   const sql = `
     INSERT INTO public."Lista_Riesgo" (tipo_lista, nombre, fuente)
     VALUES ($1, $2, $3)
+    ON CONFLICT (nombre, tipo_lista) DO NOTHING
     RETURNING *
   `;
   const result = await pool.query(sql, [tipo_lista, nombre, fuente]);

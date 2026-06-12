@@ -1,23 +1,6 @@
 const pool = require("../config/database");
 const log = console.log;
 
-exports.ObtenerUsuarios = async function() {
-    const sql = `
-        SELECT
-            u.id_usuario AS id,
-            u.nombre,
-            u.apellido,
-            u.correo,
-            ARRAY_AGG(r.nombre) FILTER (WHERE r.nombre IS NOT NULL) AS roles
-        FROM public."Usuario" u
-        LEFT JOIN public."Usuario_Rol" ur ON ur.id_usuario = u.id_usuario
-        LEFT JOIN public."Rol" r ON r.id_rol = ur.id_rol
-        GROUP BY u.id_usuario
-        ORDER BY u.id_usuario ASC
-    `;
-    const result = await pool.query(sql);
-    return result.rows;
-};
 
 exports.ObtenerUsuariosActivos = async function() {
     const sql = `
@@ -105,7 +88,7 @@ exports.User = class {
                 u.apellido    AS "Apellido",
                 u.correo      AS "Correo",
                 u.contrasena  AS "Contrasena",
-                ARRAY_AGG(r.nombre) AS "roles"
+                ARRAY_AGG(r.nombre) FILTER (WHERE r.nombre IS NOT NULL) AS "roles"
             FROM public."Usuario" u
             LEFT JOIN public."Usuario_Rol" ur ON ur.id_usuario = u.id_usuario
             LEFT JOIN public."Rol" r          ON r.id_rol = ur.id_rol

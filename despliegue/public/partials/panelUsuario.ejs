@@ -1,0 +1,42 @@
+<div id="usuarioOverlay" class="overlay"></div>
+<aside id="usuarioPanel" class="cliente-panel">
+  <div class="cliente-panel-header">
+    <div>
+      <p>Detalle de usuario</p>
+      <h3 id="usuario-detail-nombre"></h3>
+    </div>
+    <button type="button" id="cerrarUsuarioPanel">X</button>
+  </div>
+
+  <div class="detail-grid">
+    <div>
+      <p>Correo:</p>
+      <strong id="usuario-detail-correo">---</strong>
+    </div>
+    <div>
+      <p>Rol actual:</p>
+      <strong id="usuario-detail-rol">---</strong>
+    </div>
+  </div>
+
+  <div style="margin-top: 1.5rem;">
+    <label class="form-label">Nombre</label>
+    <input type="text" id="editar-nombre" class="form-control form-control-sm" style="margin-bottom:0.5rem;">
+
+    <label class="form-label">Apellido</label>
+    <input type="text" id="editar-apellido" class="form-control form-control-sm" style="margin-bottom:0.5rem;">
+
+    <label class="form-label">Rol</label>
+    <select id="editar-rol" class="form-select form-select-sm" style="margin-bottom:0.5rem;">
+      <option value="Oficial_Cumplimiento">Oficial de Cumplimiento</option>
+      <option value="Auditoria">Auditoría</option>
+      <option value="Empleado">Empleado</option>
+      <option value="Cliente">Cliente</option>
+    </select>
+
+    <div id="editar-error" class="text-danger small" style="display:none; margin-bottom:0.5rem;"></div>
+
+    <button class="save-btn" style="width:100%; margin-bottom:0.5rem;" id="btn-guardar-edicion">Guardar cambios</button>
+    <button class="btn btn-danger" style="width:100%;" id="btn-eliminar-usuario">Eliminar usuario</button>
+  </div>
+</aside>

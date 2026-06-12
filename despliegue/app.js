@@ -272,6 +272,10 @@ app.use(
   require("./routes/reportes.routes")
 );
 
+app.use(
+  "/",
+  require("./routes/admin.routes")
+);
 
 //   FRONTEND ROUTES
 
