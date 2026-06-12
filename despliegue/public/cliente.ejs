@@ -4,44 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/dropzone@6.0.0-beta.2/dist/dropzone.css">
     <link rel="stylesheet" href="/styles.css">
     <title>Portal del Cliente</title>
 </head>
 <body class="standalone">
-      <%- include("partials/topbar") %>
+  <%- include("partials/topbar") %>
   <main class="form-page">
     <section class="panel full form-card">
       <span class="form-smltxt">Portal de Clientes</span>
       <h1>Envío de Documentos</h1>
 
-      <form action="/api/documentos/upload" method="POST" enctype="multipart/form-data" class="document-form" id="clienteDocumentoForm">
-        <div class="form-field">
-          <label for="cliente-nombre">Nombre completo</label>
-          <input id="cliente-nombre" type="text" name="nombre" placeholder="Nombre y apellidos">
+      <% if (locals.enviado) { %>
+        <div class="alert alert-success" role="alert">
+          ✅ Tu documento fue enviado correctamente. El Oficial de Cumplimiento lo revisará pronto.
         </div>
+      <% } %>
 
-        <div class="form-field">
-          <label for="cliente-rfc">RFC</label>
-          <input id="cliente-rfc" type="text" name="rfc" maxlength="13" placeholder="13 caracteres">
-        </div>
+        <form action="/api/documentos/upload" method="POST" enctype="multipart/form-data" class="document-form">
 
-        <div class="form-field">
-          <label for="cliente-curp">CURP</label>
-          <input id="cliente-curp" type="text" name="curp" maxlength="18" placeholder="18 caracteres">
-        </div>
+          <div class="form-field">
+            <label for="cliente-nombre">Nombre completo</label>
+            <input id="cliente-nombre" type="text" name="nombre" placeholder="Nombre y apellidos" required>
+          </div>
 
-        <div class="form-field file-field">
-          <label>Subir documento</label>
-          <div id="clienteDocumentoDropzone" class="dropzone"></div>
-          <small>Formatos permitidos: PDF, JPG y PNG.</small>
-        </div>
+          <div class="form-field">
+            <label for="cliente-tipo">Tipo de persona</label>
+            <select id="cliente-tipo" name="tipo_persona" required>
+              <option value="">Selecciona una opción</option>
+              <option value="Fisica">Persona Física</option>
+              <option value="Moral">Persona Moral</option>
+            </select>
+          </div>
 
-        <button type="submit" class="form-submit">Enviar documento</button>
-      </form>
+          <div class="form-field">
+            <label for="cliente-rfc">RFC</label>
+            <input id="cliente-rfc" type="text" name="rfc" maxlength="13" placeholder="13 caracteres" required>
+          </div>
+
+          <div class="form-field">
+            <label for="cliente-curp">CURP</label>
+            <input id="cliente-curp" type="text" name="curp" maxlength="18" placeholder="18 caracteres">
+          </div>
+
+          <div class="form-field">
+            <label for="cliente-correo">Correo electrónico</label>
+            <input id="cliente-correo" type="email" name="correo" placeholder="correo@ejemplo.com" required>
+          </div>
+
+          <div class="form-field">
+            <label for="cliente-telefono">Teléfono</label>
+            <input id="cliente-telefono" type="tel" name="telefono" maxlength="20" placeholder="10 dígitos" required>
+          </div>
+
+          <div class="form-field">
+            <label for="cliente-domicilio">Domicilio</label>
+            <input id="cliente-domicilio" type="text" name="domicilio" 
+            placeholder="Calle, número, colonia, ciudad" required>
+          </div>
+
+          <div class="form-field file-field">
+            <label for="file_input">Subir documento de identificación</label>
+            <input id="file_input" type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required>
+            <small>Formatos permitidos: PDF, JPG y PNG.</small>
+          </div>
+
+          <button type="submit" class="form-submit">Enviar documento</button>
+        </form>
+
+      <% } %>
     </section>
   </main>
-  <script src="https://unpkg.com/dropzone@6.0.0-beta.2/dist/dropzone-min.js"></script>
-  <script src="/scripts/cliente.js"></script>
 </body>
 </html>

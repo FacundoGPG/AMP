@@ -4,7 +4,7 @@ const COOLDOWN_MS = 60 * 1000;
 
 const intentosLogin = new Map();
 
-function normalizarIp(ip) {
+function limpiarIp(ip) {
   return String(ip || "ip-desconocida").replace(/^::ffff:/, "");
 }
 
@@ -13,7 +13,7 @@ function obtenerIdentificador(req) {
     .toString()
     .trim()
     .toLowerCase();
-  const ip = normalizarIp(req.ip || req.connection?.remoteAddress);
+  const ip = limpiarIp(req.ip || req.connection?.remoteAddress);
 
   return `${ip}:${correo}`;
 }

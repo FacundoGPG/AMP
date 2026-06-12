@@ -13,6 +13,7 @@ router.get("/listas", isAuth, verificarRol(ROLES_LECTURA), controller.renderList
 
 router.get("/api/listas",          isAuth, verificarRol(ROLES_LECTURA), controller.getListas);
 router.post("/api/listas",         isAuth, verificarRol(ROLES_ADMIN),   controller.addLista);
+router.post("/api/listas/importar-csv", isAuth, verificarRol(ROLES_ADMIN), controller.importarCsvYValidarClientes);
 router.put("/api/listas/:id",      isAuth, verificarRol(ROLES_ADMIN),   controller.updateLista);
 router.delete("/api/listas/:id",   isAuth, verificarRol(ROLES_ADMIN),   controller.deleteLista);
 router.get("/api/listas/:id/historial", isAuth, verificarRol(ROLES_LECTURA), controller.getHistorialLista);

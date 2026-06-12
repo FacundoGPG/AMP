@@ -68,7 +68,7 @@ exports.updateBuzon = async (req, res) => {
     await buzonModel.updateBuzon(req.params.id, estatus, idEncargado, notas);
         await historyModel.registrarActividad(
           req.session.usuario.id,
-          `Actualizó reporte #${req.params.id}`,
+          `Actualización de reporte #${req.params.id}`,
           "Buzón",
           "Completado"
         );

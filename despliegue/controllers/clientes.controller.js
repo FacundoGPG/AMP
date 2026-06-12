@@ -402,3 +402,91 @@ exports.getAlertasDeCliente = async (req, res) => {
     res.status(500).json({ error: "Error al obtener alertas" });
   }
 };
+
+exports.getDocumentosPendientes = async (req, res) => {
+  try {
+    const docs = await clientesModel.getDocumentosPendientes();
+    res.json(docs);
+  } catch (error) {
+    console.error("Error obteniendo documentos pendientes:", error);
+    res.status(500).json({ error: "Error al obtener documentos" });
+  }
+};
+
+exports.validarDocumentoPendiente = async (req, res) => {
+  const idUsuarioOficial = req.session.usuario?.id;
+
+  try {
+    const idCliente = await clientesModel.validarYCrearCliente(
+      req.params.id,
+      idUsuarioOficial,
+      req.body
+    );
+
+    res.json({ ok: true, idCliente });
+  } catch (error) {
+    console.error("Error validando documento pendiente:", error);
+    res.status(500).json({ error: "Error al validar documento" });
+  }
+};
+
+exports.rechazarDocumentoPendiente = async (req, res) => {
+  const idUsuarioOficial = req.session.usuario?.id;
+
+  try {
+    await clientesModel.rechazarDocumento(req.params.id, idUsuarioOficial);
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("Error rechazando documento:", error);
+    res.status(500).json({ error: "Error al rechazar documento" });
+  }
+};
+
+exports.createUmbralPersonalizado = async (req, res) => {
+  const id_cliente = req.params.id;
+  const { nombre, tipo_alerta, valor_limite, nivel, descripcion } = req.body;
+  const nivelesValidos = ["Alta", "Media", "Baja"];
+
+  if (!nombre?.trim() || !tipo_alerta?.trim() || !nivel?.trim() || valor_limite === undefined) {
+    return res.status(400).json({ error: "Todos los campos son obligatorios" });
+  }
+
+  if (!nivelesValidos.includes(nivel)) {
+    return res.status(400).json({ error: "Nivel no valido" });
+  }
+
+  if (isNaN(Number(valor_limite)) || Number(valor_limite) < 0) {
+    return res.status(400).json({ error: "valor_limite debe ser un numero positivo" });
+  }
+
+  try {
+    const umbral = await clientesModel.createUmbralPersonalizado(id_cliente, {
+      nombre: nombre.trim(),
+      tipo_alerta: tipo_alerta.trim(),
+      valor_limite: Number(valor_limite),
+      nivel,
+      descripcion: descripcion?.trim() || ""
+    });
+
+    res.status(201).json(umbral);
+  } catch (error) {
+    console.error("Error creando umbral personalizado:", error);
+    res.status(500).json({ error: "Error al crear umbral personalizado" });
+  }
+};
+
+exports.deleteUmbralPersonalizado = async (req, res) => {
+  const { id, idUmbral } = req.params;
+
+  try {
+    const eliminado = await clientesModel.deleteUmbralPersonalizado(idUmbral, id);
+    if (!eliminado) {
+      return res.status(404).json({ error: "Umbral no encontrado o no es personalizado de este cliente" });
+    }
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("Error eliminando umbral personalizado:", error);
+    res.status(500).json({ error: "Error al eliminar umbral personalizado" });
+  }
+};

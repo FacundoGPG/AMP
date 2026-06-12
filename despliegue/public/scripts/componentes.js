@@ -32,44 +32,6 @@ function iniciarReloj() {
   setInterval(actualizarHora, 1000);
 }
 
-function iniciarConfigPanel() {
-  const openBtn = document.getElementById("openConfig");
-  const openBtn2 = document.getElementById("openConfig-TopBar");
-  const closeBtn = document.getElementById("closeConfig");
-  const overlay = document.getElementById("overlay");
-  const panel = document.getElementById("configPanel");
-  const sidebar = document.getElementById("sidebar");
-  const menu = document.getElementById("dropdown-menu");
-
-  if (!closeBtn || !overlay || !panel) return;
-
-  function abrirConfig() {
-    overlay.classList.add("active");
-    panel.classList.add("active");
-
-    if (sidebar) sidebar.classList.remove("active");
-    if (menu) menu.classList.remove("active");
-
-    document.activeElement.blur();
-  }
-
-  function cerrarPanel() {
-    overlay.classList.remove("active");
-    panel.classList.remove("active");
-  }
-
-  if (openBtn) {
-    openBtn.addEventListener("click", abrirConfig);
-  }
-
-  if (openBtn2) {
-    openBtn2.addEventListener("click", abrirConfig);
-  }
-
-  closeBtn.addEventListener("click", cerrarPanel);
-  overlay.addEventListener("click", cerrarPanel);
-}
-
 function iniciarCookies() {
 
     const banner = document.getElementById("cookie-banner");
@@ -155,12 +117,38 @@ function iniciarCookies() {
     }
 }
 
+function cerrarPanel() {
+  document
+    .querySelectorAll(".cliente-panel.active, .config-panel.active")
+    .forEach((panel) => panel.classList.remove("active"));
+
+  document
+    .querySelectorAll(".overlay.active")
+    .forEach((overlay) => overlay.classList.remove("active"));
+}
+
+function iniciarCierreGlobalPaneles() {
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      cerrarPanel();
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    const overlay = event.target.closest(".overlay.active");
+
+    if (overlay && event.target === overlay) {
+      cerrarPanel();
+    }
+  });
+}
+
 function IniciarTodo() {
 
   iniciarDropdown();
   iniciarReloj();
-  iniciarConfigPanel();
   iniciarCookies();
+  iniciarCierreGlobalPaneles();
 }
 document.addEventListener("DOMContentLoaded", () => {
   IniciarTodo();

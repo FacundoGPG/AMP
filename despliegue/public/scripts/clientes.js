@@ -424,8 +424,12 @@ function iniciarExportacionClientes() {
 
 
 async function cargarListas() {
-  const contenedor = document.getElementById("listas-table");
+  let contenedor = document.getElementById("listas-table");
   if (!contenedor) return;
+
+  const contenedorLimpio = contenedor.cloneNode(false);
+  contenedor.replaceWith(contenedorLimpio);
+  contenedor = contenedorLimpio;
 
   try {
     const res    = await fetch("/api/listas");
@@ -452,7 +456,7 @@ async function cargarListas() {
     listasData = listas;
 
     // Delegación de eventos
-    contenedor.addEventListener("click", (e) => {
+    contenedor.onclick = (e) => {
       const btnEditar   = e.target.closest(".btn-editar-lista");
       const btnEliminar = e.target.closest(".btn-eliminar-lista");
 
@@ -464,7 +468,7 @@ async function cargarListas() {
       if (btnEliminar) {
         eliminarLista(btnEliminar.dataset.id, btnEliminar.dataset.nombre);
       }
-    });
+    };
 
   } catch {
     contenedor.innerHTML = "<p class='text-danger'>Error al cargar listas.</p>";
@@ -515,9 +519,9 @@ function iniciarListaCsvDropzone() {
   Dropzone.autoDiscover = false;
 
   listaCsvDropzone = new Dropzone(dropzoneElement, {
-    url: "/target",
+    url: "/api/listas/importar-csv",
     paramName: "file",
-    autoProcessQueue: false,
+    autoProcessQueue: true,
     maxFiles: 1,
     maxFilesize: 10,
     acceptedFiles: ".csv,text/csv",
@@ -528,11 +532,47 @@ function iniciarListaCsvDropzone() {
     dictMaxFilesExceeded: "Solo puedes subir un archivo"
   });
 
-  listaCsvDropzone.on("addedfile", async () => {
+  listaCsvDropzone.on("sending", (file, xhr, formData) => {
+    formData.append("tipo_lista", document.getElementById("lista-modal-tipo")?.value || "Otro");
+    formData.append("fuente", document.getElementById("lista-modal-fuente")?.value.trim() || "CSV");
+    formData.append("id_lista", document.getElementById("lista-modal-id")?.value || "");
+  });
+
+  listaCsvDropzone.on("addedfile", () => {
     const status = document.getElementById("lista-csv-status");
-    if (status) status.textContent = "CSV cargado. Ejecutando validacion contra listas...";
-    await validarClienteListas();
-    if (status) status.textContent = "Validacion contra listas ejecutada.";
+    if (status) status.textContent = "Subiendo CSV y validando clientes...";
+  });
+
+  listaCsvDropzone.on("success", async (file, response) => {
+    const status = document.getElementById("lista-csv-status");
+    if (status) {
+      status.textContent =
+        `CSV procesado: ${response.importadas || 0} importadas, ` +
+        `${response.duplicadas || 0} duplicadas, ` +
+        `${response.clientes_con_coincidencia || 0} cliente(s) bloqueado(s).`;
+    }
+
+    document.getElementById("listas-table").innerHTML = "";
+    document.getElementById("clientes-table").innerHTML = "";
+    document.getElementById("bloqueados-table").innerHTML = "";
+
+    await cargarListas();
+    await cargarTablaClientes();
+    await cargarTablaBloqueados();
+
+    if (clienteSeleccionado) {
+      await cargarRiesgoCliente(clienteSeleccionado.id_cliente);
+      await cargarAlertasCliente(clienteSeleccionado.id_cliente);
+    }
+  });
+
+  listaCsvDropzone.on("error", (file, response) => {
+    const status = document.getElementById("lista-csv-status");
+    if (status) {
+      status.textContent = typeof response === "string"
+        ? response
+        : response?.error || "Error al procesar CSV.";
+    }
   });
 }
 
@@ -593,10 +633,10 @@ async function eliminarLista(id, nombre) {
   try {
     const res = await fetch(`/api/listas/${id}`, { method: "DELETE" });
     if (res.ok) {
-      document.getElementById("listas-table").innerHTML = "";
-      cargarListas();
+      await cargarListas();
     } else {
-      alert("Error al eliminar");
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || "Error al eliminar");
     }
   } catch {
     alert("Error de conexión");
@@ -899,6 +939,7 @@ document.addEventListener("DOMContentLoaded", () => {
   iniciarTabsPanelCliente();
   addCliente();
   iniciarExportacionClientes();
+  cargarDocumentosPendientes();
 
   document.getElementById("btn-nuevo-contrato")
     ?.addEventListener("click", abrirModalNuevoContrato);
@@ -908,6 +949,14 @@ document.addEventListener("DOMContentLoaded", () => {
     ?.addEventListener("click", guardarContrato);
   document.getElementById("btn-validar-listas")
     ?.addEventListener("click", validarClienteListas);
+  document.getElementById("valdoc-modal-cerrar")
+    ?.addEventListener("click", cerrarModalValidarDocumento);
+  document.getElementById("valdoc-modal-cancelar")
+    ?.addEventListener("click", cerrarModalValidarDocumento);
+  document.getElementById("valdoc-modal-validar")
+    ?.addEventListener("click", validarDocumentoYCrearCliente);
+  document.getElementById("valdoc-modal-rechazar")
+    ?.addEventListener("click", rechazarDocumentoPendiente);
 
   document.getElementById("btn-agregar-lista")
     ?.addEventListener("click", abrirModalAgregarLista);
@@ -978,5 +1027,138 @@ async function cargarDocumentosCliente(idCliente) {
     `).join("");
   } catch {
     contenedor.innerHTML = "<span class='text-danger'>Error al cargar documentos.</span>";
+  }
+}
+
+async function cargarDocumentosPendientes() {
+  const contenedor = document.getElementById("documentos-table");
+  if (!contenedor) return;
+
+  try {
+    const res  = await fetch("/api/documentos/pendientes");
+    const data = await res.json();
+
+    if (!data.length) {
+      contenedor.innerHTML = "<p class='text-muted'>No hay documentos pendientes de validacion.</p>";
+      return;
+    }
+
+    new gridjs.Grid({
+      columns: [
+        "ID",
+        "Usuario",
+        "Correo",
+        "Archivo",
+        "Fecha",
+        "Estatus",
+        "Acciones"
+      ],
+      data: data.map(d => [
+        d.id_documento,
+        d.nombre_usuario,
+        d.correo,
+        d.nombre_archivo,
+        formatearFecha(d.fecha_carga),
+        d.estatus_validacion,
+        gridjs.html(`
+          <button class="btn btn-sm btn-primary btn-revisar-doc" data-id="${d.id_documento}" data-datos='${JSON.stringify(d.datos_cliente || {}).replace(/'/g, "&#39;")}' data-nombre="${d.nombre_usuario}">
+            Revisar
+          </button>
+        `)
+      ]),
+      search: true,
+      sort: true,
+      pagination: { limit: 10 }
+    }).render(contenedor);
+
+    contenedor.addEventListener("click", (e) => {
+      const btn = e.target.closest(".btn-revisar-doc");
+      if (!btn) return;
+
+      abrirModalValidarDocumento(
+        btn.dataset.id,
+        btn.dataset.nombre,
+        JSON.parse(btn.dataset.datos || "{}")
+      );
+    });
+  } catch (err) {
+    console.error(err);
+    contenedor.innerHTML = "<p class='text-danger'>Error al cargar documentos pendientes.</p>";
+  }
+}
+
+function abrirModalValidarDocumento(idDocumento, nombreUsuario, datos) {
+  document.getElementById("valdoc-id").value = idDocumento;
+  document.getElementById("valdoc-nombre").value = datos.nombre || nombreUsuario || "";
+  document.getElementById("valdoc-tipo").value = datos.tipo_persona || "";
+  document.getElementById("valdoc-rfc").value = datos.rfc || "";
+  document.getElementById("valdoc-correo").value = datos.correo || "";
+  document.getElementById("valdoc-telefono").value = datos.telefono || "";
+  document.getElementById("valdoc-domicilio").value = datos.domicilio || "";
+  document.getElementById("valdoc-error").style.display = "none";
+  document.getElementById("modal-validar-doc").style.display = "flex";
+}
+
+function cerrarModalValidarDocumento() {
+  document.getElementById("modal-validar-doc").style.display = "none";
+}
+
+async function validarDocumentoYCrearCliente() {
+  const id = document.getElementById("valdoc-id").value;
+  const errorEl = document.getElementById("valdoc-error");
+
+  const datos = {
+    nombre: document.getElementById("valdoc-nombre").value.trim(),
+    tipo_persona: document.getElementById("valdoc-tipo").value,
+    rfc: document.getElementById("valdoc-rfc").value.trim(),
+    correo: document.getElementById("valdoc-correo").value.trim(),
+    telefono: document.getElementById("valdoc-telefono").value.trim(),
+    domicilio: document.getElementById("valdoc-domicilio").value.trim()
+  };
+
+  if (!datos.nombre || !datos.tipo_persona || !datos.rfc || !datos.correo || !datos.telefono || !datos.domicilio) {
+    errorEl.textContent = "Todos los campos son obligatorios antes de validar.";
+    errorEl.style.display = "block";
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/documentos/${id}/validar`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(datos)
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      errorEl.textContent = data.error || "Error al validar";
+      errorEl.style.display = "block";
+      return;
+    }
+
+    cerrarModalValidarDocumento();
+    document.getElementById("documentos-table").innerHTML = "";
+    document.getElementById("clientes-table").innerHTML = "";
+    await cargarDocumentosPendientes();
+    await cargarTablaClientes();
+  } catch {
+    errorEl.textContent = "Error de conexion";
+    errorEl.style.display = "block";
+  }
+}
+
+async function rechazarDocumentoPendiente() {
+  const id = document.getElementById("valdoc-id").value;
+  if (!confirm("Rechazar este documento? El usuario podra volver a subir uno nuevo.")) return;
+
+  try {
+    const res = await fetch(`/api/documentos/${id}/rechazar`, { method: "POST" });
+    if (res.ok) {
+      cerrarModalValidarDocumento();
+      document.getElementById("documentos-table").innerHTML = "";
+      await cargarDocumentosPendientes();
+    }
+  } catch {
+    alert("Error de conexion");
   }
 }

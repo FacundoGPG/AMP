@@ -1,0 +1,66 @@
+<div id="umbralAdminOverlay" class="overlay"></div>
+
+<aside id="umbralAdminPanel" class="cliente-panel" id="umbralAdminPanel">
+  <div class="cliente-panel-header">
+    <div>
+      <p>Catálogo de umbrales</p>
+      <h3 id="umbral-edit-titulo">Nuevo umbral</h3>
+    </div>
+    <button type="button" id="cerrarUmbralAdminPanel" aria-label="Cerrar">X</button>
+  </div>
+
+  <div style="padding: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+
+    <input type="hidden" id="umbral-edit-id">
+
+    <div>
+      <label class="form-label">Nombre</label>
+      <input type="text" id="umbral-edit-nombre" class="form-control"
+        placeholder="Ej. Operación de alto riesgo">
+    </div>
+
+    <div>
+      <label class="form-label">Tipo de alerta</label>
+      <select id="umbral-edit-tipo" class="form-select">
+        <option value="Operacion alta">Operacion alta</option>
+        <option value="Operacion critica">Operacion critica</option>
+        <option value="Transferencia">Transferencia</option>
+        <option value="Operacion inusual">Operacion inusual</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="form-label">Valor límite ($)</label>
+      <input type="number" id="umbral-edit-valor" class="form-control"
+        min="0" step="0.01" placeholder="0.00">
+    </div>
+
+    <div>
+      <label class="form-label">Nivel</label>
+      <select id="umbral-edit-nivel" class="form-select">
+        <option value="Baja">Baja</option>
+        <option value="Media">Media</option>
+        <option value="Alta">Alta</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="form-label">Descripción</label>
+      <input type="text" id="umbral-edit-descripcion" class="form-control"
+        placeholder="Descripción breve">
+    </div>
+
+    <div>
+      <label class="form-label">Asignar a cliente (opcional)</label>
+      <input type="number" id="umbral-edit-cliente" class="form-control"
+        placeholder="ID del cliente, vacío para global">
+    </div>
+
+    <div id="umbral-edit-error" class="text-danger small" style="display:none"></div>
+
+    <button id="umbral-edit-guardar" class="save-btn" style="width:100%;">
+      Guardar cambios
+    </button>
+
+  </div>
+</aside>
