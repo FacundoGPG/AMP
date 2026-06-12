@@ -3,6 +3,9 @@ const { createClient } = require("@supabase/supabase-js");
 const BUCKET = "documentos";
 
 function getSupabase() {
+  console.log("SUPABASE_URL:", process.env.SUPABASE_URL ? "definida" : "UNDEFINED");
+  console.log("SUPABASE_SERVICE_KEY:", process.env.SUPABASE_SERVICE_KEY ? "definida" : "UNDEFINED");
+  
   return createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_SERVICE_KEY
@@ -29,4 +32,7 @@ async function subirArchivo(buffer, nombreArchivo, mimeType) {
   return { url: data.signedUrl, ruta };
 }
 
+
+
 module.exports = { subirArchivo };
+
