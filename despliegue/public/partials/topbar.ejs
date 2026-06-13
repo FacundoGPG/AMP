@@ -1,0 +1,71 @@
+<header class="topbar"> 
+  <div class="nav-left">
+  </div>
+
+  
+  
+  <div class="nav-right">
+    <div class="dropdown">
+    
+    
+    <div class = "dropdown-menu"> 
+        <p class = "dropdown-small"> Seleccionar SOFOM 1 </p>
+        <p class = "dropdown-item"> SOFOM 1 </p>
+
+  
+        <p class = "dropdown-small"> Seleccionar SOFOM 2 </p>
+        <p class = "dropdown-item"> SOFOM 2 </p>
+
+        <p class = "dropdown-small"> Seleccionar SOFOM 3 </p>
+        <p class = "dropdown-item">  SOFOM 3 </p>
+
+    </div>
+  </div>
+    
+   <span id="clock" class="clock"></span>
+    <div class="dropdown-menu" aria-placeholder="Seleccionar SOFOM">
+    <div class="dropdown-user"> </div>
+    </div>
+      <div class="dropdown">
+    
+    <button class="dropdown-btn">
+      <img src="../../resources/user.png" class="dropdown-icon"> 
+      <span>Perfil</span>
+
+    </button>
+
+    <div class="dropdown-menu">
+
+      <div class="dropdown-user">
+        <div class="dropdown-user">
+
+          <p class="dropdown-small">
+            Sesión iniciada como
+          </p>
+          <p class="dropdown-email">
+            <%= usuarioSesion?.nombre?.trim() || "Usuario" %>
+            <%= usuarioSesion?.apellido?.trim() || "" %>
+          </p>
+        </div>
+      </div>
+      
+      <div class="dropdown-divider"></div>
+
+      <button id="openConfig-TopBar" class="dropdown-item" >
+        Configuración
+      </button>
+
+      <form action="/logout" method="POST" style="margin:0">
+        <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+        <button type="submit" class="dropdown-item logout">
+          Cerrar sesión
+        </button>
+      </form>
+
+    </div>
+
+  </div>
+</div>
+</header>
+
+<script src="/scripts/roles.js"></script>

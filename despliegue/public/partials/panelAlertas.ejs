@@ -1,0 +1,48 @@
+<div id="alertaOverlay" class="overlay"></div>
+
+<aside id="alertaPanel" class="cliente-panel">
+  <div class="cliente-panel-header">
+    <div>
+      <p>Detalle de alerta</p>
+      <h3 id="alerta-detail-id"></h3>
+    </div>
+    <button type="button" id="cerrarAlertaPanel">X</button>
+  </div>
+
+  <div class="detail-grid">
+    <div>
+      <p>Tipo:</p>
+      <strong id="alerta-detail-tipo">---</strong>
+    </div>
+    <div>
+      <p>Prioridad:</p>
+      <strong id="alerta-detail-prioridad">---</strong>
+    </div>
+    <div>
+      <p>Estatus:</p>
+      <strong id="alerta-detail-estatus">---</strong>
+    </div>
+    <div>
+      <p>Fecha:</p>
+      <strong id="alerta-detail-fecha">---</strong>
+    </div>
+    <div>
+      <p>Cliente:</p>
+      <strong id="alerta-detail-cliente">---</strong>
+    </div>
+  </div>
+
+  <div class="detail-block" style="margin-top: 1rem;">
+    <p>Motivo:</p>
+    <strong id="alerta-detail-motivo">---</strong>
+  </div>
+
+  <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+    <button 
+    id="btn-crear-caso-desde-alerta"
+    class="save-btn" 
+    style="margin-top: 8px; width: 100%;">
+    Crear caso
+    </button>
+  </div>
+</aside>

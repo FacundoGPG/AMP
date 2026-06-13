@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="./styles.css">
+
+    <title>Inicio - AMP</title>
+</head>
+<body>
+  <%- include("partials/topbar") %>
+  <%- include("partials/sidebar") %>
+  <%- include("partials/cookies") %>
+  <%- include("partials/config") %>
+
+  <div id="overlay" class="overlay"></div>
+
+    <main class="dashboard">
+
+    <section class="welcome full">
+        <div>
+            <h1>¡Bienvenido, <%= usuarioSesion.nombre.trim() %>!</h1>
+            <p>Aquí tienes un resumen general de las novedades.</p>
+        </div>
+    </section>
+
+    <div class="card">
+        <h5 class="card-title">Total de reportes</h5>
+        <h6 class="card-subtitle"></h6>
+        <p class="card-nmb"><%= resumen.total_reportes %></p>
+    </div>
+
+
+    <div class="card">
+        <h5 class="card-title">Alertas activas</h5>
+        <h6 class="card-subtitle"></h6>
+        <p class="card-nmb"><%= resumen.total_alertas %></p>
+    </div>
+
+    <div class="card">
+        <h5 class="card-title">Operaciones en revisión</h5>
+        <h6 class="card-subtitle">-</h6>
+        <p class="card-nmb"><%= resumen.operaciones_revision %></p>
+    </div>
+
+    <div class="card">
+        <h5 class="card-title">Total de clientes</h5>
+        <h6 class="card-subtitle"></h6>
+        <p class="card-nmb"><%= resumen.total_clientes %></p>
+    </div>
+
+ <section class="panel half">
+        <div class="panel-header">
+            <h5>Nuevas Personas Bloqueadas</h5>
+            <a href="/clientes?tab=bloqueados" class="btn btn-light">Ver Listado</a>
+        </div>
+
+        <table class="blocked-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Fecha</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <% bloqueados.forEach(p => { %>
+                <tr>
+                    <td><%= p.nombre %></td>
+                    <td><%= p.fecha_bloqueo
+                            ? new Date(p.fecha_bloqueo).toLocaleString('es-MX')
+                            : '—' %>
+                    </td>
+                    <td>+</td>
+                </tr>
+                <% }) %>
+
+                <% if (bloqueados.length === 0) { %>
+                <tr>
+                    <td colspan="3">Sin personas bloqueadas recientemente</td>
+                </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="panel half">
+        <div class="panel-header">
+        <h5>Alertas Recientes</h5>
+        <a href="/alertas" class="btn btn-light">Ver Alertas</a>
+            </div>
+
+        <% alertas.forEach(function(a) { %>
+        <div class="alert-item">
+            <% if (a.prioridad === 'Alta') { %>
+                <i class="circlePrio1"></i>
+            <% } else if (a.prioridad === 'Media') { %>
+                <i class="circlePrio2"></i>
+            <% } else { %>
+                <i class="circlePrio3"></i>
+            <% } %>
+            <p>Cliente: <%= a.cliente %> — <%= a.motivo %></p>
+            <span class="alert-time"><%= tiempoRelativo(a.fecha_generacion) %></span>
+        </div>
+        <% }) %>
+
+        <% if (alertas.length === 0) { %>
+        <p class="text-muted p-2">Sin alertas recientes</p>
+        <% } %>
+    </section>
+
+<section class="panel full">
+    <div class="panel-header">
+        <h5>Operaciones Recientes</h5>
+        <a href="/operations" class="btn btn-light">Ver Operaciones</a>
+    </div>
+
+    <table class="blocked-table">
+        <thead>
+            <tr>
+                <th>ID Operación</th>
+                <th>Cliente</th>
+                <th>Producto</th>
+                <th>Monto</th>
+                <th>Estatus</th>
+                <th>Riesgo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% operaciones.forEach(function(op) { %>
+            <tr>
+                <td>#<%= op.id_operacion %></td>
+                <td><%= op.cliente %></td>
+                <td><%= op.producto %></td>
+                <td>$<%= Number(op.monto).toLocaleString('es-MX', { minimumFractionDigits: 2 }) %></td>
+                <td><%= op.estado %></td>
+                <td>
+                    <% if (op.riesgo === 'Alto') { %>
+                        <span style="color:#e74c3c; font-weight:600;">Alto</span>
+                    <% } else if (op.riesgo === 'Medio') { %>
+                        <span style="color:#f39c12; font-weight:600;">Medio</span>
+                    <% } else if (op.riesgo === 'Bajo') { %>
+                        <span style="color:#2ecc71; font-weight:600;">Bajo</span>
+                    <% } else if (op.riesgo === 'Sin evaluar') { %>
+                        <span style="color:#5f6368;">Sin evaluar</span>
+                    <% } else { %>
+                        <span>—</span>
+                    <% } %>
+                </td>
+            </tr>
+            <% }) %>
+
+            <% if (operaciones.length === 0) { %>
+            <tr>
+                <td colspan="6">Sin operaciones recientes</td>
+            </tr>
+            <% } %>
+        </tbody>
+    </table>
+</section>
+
+
+</main>
+    <script src="./scripts/componentes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+</body>
+</html>

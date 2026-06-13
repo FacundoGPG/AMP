@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />    
+    <link rel="stylesheet" href="/styles.css">
+    <title>Operaciones - Beta 1 </title>
+</head>
+<body data-rol="<%= usuarioSesion?.roles?.[0] %>">
+  <% const tabActiva = typeof activeTab !== "undefined" ? activeTab : "clientes"; %>
+  <% const totalClientesVista = typeof totalClientes !== "undefined" ? totalClientes : "--"; %>
+  <% const totalBloqueadosVista = typeof totalBloqueados !== "undefined" ? totalBloqueados : "--"; %>
+  <%- include("partials/topbar") %>
+  <%- include("partials/sidebar") %>
+  <%- include("partials/config") %>
+  <%- include("partials/addClientes") %>
+  <%- include("partials/panelClientes") %>
+  <%- include("partials/panelUmbral") %>
+  <%- include("partials/editlista") %>
+
+  <div id="overlay" class="overlay"></div>
+
+
+ <main class="dashboard">
+
+    <div class="card">
+        <h5 class="card-title">Total de Clientes</h5>
+        <h6 class="card-subtitle"> </h6>
+        <p class="card-nmb" id="total-clientes"> <%= totalClientesVista %> </p>
+    </div>
+
+    <div class="card">
+        <h5 class="card-title">Clientes Activos</h5>
+        <h6 class="card-subtitle"> </h6>
+        <p class="card-nmb" id="total-clientes-activos">--</p>
+    </div>
+
+    <div class="card">
+        <h5 class="card-title">Nuevos Clientes</h5>
+        <h6 class="card-subtitle">(ultima semana)</h6>
+        <p class="card-nmb" id="total-clientes-nuevos">--</p>
+    </div>
+
+    <div class="card">
+        <h5 class="card-title">Clientes Bloqueados</h5>
+        <h6 class="card-subtitle">  </h6>
+        <p class="card-nmb" id="total-clientes-bloqueados"><%= totalBloqueadosVista %></p>
+    </div>
+
+    <section class="panel full-page">
+    
+    
+    <div class="clientes-header">
+        <div class="clientes-tabs">
+
+            <button class="tab-btn <%= tabActiva === 'clientes' ? 'active' : '' %>" data-table="clientes-section">Clientes</button>
+            <button class="tab-btn <%= tabActiva === 'bloqueados' ? 'active' : '' %>" data-table="bloqueados-section">Personas Bloqueadas</button>
+            <button class="tab-btn <%= tabActiva === 'listas' ? 'active' : '' %>" data-table="listas-section">Listas de Riesgo</button>
+            <% if (!esAuditoria) { %>
+                <button class="tab-btn <%= tabActiva === 'documentos' ? 'active' : '' %>" 
+                    data-table="documentos-section">Documentos pendientes</button>
+            <% } %>
+        </div>
+        <div class="addCliente">
+            <button class="btn btn-light" id="exportClientesCSV">Exportar Clientes</button>
+            <button class="btn btn-light" id="addClientes"> Añadir Cliente </button>
+        </div>
+        
+    </div>
+
+    <div id="clientes-section" class="table-section <%= tabActiva === 'clientes' ? 'active' : '' %>">
+        <h2>Listado de Clientes</h2>
+        <div id="clientes-table"></div>
+    </div>
+
+    <div id="bloqueados-section" class="table-section <%= tabActiva === 'bloqueados' ? 'active' : '' %>">
+        <h2>Personas Bloqueadas</h2>
+        <div id="bloqueados-table"></div>
+    </div>
+
+    <div id="listas-section" class="table-section <%= tabActiva === 'listas' ? 'active' : '' %>">
+        <div class="clientes-header" style="margin-bottom: 1rem;">
+            <h2>Listas de Riesgo</h2>
+            <button class="btn btn-light" id="btn-agregar-lista">+ Agregar lista</button>
+        </div>
+        <div id="listas-table"></div>
+    </div>
+
+    <% if (!esAuditoria) { %>
+    <div id="documentos-section" class="table-section">
+        <h2>Documentos pendientes de validación</h2>
+        <div id="documentos-table"></div>
+    </div>
+    <% } %>
+
+    </section>
+
+    
+
+<div id="valdocOverlay" class="overlay"></div>
+    <aside id="valdocPanel" class="cliente-panel">
+      <div class="cliente-panel-header">
+        <div>
+          <p>Documento pendiente</p>
+          <h3>Revisar documento</h3>
+        </div>
+        <button type="button" id="valdoc-modal-cerrar">X</button>
+      </div>
+
+      <input type="hidden" id="valdoc-id">
+
+      <div class="detail-grid" style="margin-bottom: 1rem;">
+        <div><p>Archivo:</p><strong id="valdoc-nombre-archivo">—</strong></div>
+        <div><p>Estatus:</p><strong>Pendiente</strong></div>
+      </div>
+
+      <a id="valdoc-descargar" href="#" target="_blank" rel="noopener noreferrer"
+        class="btn btn-sm btn-light" style="margin-bottom: 1.5rem; display: inline-block;">
+        Descargar documento
+      </a>
+
+      <div class="mb-3">
+        <label class="form-label">Nombre completo</label>
+        <input type="text" id="valdoc-nombre" class="form-control">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Tipo de persona</label>
+        <select id="valdoc-tipo" class="form-select">
+          <option value="Fisica">Fisica</option>
+          <option value="Moral">Moral</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">RFC</label>
+        <input type="text" id="valdoc-rfc" class="form-control">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Correo</label>
+        <input type="email" id="valdoc-correo" class="form-control">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Telefono</label>
+        <input type="text" id="valdoc-telefono" class="form-control">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Domicilio</label>
+        <input type="text" id="valdoc-domicilio" class="form-control">
+      </div>
+
+      <div id="valdoc-error" class="text-danger small" style="display:none; margin-bottom: 0.5rem;"></div>
+
+      <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+        <button id="valdoc-modal-cancelar" class="btn btn-light">Cancelar</button>
+        <button id="valdoc-modal-rechazar" class="btn btn-danger">Rechazar</button>
+        <button id="valdoc-modal-validar" class="btn btn-primary">Validar y crear cliente</button>
+      </div>
+    </aside>
+
+</main>
+
+<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+<script src="/scripts/componentes.js"></script>
+<script src="/scripts/exportar-csv.js"></script>
+<script src="/scripts/clientes.js"></script>
+<script src="/scripts/listas.js"></script>
+<script src="/scripts/umbrales.js"></script>
+
+
+</body>
+</html>

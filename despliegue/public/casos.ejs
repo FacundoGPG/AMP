@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css">
+    <title>Casos - SVA</title>
+</head>
+<body data-rol="<%= usuarioSesion?.roles?.[0] %>">
+  <%- include("partials/topbar") %>
+  <%- include("partials/sidebar") %>
+  <%- include("partials/config") %>
+  <%- include("partials/panelCasos") %>
+
+  <div id="overlay" class="overlay"></div>
+
+  <main class="dashboard">
+
+    <div class="card">
+        <h5 class="card-title">Total de Casos</h5>
+        <p class="card-nmb" id="total-casos">--</p>
+    </div>
+    <div class="card">
+        <h5 class="card-title">Abiertos</h5>
+        <p class="card-nmb" id="casos-abiertos">--</p>
+    </div>
+    <div class="card">
+        <h5 class="card-title">En Proceso</h5>
+        <p class="card-nmb" id="casos-en-proceso">--</p>
+    </div>
+    <div class="card">
+        <h5 class="card-title">Cerrados</h5>
+        <p class="card-nmb" id="casos-cerrados">--</p>
+    </div>
+
+    <section class="panel full-page">
+      <div class="clientes-header">
+        <h2>Listado de Casos</h2>
+        <button class="btn btn-light" id="btn-nuevo-caso">+ Crear caso</button>
+      </div>
+      <div id="casos-table"></div>
+    </section>
+
+  </main>
+
+  <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+  <script src="/scripts/componentes.js"></script>
+  <script src="/scripts/casos.js"></script>
+</body>
+</html>

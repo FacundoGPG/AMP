@@ -1,0 +1,139 @@
+<div id="casoOverlay" class="overlay"></div>
+
+<aside id="casoPanel" class="cliente-panel">
+  <div class="cliente-panel-header">
+    <div>
+      <p>Detalle del caso</p>
+      <h3 id="caso-detail-id"></h3>
+    </div>
+    <button type="button" id="cerrarCasoPanel" aria-label="Cerrar detalle">X</button>
+  </div>
+
+  <div class="btn-group cliente-panel-tabs" role="group">
+    <button type="button" class="btn btn-light cliente-panel-tab active" data-panel-tab="caso-info-tab">
+      Información
+    </button>
+    <button type="button" class="btn btn-light cliente-panel-tab" data-panel-tab="caso-alertas-tab">
+      Alertas
+    </button>
+    <button type="button" class="btn btn-light cliente-panel-tab" data-panel-tab="caso-analistas-tab">
+      Analistas
+    </button>
+    <button type="button" class="btn btn-light cliente-panel-tab" data-panel-tab="caso-seguimiento-tab">
+      Seguimiento
+    </button>
+  </div>
+
+  <!-- TAB: INFO -->
+  <section id="caso-info-tab" class="cliente-panel-section active">
+    <div class="detail-grid">
+      <div>
+        <p>Estatus:</p>
+        <strong id="caso-detail-estatus">---</strong>
+      </div>
+      <div>
+        <p>Fecha apertura:</p>
+        <strong id="caso-detail-fecha-apertura">---</strong>
+      </div>
+      <div>
+        <p>Fecha cierre:</p>
+        <strong id="caso-detail-fecha-cierre">---</strong>
+      </div>
+    </div>
+    <div class="detail-block">
+      <p>Descripción:</p>
+      <strong id="caso-detail-descripcion">---</strong>
+    </div>
+
+    <div style="margin-top: 1rem;">
+      <label class="form-label">Cambiar estatus:</label>
+      <select id="caso-select-estatus" class="form-select form-select-sm" style="margin-bottom: 0.5rem;">
+        <option value="Abierto">Abierto</option>
+        <option value="En_Proceso">En Proceso</option>
+        <option value="Cerrado">Cerrado</option>
+      </select>
+      <button class="btn btn-sm btn-primary" id="btn-guardar-estatus">Guardar estatus</button>
+    </div>
+  </section>
+
+  <!-- TAB: ALERTAS -->
+  <section id="caso-alertas-tab" class="cliente-panel-section">
+    <div class="panel-section-header">
+      <h4>Alertas vinculadas</h4>
+    </div>
+    <div id="caso-alertas-list" class="cliente-preview-list">
+      Selecciona un caso para ver sus alertas.
+    </div>
+
+    <!-- Nuevo: vincular alerta manualmente -->
+    <div style="margin-top: 1rem;">
+      <label class="form-label">Vincular alerta por ID:</label>
+      <div style="display: flex; gap: 0.5rem;">
+        <input type="number" id="caso-nueva-alerta-id" class="form-control form-control-sm"
+          placeholder="ID de alerta">
+        <button class="btn btn-sm btn-primary" id="btn-vincular-alerta">Vincular</button>
+      </div>
+      <div id="caso-vincular-error" class="text-danger small" style="display:none; margin-top: 0.3rem;"></div>
+    </div>
+  </section>
+
+  <!-- TAB: ANALISTAS -->
+  <section id="caso-analistas-tab" class="cliente-panel-section">
+    <h4>Analistas asignados</h4>
+    <div id="caso-analistas-list" class="cliente-preview-list">
+      Selecciona un caso para ver los analistas.
+    </div>
+  </section>
+
+  <!-- TAB: SEGUIMIENTO -->
+  <section id="caso-seguimiento-tab" class="cliente-panel-section">
+    <h4>Historial de intervenciones</h4>
+    <div id="caso-seguimiento-list" class="cliente-preview-list">
+      Selecciona un caso para ver el seguimiento.
+    </div>
+    <div style="margin-top: 1rem;">
+      <label class="form-label">Agregar comentario:</label>
+      <textarea id="caso-comentario" class="form-control" rows="3"
+        placeholder="Escribe una acción o comentario..."></textarea>
+      <button class="btn btn-sm btn-primary mt-2" id="btn-agregar-comentario">Agregar</button>
+    </div>
+  </section>
+
+</aside>
+
+<!-- PANEL: CREAR CASO -->
+<div id="crearCasoOverlay" class="overlay"></div>
+<aside id="crearCasoPanel" class="cliente-panel">
+  <div class="cliente-panel-header">
+    <div>
+      <p>Nuevo caso</p>
+      <h3>Crear caso</h3>
+    </div>
+    <button id="cerrarCrearCaso" type="button">X</button>
+  </div>
+
+  <!-- Alerta vinculada — se rellena automáticamente si vienes de /alertas -->
+  <div class="detail-block">
+    <label class="form-label">Alerta vinculada (opcional):</label>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <input type="number" id="crear-caso-id-alerta" class="form-control form-control-sm"
+        placeholder="ID de alerta">
+    </div>
+    <div id="crear-caso-alerta-preview" style="display:none; margin-top: 0.4rem;">
+      <small class="text-muted">Alerta: <strong id="crear-caso-alerta-texto"></strong></small>
+    </div>
+  </div>
+
+  <div class="detail-block">
+    <label class="form-label">Descripción del caso</label>
+    <textarea id="crear-caso-descripcion" class="form-control" rows="4"
+      placeholder="Describe la situación que origina este caso..."></textarea>
+  </div>
+
+  <div id="crear-caso-error" class="text-danger small" style="display:none;"></div>
+
+  <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+    <button class="save-btn" style="width: 100%;" id="btn-confirmar-crear-caso">Crear caso</button>
+    <button class="btn btn-light" style="width: 100%;" id="btn-cancelar-crear-caso">Cancelar</button>
+  </div>
+</aside>

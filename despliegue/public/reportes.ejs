@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <title><%= pageTitle || "Reportes - Beta 1" %></title>
+</head>
+
+<body data-rol="<%= usuarioSesion?.roles?.[0] %>">
+  <%- include("partials/topbar") %>
+  <%- include("partials/sidebar") %>
+  <%- include("partials/config") %>
+  <div id="overlay" class="overlay"></div>
+  <main class="dashboard">
+    <!-- ENCABEZADO -->
+    <section class="welcome full">
+      <div>
+        <h1>Reportes</h1>
+        <p>Registro y seguimiento de reportes internos del sistema.</p>
+      </div>
+    </section>
+    <!-- CREAR REPORTE -->
+    <section class="panel full">
+      <div class="panel-header">
+        <h5>Crear reporte</h5>
+      </div>
+      <form action="/reportes/crear" method="POST" class="filters">
+        <input
+          type="hidden"
+          name="_csrf"
+          value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"
+        >
+        <input
+          type="text"
+          name="titulo"
+          placeholder="Título"
+          required
+        >
+        <input
+          type="text"
+          name="descripcion"
+          placeholder="Descripción"
+          required
+        >
+        <select name="tipo" required>
+          <option value="PLD">PLD</option>
+          <option value="Fraude">Fraude</option>
+          <option value="Sistema">Sistema</option>
+        </select>
+        <select name="prioridad" required>
+          <option value="Alta">Alta</option>
+          <option value="Media">Media</option>
+          <option value="Baja">Baja</option>
+        </select>
+        <button
+          type="submit"
+          class="btn btn-dark"
+        >
+          Crear
+        </button>
+      </form>
+    </section>
+    <!-- LISTADO -->
+    <section class="panel full-page">
+      <div class="panel-header">
+        <h5>Listado de reportes</h5>
+        <div class="d-flex gap-2">
+          <a href="/reportes/exportar/csv" class="btn btn-success">
+            Exportar CSV
+          </a>
+          <a href="/reportes/exportar/pdf" class="btn btn-danger">
+            Exportar PDF
+          </a>
+        </div>
+      </div>
+      <table class="blocked-table">
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Tipo</th>
+            <th>Prioridad</th>
+            <th>Estatus</th>
+          </tr>
+        </thead>
+        <tbody>
+        <% (reportes || []).forEach(reporte => { %>
+          <tr>
+            <td><%= reporte.titulo || "—" %></td>
+            <td><%= reporte.tipo %></td>
+            <td><%= reporte.prioridad || "—" %></td>
+            <td><%= reporte.estatus_envio %></td>  
+          </tr>
+        <% }) %>
+      </tbody>
+      </table>
+    </section>
+  </main>
+  <script src="/scripts/componentes.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

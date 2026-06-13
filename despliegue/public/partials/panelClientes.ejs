@@ -1,0 +1,188 @@
+<div id="clienteOverlay" class="overlay"></div> 
+<aside id="clientePanel" class="cliente-panel">
+    <div class="cliente-panel-header">
+        <div>
+            <p>Resumen de cliente</p>
+            <h3 id="cliente-detail-nombre"></h3>
+        </div>
+        <button type="button" id="cerrarClientePanel" aria-label="Cerrar detalle">X</button>
+    </div>
+    <div class="btn-group cliente-panel-tabs" role="group" aria-label="Secciones del cliente">
+        <button type="button" class="btn btn-light cliente-panel-tab active" data-panel-tab="cliente-info-tab">
+            Información general
+        </button>
+        <button type="button" class="btn btn-light cliente-panel-tab" data-panel-tab="cliente-contratos-tab">
+            Contratos
+        </button>
+        <button type="button" class="btn btn-light cliente-panel-tab" data-panel-tab="cliente-operaciones-tab">
+            Operaciones
+        </button>
+        <button type="button" class="btn btn-light cliente-panel-tab" data-panel-tab="cliente-alertas-tab">
+            Alertas
+        </button>
+        <button type="button" class="btn btn-light cliente-panel-tab" data-panel-tab="cliente-riesgo-tab">
+            Riesgo
+        </button>
+        <button type="button" class="btn btn-light cliente-panel-tab" data-panel-tab="cliente-documentos-tab">
+            Documentos
+        </button>
+    </div>
+
+
+    <section id="cliente-info-tab" class="cliente-panel-section active">
+        <div class="detail-grid">
+            <div>
+                <p>RFC:</p>
+                <strong id="cliente-detail-rfc">---</strong>
+            </div>
+            <div>
+                <p>Tipo:</p>
+                <strong id="cliente-detail-tipo">---</strong>
+            </div>
+            <div>
+                <p>Correo:</p>
+                <strong id="cliente-detail-correo">---</strong>
+            </div>
+            <div>
+                <p>Telefono:</p>
+                <strong id="cliente-detail-telefono">---</strong>
+            </div>
+            <div>
+                <p>Estatus:</p>
+                <strong id="cliente-detail-estatus">---</strong>
+            </div>
+            <div>
+                <p>Fecha de registro:</p>
+                <strong id="cliente-detail-fecha">---</strong>
+            </div>
+            <div class="detail-block">
+                <p>Domicilio:</p>
+                <strong id="cliente-detail-domicilio">---</strong>
+            </div>
+        </div>
+        <form id="clienteEstadoForm" method="POST" class="cliente-form cliente-status-form">
+            <input type="hidden" id="estado-cliente-nombre" name="nombre">
+            <input type="hidden" id="estado-cliente-tipo" name="tipo_persona">
+            <input type="hidden" id="estado-cliente-rfc" name="rfc">
+            <input type="hidden" id="estado-cliente-domicilio" name="domicilio">
+            <input type="hidden" id="estado-cliente-correo" name="correo">
+            <input type="hidden" id="estado-cliente-telefono" name="telefono">
+            <input type="hidden" id="estado-cliente-fecha-bloqueo" name="fecha_bloqueo">
+
+            <div>
+                <label for="estado-cliente-select">Estado del cliente</label>
+                <select id="estado-cliente-select" name="estatus" required>
+                    <option value="Activo">Activo</option>
+                    <option value="Bloqueado">Bloqueado</option>
+                </select>
+            </div>
+
+            <div id="estado-cliente-motivo-wrap" class="cliente-status-reason" hidden>
+                <label for="estado-cliente-motivo">Motivo de bloqueo</label>
+                <textarea
+                    id="estado-cliente-motivo"
+                    name="motivo_bloqueo"
+                    maxlength="200"
+                    rows="3"
+                    placeholder="Describe el motivo del bloqueo"
+                ></textarea>
+            </div>
+
+            <button type="submit" id="guardarEstadoCliente" class="save-btn cliente-panel-action">
+                Guardar estado
+            </button>
+        </form>
+    </section>
+
+
+    <section id="cliente-contratos-tab" class="cliente-panel-section">
+        <div class="panel-section-header">
+            <h4>Contratos</h4>
+            <button class="btn btn-sm btn-light" id="btn-nuevo-contrato">+ Nuevo contrato</button>
+        </div>
+
+
+        <div id="cliente-contratos-list" class="cliente-preview-list">
+            Selecciona un cliente para ver sus contratos.
+        </div>
+
+
+        <div id="contrato-form-inline" style="display:none; margin-top:1rem; padding:1rem; border:1px solid var(--color-border, #e0e0e0); border-radius:8px;">
+            <h5 style="margin-bottom:1rem;">Nuevo contrato</h5>
+
+            <div class="mb-3">
+                <label class="form-label">Producto</label>
+                <select id="contrato-inline-producto" class="form-select"></select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Fecha de inicio</label>
+                <input type="date" id="contrato-inline-fecha-inicio" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Fecha de fin (opcional)</label>
+                <input type="date" id="contrato-inline-fecha-fin" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Saldo inicial</label>
+                <input type="number" id="contrato-inline-saldo" class="form-control" placeholder="0.00" min="0" step="0.01">
+            </div>
+            <div id="contrato-inline-error" class="text-danger small" style="display:none"></div>
+            <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+                <button class="btn btn-light" id="btn-cancelar-contrato">Cancelar</button>
+                <button class="btn btn-primary" id="btn-guardar-contrato">Guardar</button>
+            </div>
+        </div>
+    </section>
+
+
+    <section id="cliente-operaciones-tab" class="cliente-panel-section">
+        <h4>Operaciones del cliente</h4>
+        <div id="cliente-operaciones-list" class="cliente-preview-list">
+            Selecciona un cliente para ver sus operaciones.
+        </div>
+    </section>
+
+
+    <section id="cliente-alertas-tab" class="cliente-panel-section">
+        <h4>Alertas del cliente</h4>
+        <div id="cliente-alertas-list" class="cliente-preview-list">
+            Selecciona un cliente para ver sus alertas.
+        </div>
+    </section>
+
+
+    <section id="cliente-riesgo-tab" class="cliente-panel-section">
+        <h4>Parámetros de riesgo</h4>
+
+        <div class="riesgo-bloque">
+            <p class="riesgo-label">Validación contra listas</p>
+            <div id="cliente-listas-list" class="cliente-preview-list">
+                Cargando...
+            </div>
+            <button class="btn btn-sm btn-light mt-2" id="btn-validar-listas">
+                Validar ahora
+            </button>
+        </div>
+
+        <div class="riesgo-bloque mt-3">
+            <div class="panel-section-header">
+                <p class="riesgo-label">Umbrales de monitoreo</p>
+                <button class="btn btn-sm btn-light" id="btn-nuevo-umbral">+ Umbral personalizado</button>
+            </div>
+            <div id="cliente-umbrales-list" class="cliente-preview-list">
+                Cargando...
+            </div>
+        </div>
+
+    </section>
+
+    <section id="cliente-documentos-tab" class="cliente-panel-section">
+        <div class="panel-section-header">
+            <h4>Documentos recibidos</h4>
+        </div>
+        <div id="cliente-documentos-list" class="cliente-preview-list">
+            Selecciona un cliente para ver sus documentos.
+        </div>
+    </section>
+
+</aside>

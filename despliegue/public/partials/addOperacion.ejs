@@ -1,0 +1,64 @@
+<div id="addOperacionOverlay" class="overlay"></div>
+<aside id="addOperacionPanel" class="cliente-panel">
+  <div class="cliente-panel-header">
+    <div>
+      <p>Registro de operación</p>
+      <h3>Nueva operación</h3>
+    </div>
+    <button type="button" id="cerrarAddOperacionPanel">X</button>
+  </div>
+
+  <div class="detail-grid">
+    <div>
+      <label for="op-cliente">Cliente</label>
+      <select id="op-cliente" class="form-select">
+        <option value="">Selecciona un cliente...</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="op-contrato">Contrato</label>
+      <select id="op-contrato" class="form-select" disabled>
+        <option value="">Selecciona un cliente primero</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="op-tipo">Tipo de operación</label>
+      <select id="op-tipo" class="form-select">
+        <option value="">Selecciona...</option>
+        <option value="Transferencia">Transferencia</option>
+        <option value="Deposito">Depósito</option>
+        <option value="Retiro">Retiro</option>
+        <option value="Pago">Pago</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="op-monto">Monto</label>
+      <input type="number" id="op-monto" class="form-control" placeholder="0.00" min="0" step="0.01">
+    </div>
+
+    <div>
+      <label for="op-canal">Canal</label>
+      <select id="op-canal" class="form-select">
+        <option value="">Selecciona...</option>
+        <option value="Web">Web</option>
+        <option value="Sucursal">Sucursal</option>
+        <option value="Móvil">Móvil</option>
+        <option value="API">API</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="op-fecha">Fecha y hora</label>
+      <input type="datetime-local" id="op-fecha" class="form-control">
+    </div>
+  </div>
+
+  <div id="op-error" class="text-danger small mt-2" style="display:none"></div>
+
+  <button class="save-btn" id="btn-guardar-operacion">
+    Guardar operación
+  </button>
+</aside>
