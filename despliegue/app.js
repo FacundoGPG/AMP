@@ -58,22 +58,28 @@ app.set(
 
 
 app.use(cors({
-  origin: ["http://localhost:3001"],
+  origin: [
+    "http://localhost:3001",
+    "https://localhost:3001",
+    process.env.COOLIFY_URL,
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null
+  ].filter(Boolean),
   credentials: true
 }));
 
+const isProduction = process.env.NODE_ENV === "production";
+const forceHTTPS = process.env.FORCE_HTTPS === "true";
+
 app.use(
   helmet({
-    contentSecurityPolicy: {
+    contentSecurityPolicy: isProduction && forceHTTPS ? {
       directives: {
-
         "script-src": [
           "'self'",
           "'unsafe-inline'",
           "https://cdn.jsdelivr.net",
           "https://unpkg.com"
         ],
-
         "style-src": [
           "'self'",
           "'unsafe-inline'",
@@ -81,21 +87,16 @@ app.use(
           "https://cdn.jsdelivr.net",
           "https://unpkg.com"
         ],
-
         "font-src": [
           "'self'",
           "https://fonts.gstatic.com",
           "https://cdn.jsdelivr.net",
           "https://unpkg.com"
         ],
-
-        "img-src": [
-          "'self'",
-          "data:",
-          "https:"
-        ]
+        "img-src": ["'self'", "data:", "https:", "http:"]
       }
-    }
+    } : false,
+    hsts: forceHTTPS,
   })
 );
 
@@ -135,7 +136,7 @@ app.use(
     cookie: {
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production" && process.env.FORCE_HTTPS === "true",
       maxAge: 24 * 60 * 60 * 1000
     }
   })
