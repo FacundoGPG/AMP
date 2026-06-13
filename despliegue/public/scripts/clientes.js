@@ -646,6 +646,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ?.addEventListener("click", validarDocumentoYCrearCliente);
   document.getElementById("valdoc-modal-rechazar")
     ?.addEventListener("click", rechazarDocumento);
+  document.getElementById("valdocOverlay")?.addEventListener("click", cerrarModalValidarDocumento);
+
 });
 
 
@@ -730,11 +732,11 @@ async function cargarDocumentosPendientes() {
         d.nombre_archivo,
         formatearFecha(d.fecha_carga),
         d.estatus_validacion,
-        gridjs.html(`
-          <button class="btn btn-sm btn-primary btn-revisar-doc" data-id="${d.id_documento}" data-datos='${JSON.stringify(d.datos_cliente).replace(/'/g, "&#39;")}' data-nombre="${d.nombre_usuario}">
-            Revisar
-          </button>
-        `)
+          gridjs.html(`
+            <button class="btn btn-sm btn-primary btn-revisar-doc" data-id="${d.id_documento}" data-datos='${JSON.stringify(d.datos_cliente || {}).replace(/'/g, "&#39;")}' data-nombre="${d.nombre_usuario}" data-ruta="${d.ruta_archivo || ""}" data-archivo="${d.nombre_archivo || ""}">
+              Revisar
+            </button>
+          `)
       ]),
       search: true,
       sort: true,
@@ -747,7 +749,7 @@ async function cargarDocumentosPendientes() {
       const id = btn.dataset.id;
       const nombre = btn.dataset.nombre;
       const datos = JSON.parse(btn.dataset.datos || "{}");
-      abrirModalValidarDocumento(id, nombre, datos);
+      abrirModalValidarDocumento(id, nombre, datos, btn.dataset.ruta, btn.dataset.archivo);
     });
 
   } catch (err) {
@@ -756,20 +758,35 @@ async function cargarDocumentosPendientes() {
   }
 }
 
-function abrirModalValidarDocumento(idDocumento, nombreUsuario, datos) {
+function abrirModalValidarDocumento(idDocumento, nombreUsuario, datos, rutaArchivo, nombreArchivo) {
   document.getElementById("valdoc-id").value = idDocumento;
-  document.getElementById("valdoc-nombre").value = datos.nombre || nombreUsuario;
+  document.getElementById("valdoc-nombre").value = datos.nombre || nombreUsuario || "";
   document.getElementById("valdoc-tipo").value = datos.tipo_persona || "";
   document.getElementById("valdoc-rfc").value = datos.rfc || "";
   document.getElementById("valdoc-correo").value = datos.correo || "";
   document.getElementById("valdoc-telefono").value = datos.telefono || "";
   document.getElementById("valdoc-domicilio").value = datos.domicilio || "";
   document.getElementById("valdoc-error").style.display = "none";
-  document.getElementById("modal-validar-doc").style.display = "flex";
+
+  const btnDescargar = document.getElementById("valdoc-descargar");
+  const spanNombre = document.getElementById("valdoc-nombre-archivo");
+  if (rutaArchivo) {
+    btnDescargar.href = rutaArchivo;
+    btnDescargar.style.display = "inline-block";
+    spanNombre.textContent = nombreArchivo || rutaArchivo.split("/").pop().split("?")[0].replace(/^\d+_/, "");
+  } else {
+    btnDescargar.href = "#";
+    btnDescargar.style.display = "none";
+    spanNombre.textContent = "Sin archivo";
+  }
+
+  document.getElementById("valdocPanel").classList.add("active");
+  document.getElementById("valdocOverlay").classList.add("active");
 }
 
 function cerrarModalValidarDocumento() {
-  document.getElementById("modal-validar-doc").style.display = "none";
+  document.getElementById("valdocPanel").classList.remove("active");
+  document.getElementById("valdocOverlay").classList.remove("active");
 }
 
 async function validarDocumentoYCrearCliente() {

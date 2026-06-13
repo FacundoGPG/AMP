@@ -1,253 +1,187 @@
-let gridReportes;
-let reporteSeleccionado = null;
-let reportesCargados = [];
- 
-async function cargarTablaReportes() {
-  const container = document.getElementById("reportes-table");
-  if (!container) return;
- 
-  const response = await fetch("/api/buzon");
-  reportesCargados = await response.json();
- 
-  actualizarContadores(reportesCargados);
- 
-  if (gridReportes) {
-    gridReportes.updateConfig({ data: obtenerDataReportes() }).forceRender();
-    setTimeout(agregarClickReportes, 300);
-    return;
-  }
- 
-  gridReportes = new gridjs.Grid({
-    columns: [
-      "ID del reporte",
-      "Fecha",
-      {
-        name: "Estatus",
-        formatter: (cell) =>
-          gridjs.html(`<span class="${getStatusClass(cell)}">${cell}</span>`)
-      },
-      "Encargado"
-    ],
-    data: obtenerDataReportes(),
-    search: false,
-    sort: true,
-    pagination: { limit: 10 }
-  }).render(container);
- 
-  setTimeout(agregarClickReportes, 300);
-}
- 
-async function cargarContadoresDesdeAPI() {
-  try {
-    const response = await fetch("/api/buzon/contadores");
-    const contadores = await response.json();
- 
-    const total = document.getElementById("total-reportes");
-    const pendientes = document.getElementById("pendientes");
-    const enSeguimiento = document.getElementById("en-seguimiento");
-    const resueltos = document.getElementById("resueltos");
- 
-    if (total) total.textContent = contadores.total;
-    if (pendientes) pendientes.textContent = contadores.pendientes;
-    if (enSeguimiento) enSeguimiento.textContent = contadores.en_seguimiento;
-    if (resueltos) resueltos.textContent = contadores.resueltos;
-  } catch (error) {
-    console.error("Error cargando contadores: ", error);
-  }
-}
- 
-function actualizarContadores(reportes) {
-  const total = document.getElementById("total-reportes");
-  const pendientes = document.getElementById("pendientes");
-  const enSeguimiento = document.getElementById("en-seguimiento");
-  const resueltos = document.getElementById("resueltos");
- 
-  if (total) total.textContent = reportes.length;
-  if (pendientes) pendientes.textContent = reportes.filter(r => r.estatus === "Pendiente").length;
-  if (enSeguimiento) enSeguimiento.textContent = reportes.filter(r => r.estatus === "En seguimiento").length;
-  if (resueltos) resueltos.textContent = reportes.filter(r => r.estatus === "Resuelto").length;
-}
- 
-function obtenerDataReportes() {
-  return reportesCargados.map(r => [
-    r.id_alerta,
-    r.fecha ? new Date(r.fecha).toLocaleString("es-MX") : "",
-    r.estatus,
-    r.encargado
-  ]);
-}
- 
-function agregarClickReportes() {
-  const rows = document.querySelectorAll("#reportes-table tbody .gridjs-tr");
- 
-  rows.forEach((row) => {
-    row.style.cursor = "pointer";
- 
-    row.addEventListener("click", () => {
-      const idReporte = Number(row.children[0].textContent.trim());
-      const reporte = reportesCargados.find(r => r.id_alerta === idReporte);
- 
-      if (!reporte) return;
- 
-      reporteSeleccionado = reporte;
- 
-      document.getElementById("detail-id").textContent = reporte.id_alerta;
-      document.getElementById("detail-date").textContent = reporte.fecha ? new Date(reporte.fecha).toLocaleString("es-MX") : "";
-      document.getElementById("detail-description").textContent = reporte.descripcion_reporte;
-      document.getElementById("detail-select").value = reporte.estatus;
-      document.getElementById("detail-encargado").value = reporte.id_encargado || "";
-      document.getElementById("detail-encargado-texto").textContent = reporte.encargado || "Sin asignar";
- 
-      const status = document.getElementById("detail-status");
-      if (status) {
-        status.textContent = reporte.estatus;
-        status.className = getStatusClass(reporte.estatus);
-      }
- 
-      const fileSpan = document.getElementById("evidencia-nombre");
-      const fileLink = document.getElementById("evidencia-link");
+const multer = require("multer");
+const path = require("path");
+const crypto = require("crypto");
+const pool = require("../config/database");
+const { subirArchivo } = require("../config/storage");
+const clientesModel = require("../models/clientes.model");
 
-      if (fileSpan && fileLink) {
-        if (reporte.ruta_evidencia) {
-          fileSpan.textContent = reporte.ruta_evidencia.split("/").pop();
-          fileLink.href = `/get_private_file/${reporte.ruta_evidencia.split("/").pop()}`;
-          fileLink.style.display = "inline";
-        } else {
-          fileSpan.textContent = "Sin archivos";
-          fileLink.style.display = "none";
-        }
-      }
- 
-      const notasEl = document.getElementById("detail-notas");
-      if (notasEl) notasEl.value = reporte.notas || "";
+exports.renderChisme = async (req, res) => {
+  const roles = req.session.usuario?.roles || [];
+
+  if (roles.includes("Cliente")) {
+    const idUsuario = req.session.usuario?.id;
+    const pendiente = await clientesModel.tienePendiente(idUsuario);
+
+    return res.render("cliente", {
+      pageTitle: "Portal del Cliente",
+      enviado: req.query.enviado === "true",
+      pendiente
     });
+  }
+
+  res.render("chisme", {
+    pageTitle: "Chisme - Beta 1",
+    hash: req.query.hash || null
   });
-}
- 
-function actualizarTablaReportes() {
-  gridReportes.updateConfig({ data: obtenerDataReportes() }).forceRender();
-  setTimeout(agregarClickReportes, 300);
-}
- 
-function getStatusClass(estatus) {
-  if (estatus === "Pendiente") return "status pending";
-  if (estatus === "En seguimiento") return "status tracking";
-  if (estatus === "Resuelto") return "status solved";
-  return "status";
-}
- 
+};
 
-async function cargarUsuarios() {
-  const select = document.getElementById("detail-encargado");
-  if (!select) return;
- 
-  try {
-    const response = await fetch("/api/buzon/usuarios");
-    const data = await response.json();
- 
-    if (!response.ok || !Array.isArray(data)) {
-      console.error("Error en respuesta:", data);
-      return;
+const uploadPublico = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, callback) => {
+      console.log("File Destination:", "./public/");
+      callback(null, "./public/");
+    },
+    filename: (req, file, callback) => {
+      console.log("Uploaded File:", req.body);
+      callback(null, file.originalname);
     }
- 
-    // Limpia opciones anteriores excepto "Sin asignar"
-    while (select.options.length > 1) {
-      select.remove(1);
-    }
- 
-    data.forEach(u => {
-      const option = document.createElement("option");
-      option.value = u.id_usuario;
-      option.textContent = u.nombre_completo;
-      select.appendChild(option);
-    });
- 
-  } catch (error) {
-    console.error("Error cargando usuarios:", error);
-  }
-}
- 
-function mostrarToast(mensaje = "Reporte actualizado correctamente", esError = false) {
-  const toast = document.getElementById("toast-buzon");
-  if (!toast) return;
- 
-  toast.textContent = mensaje;
-  toast.style.background = esError ? "#ef4444" : "#22c55e";
-  toast.style.display = "block";
-  toast.style.opacity = "1";
- 
-  setTimeout(() => {
-    toast.style.opacity = "0";
-    setTimeout(() => toast.style.display = "none", 300);
-  }, 3000);
-}
- 
+  })
+}).array("file", 1);
 
-document.addEventListener("DOMContentLoaded", async () => {
-  await cargarUsuarios();        
-  await cargarTablaReportes();   
-  cargarContadoresDesdeAPI();
- 
-  const selectStatus = document.getElementById("detail-select");
-  const selectEncargado = document.getElementById("detail-encargado");
-  const btnGuardar = document.getElementById("btn-guardar-nota");
- 
-  if (selectStatus) {
-    selectStatus.addEventListener("change", () => {
-      if (!reporteSeleccionado) return;
-      reporteSeleccionado.estatus = selectStatus.value;
-      const status = document.getElementById("detail-status");
-      if (status) {
-        status.textContent = selectStatus.value;
-        status.className = getStatusClass(selectStatus.value);
-      }
-      actualizarTablaReportes();
-    });
-  }
- 
-  if (selectEncargado) {
-    selectEncargado.addEventListener("change", () => {
-      if (!reporteSeleccionado) return;
-      reporteSeleccionado.id_encargado = selectEncargado.value || null;
-      reporteSeleccionado.encargado = selectEncargado.options[selectEncargado.selectedIndex].textContent;
-      actualizarTablaReportes();
-    });
-  }
- 
-  if (btnGuardar) {
-    btnGuardar.addEventListener("click", async () => {
-      console.log("click en guardar");
-      console.log("reporteSeleccionado:", reporteSeleccionado);
- 
-      if (!reporteSeleccionado) {
-        console.log("No hay reporte seleccionado");
-        return;
-      }
- 
-      const estatus = document.getElementById("detail-select").value;
-      const idEncargado = document.getElementById("detail-encargado").value || null;
-      const notas = document.getElementById("detail-notas")?.value || "";
- 
+const uploadMemoria = multer({ storage: multer.memoryStorage() }).single("file");
+
+exports.upload_documento_cliente = async (req, res) => {
+  uploadMemoria(req, res, async (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error al recibir el archivo");
+    }
+
+    const idUsuario = req.session.usuario?.id;
+    if (!idUsuario) return res.status(401).send("No autenticado");
+
+    const pendiente = await clientesModel.tienePendiente(idUsuario);
+    if (pendiente) {
+      return res.render("cliente", {
+        pageTitle: "Portal del Cliente",
+        enviado: false,
+        pendiente: true
+      });
+    }
+
+    if (!req.file) return res.status(400).send("No se recibio ningun archivo");
+
+    try {
+      const { url } = await subirArchivo(
+        req.file.buffer,
+        req.file.originalname,
+        req.file.mimetype
+      );
+
+      const datosCliente = {
+        nombre: req.body.nombre?.trim(),
+        tipo_persona: req.body.tipo_persona,
+        rfc: req.body.rfc?.trim().toUpperCase(),
+        curp: req.body.curp?.trim().toUpperCase(),
+        correo: req.body.correo?.trim().toLowerCase(),
+        telefono: req.body.telefono?.trim(),
+        domicilio: req.body.domicilio?.trim()
+      };
+
+      // subirArchivo antepone un timestamp al nombre (ej: "1781304783912_test.pdf")
+      // Se guarda el nombre original limpio para mostrarlo correctamente en el panel
+      const nombreConTimestamp = url.split("/").pop().split("?")[0]; // "1781304783912_test.pdf"
+      const nombreArchivo = nombreConTimestamp.replace(/^\d+_/, "");  // "test.pdf"
+
+      await clientesModel.addDocumentoCliente({
+        id_usuario: idUsuario,
+        nombre_archivo: nombreArchivo,
+        ruta_archivo: url,
+        datos_cliente: datosCliente
+      });
+
+      return res.redirect("/testing?enviado=true");
+    } catch (error) {
+      console.error("Error guardando documento:", error);
+      return res.status(500).send("Error al guardar el documento");
+    }
+  });
+};
+
+exports.upload_file = async (req, res) => {
+  uploadPublico(req, res, (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        code: 500,
+        msg: "Error uploading file"
+      });
+    }
+
+    console.log("Upload Successful:", req.files);
+    res.redirect("/testing");
+  });
+};
+
+exports.upload_file_private = async (req, res) => {
+  uploadMemoria(req, res, async (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ code: 500, msg: "Error uploading file" });
+    }
+
+    const descripcion = req.body.mensaje || "";
+    const situacion = req.body.nombre || "Sin titulo";
+
+    if (!descripcion.trim()) {
+      return res.status(400).send("La descripcion es obligatoria");
+    }
+
+    let rutaEvidencia = null;
+    if (req.file) {
       try {
-        const res = await fetch(`/api/buzon/${reporteSeleccionado.id_alerta}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ estatus, idEncargado, notas })
-        });
- 
-        if (res.ok) {
-          mostrarToast("Reporte actualizado correctamente"); 
-          await cargarTablaReportes();
-          cargarContadoresDesdeAPI();
-        } else {
-          mostrarToast("Error al guardar el reporte", true);
-        }
-      } catch (error) {
-        console.error("Error guardando nota:", error);
-        mostrarToast("Error de conexión", true);
+        const { url } = await subirArchivo(
+          req.file.buffer,
+          req.file.originalname,
+          req.file.mimetype
+        );
+        rutaEvidencia = url;
+      } catch (storageError) {
+        console.error("Error subiendo a Storage:", storageError);
+        return res.status(500).send("Error al subir el archivo");
       }
-    });
-  } else {
-    console.log("btnGuardar NO encontrado");
-  }
-});
+    }
+
+    const hash = crypto
+      .createHash("sha256")
+      .update(crypto.randomUUID())
+      .digest("hex");
+
+    try {
+      const resultAlerta = await pool.query(`
+        INSERT INTO public."Alerta"
+          (tipo_alerta, fecha_generacion, motivo, estatus)
+        VALUES ('Buzon', NOW(), $1, 'Nueva')
+        RETURNING id_alerta
+      `, [situacion]);
+
+      const idAlerta = resultAlerta.rows[0].id_alerta;
+
+      await pool.query(`
+        INSERT INTO public."Alerta_Buzon"
+          (id_alerta, descripcion_reporte, ruta_evidencia, hash_seguimiento, estatus)
+        VALUES ($1, $2, $3, $4, 'Pendiente')
+      `, [idAlerta, descripcion, rutaEvidencia, hash]);
+
+      return res.redirect(`/testing?hash=${hash}`);
+    } catch (errorBD) {
+      console.error("Error en la base de datos:", errorBD);
+      return res.status(500).send("Error al guardar el reporte");
+    }
+  });
+};
+
+exports.get_private_file = async (req, res) => {
+  const fileName = path.basename(req.params.file);
+  const filePath = path.join(__dirname, "../private", fileName);
+
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      console.error("sendFile error:", err.message);
+      res.status(404).json({
+        code: 404,
+        msg: "Archivo no encontrado"
+      });
+    }
+  });
+};

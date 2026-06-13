@@ -1,15 +1,6 @@
 require("dotenv").config();
 const { Pool } = require("pg");
 
-console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
-
-if (process.env.DATABASE_URL) {
-  console.log(
-    "DATABASE_URL starts with:",
-    process.env.DATABASE_URL.substring(0, 25)
-  );
-}
-
 const parseNumber = (value, fallback) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
