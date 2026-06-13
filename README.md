@@ -11,9 +11,9 @@ PostgreSQL (se usa Supabase como proveedor)
 No requiere docker
 
 **Instalación**:
-npm i --legacy-peer-deps
+npm install / npm i / npm i --legacy-peer-deps
 
-**Para ejecutar código**:
+**Para ejecutar el servidor**:
 node app.js
 
 **Tests**:
