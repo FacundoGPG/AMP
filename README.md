@@ -25,6 +25,7 @@ npm test
 **Scripts disponibles**:
 
 npm start  #node app.js
+
 npm test   #jest
 
 **Base de datos**:
