@@ -1,4 +1,4 @@
-**AMP — Sistema de Cumplimiento**
+**AMP — Sistema automatizado**
 
 Aplicación web monolítica construida con Node.js + Express + EJS y base de datos PostgreSQL (Supabase). Gestiona clientes, operaciones, alertas, casos, reportes y buzón de cumplimiento.
 
