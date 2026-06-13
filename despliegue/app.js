@@ -67,11 +67,13 @@ app.use(cors({
   credentials: true
 }));
 
+const isProduction = process.env.NODE_ENV === "production";
+const forceHTTPS = process.env.FORCE_HTTPS === "true";
+
 app.use(
   helmet({
-    contentSecurityPolicy: {
+    contentSecurityPolicy: isProduction && forceHTTPS ? {
       directives: {
-        "upgrade-insecure-requests": [],
         "script-src": [
           "'self'",
           "'unsafe-inline'",
@@ -91,14 +93,10 @@ app.use(
           "https://cdn.jsdelivr.net",
           "https://unpkg.com"
         ],
-        "img-src": [
-          "'self'",
-          "data:",
-          "https:",
-          "http:"
-        ]
+        "img-src": ["'self'", "data:", "https:", "http:"]
       }
-    }
+    } : false,
+    hsts: forceHTTPS,
   })
 );
 
