@@ -6,13 +6,12 @@ Aplicación web monolítica construida con Node.js + Express + EJS y base de dat
 
 Node.js v18 o superior (desarrollado con v22)
 PostgreSQL (se usa Supabase como proveedor)
-
 No requiere docker
 
-**Instalación**
+**Instalación**:
 npm i --legacy-peer-deps
 
-**Para ejecutar código**
+**Para ejecutar código**:
 node app.js
 
 **Tests
