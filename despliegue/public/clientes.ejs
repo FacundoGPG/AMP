@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/styles.css">
     <title>Operaciones - Beta 1 </title>
 </head>
-<body>
+<body data-rol="<%= usuarioSesion?.roles?.[0] %>">
   <% const tabActiva = typeof activeTab !== "undefined" ? activeTab : "clientes"; %>
   <% const totalClientesVista = typeof totalClientes !== "undefined" ? totalClientes : "--"; %>
   <% const totalBloqueadosVista = typeof totalBloqueados !== "undefined" ? totalBloqueados : "--"; %>
@@ -18,7 +18,8 @@
   <%- include("partials/addClientes") %>
   <%- include("partials/panelClientes") %>
   <%- include("partials/panelUmbral") %>
-  
+  <%- include("partials/editlista") %>
+
   <div id="overlay" class="overlay"></div>
 
 
@@ -57,8 +58,10 @@
             <button class="tab-btn <%= tabActiva === 'clientes' ? 'active' : '' %>" data-table="clientes-section">Clientes</button>
             <button class="tab-btn <%= tabActiva === 'bloqueados' ? 'active' : '' %>" data-table="bloqueados-section">Personas Bloqueadas</button>
             <button class="tab-btn <%= tabActiva === 'listas' ? 'active' : '' %>" data-table="listas-section">Listas de Riesgo</button>
-            <button class="tab-btn <%= tabActiva === 'documentos' ? 'active' : '' %>" data-table="documentos-section">Documentos pendientes</button>
-
+            <% if (!esAuditoria) { %>
+                <button class="tab-btn <%= tabActiva === 'documentos' ? 'active' : '' %>" 
+                    data-table="documentos-section">Documentos pendientes</button>
+            <% } %>
         </div>
         <div class="addCliente">
             <button class="btn btn-light" id="exportClientesCSV">Exportar Clientes</button>
@@ -85,111 +88,75 @@
         <div id="listas-table"></div>
     </div>
 
+    <% if (!esAuditoria) { %>
     <div id="documentos-section" class="table-section">
         <h2>Documentos pendientes de validación</h2>
         <div id="documentos-table"></div>
     </div>
+    <% } %>
 
     </section>
 
-    <div id="lista-modal" class="modal-overlay" style="display:none">
-        <div class="modal-box">
-            <div class="modal-header">
-            <h5 id="lista-modal-titulo">Agregar lista</h5>
-            <button id="lista-modal-cerrar" class="btn-close-modal">✕</button>
-            </div>
-            <div class="modal-body">
-            <input type="hidden" id="lista-modal-id">
+    
 
-            <div class="mb-3">
-                <label class="form-label">Tipo de lista</label>
-                <select id="lista-modal-tipo" class="form-select">
-                <option value="PEP">PEP</option>
-                <option value="Lista_Negra">Lista Negra</option>
-                <option value="Sancion">Sanción</option>
-                <option value="Otro">Otro</option>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Nombre</label>
-                <input type="text" id="lista-modal-nombre" class="form-control" placeholder="Ej. Lista OFAC, PEP México">
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Fuente</label>
-                <input type="text" id="lista-modal-fuente" class="form-control" placeholder="Ej. SHCP, ONU, OFAC">
-            </div>
-
-            <div id="lista-modal-error" class="text-danger small" style="display:none"></div>
-            </div>
-            <div class="modal-footer">
-            <button id="lista-modal-cancelar" class="btn btn-light">Cancelar</button>
-            <button id="lista-modal-guardar" class="btn btn-primary">Guardar</button>
+<div id="valdocOverlay" class="overlay"></div>
+    <aside id="valdocPanel" class="cliente-panel">
+      <div class="cliente-panel-header">
+        <div>
+          <p>Documento pendiente</p>
+          <h3>Revisar documento</h3>
         </div>
-    </div>
+        <button type="button" id="valdoc-modal-cerrar">X</button>
+      </div>
 
-        </div>
+      <input type="hidden" id="valdoc-id">
 
+      <div class="detail-grid" style="margin-bottom: 1rem;">
+        <div><p>Archivo:</p><strong id="valdoc-nombre-archivo">—</strong></div>
+        <div><p>Estatus:</p><strong>Pendiente</strong></div>
+      </div>
 
-        <div id="valdocOverlay" class="overlay"></div>
-            <aside id="valdocPanel" class="cliente-panel">
-            <div class="cliente-panel-header">
-                <div>
-                <p>Documento pendiente</p>
-                <h3>Revisar documento</h3>
-                </div>
-                <button type="button" id="valdoc-modal-cerrar">X</button>
-            </div>
+      <a id="valdoc-descargar" href="#" target="_blank" rel="noopener noreferrer"
+        class="btn btn-sm btn-light" style="margin-bottom: 1.5rem; display: inline-block;">
+        Descargar documento
+      </a>
 
-            <input type="hidden" id="valdoc-id">
+      <div class="mb-3">
+        <label class="form-label">Nombre completo</label>
+        <input type="text" id="valdoc-nombre" class="form-control">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Tipo de persona</label>
+        <select id="valdoc-tipo" class="form-select">
+          <option value="Fisica">Fisica</option>
+          <option value="Moral">Moral</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">RFC</label>
+        <input type="text" id="valdoc-rfc" class="form-control">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Correo</label>
+        <input type="email" id="valdoc-correo" class="form-control">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Telefono</label>
+        <input type="text" id="valdoc-telefono" class="form-control">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Domicilio</label>
+        <input type="text" id="valdoc-domicilio" class="form-control">
+      </div>
 
-            <div class="detail-grid" style="margin-bottom: 1rem;">
-                <div><p>Archivo:</p><strong id="valdoc-nombre-archivo">—</strong></div>
-                <div><p>Estatus:</p><strong>Pendiente</strong></div>
-            </div>
+      <div id="valdoc-error" class="text-danger small" style="display:none; margin-bottom: 0.5rem;"></div>
 
-            <a id="valdoc-descargar" href="#" target="_blank" rel="noopener noreferrer"
-                class="btn btn-sm btn-light" style="margin-bottom: 1.5rem; display: inline-block;">
-                Descargar documento
-            </a>
-
-            <div class="mb-3">
-                <label class="form-label">Nombre completo</label>
-                <input type="text" id="valdoc-nombre" class="form-control">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Tipo de persona</label>
-                <select id="valdoc-tipo" class="form-select">
-                <option value="Fisica">Fisica</option>
-                <option value="Moral">Moral</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">RFC</label>
-                <input type="text" id="valdoc-rfc" class="form-control">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Correo</label>
-                <input type="email" id="valdoc-correo" class="form-control">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Telefono</label>
-                <input type="text" id="valdoc-telefono" class="form-control">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Domicilio</label>
-                <input type="text" id="valdoc-domicilio" class="form-control">
-            </div>
-
-            <div id="valdoc-error" class="text-danger small" style="display:none; margin-bottom: 0.5rem;"></div>
-
-            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                <button id="valdoc-modal-cancelar" class="btn btn-light">Cancelar</button>
-                <button id="valdoc-modal-rechazar" class="btn btn-danger">Rechazar</button>
-                <button id="valdoc-modal-validar" class="btn btn-primary">Validar y crear cliente</button>
-            </div>
-            </aside>
+      <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+        <button id="valdoc-modal-cancelar" class="btn btn-light">Cancelar</button>
+        <button id="valdoc-modal-rechazar" class="btn btn-danger">Rechazar</button>
+        <button id="valdoc-modal-validar" class="btn btn-primary">Validar y crear cliente</button>
+      </div>
+    </aside>
 
 </main>
 

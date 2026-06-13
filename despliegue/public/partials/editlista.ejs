@@ -12,37 +12,25 @@
   <form id="lista-form" class="cliente-form">
     <input type="hidden" id="lista-modal-id">
 
-    <div class="detail-grid">
-      <div>
-        <label for="lista-modal-tipo">Tipo de lista</label>
-        <select id="lista-modal-tipo" required>
-          <option value="PEP">PEP</option>
-          <option value="Lista_Negra">Lista Negra</option>
-          <option value="Sancion">Sancion</option>
-          <option value="Otro">Otro</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="lista-modal-nombre">Nombre</label>
-        <input
-          type="text"
-          id="lista-modal-nombre"
-          maxlength="120"
-          placeholder="Ej. Lista OFAC, PEP Mexico"
-          required
-        >
-      </div>
-
-      <div class="detail-block">
-        <label for="lista-modal-fuente">Fuente</label>
-        <input
-          type="text"
-          id="lista-modal-fuente"
-          maxlength="120"
-          placeholder="Ej. SHCP, ONU, OFAC"
-          required
-        >
+    <div style="display:flex; flex-direction:column; gap:1rem; margin-bottom:1rem;">
+          <div>
+            <label class="form-label" for="lista-modal-tipo">Tipo de lista</label>
+            <select id="lista-modal-tipo" class="form-select" required>
+              <option value="PEP">PEP</option>
+              <option value="Lista_Negra">Lista Negra</option>
+              <option value="Sancion">Sanción</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" for="lista-modal-nombre">Nombre</label>
+            <input type="text" id="lista-modal-nombre" class="form-control"
+              maxlength="120" placeholder="Ej. Lista OFAC, PEP México" required>
+          </div>
+          <div>
+            <label class="form-label" for="lista-modal-fuente">Fuente</label>
+            <input type="text" id="lista-modal-fuente" class="form-control"
+              maxlength="120" placeholder="Ej. SHCP, ONU, OFAC" required>
       </div>
     </div>
 
@@ -62,7 +50,7 @@
       <button type="button" id="lista-modal-cancelar" class="btn btn-light">
         Cancelar
       </button>
-      <button type="submit" id="lista-modal-guardar" class="save-btn">
+      <button type="button" id="lista-modal-guardar" class="save-btn">
         Guardar
       </button>
     </div>

@@ -143,9 +143,10 @@ app.use(
 
 app.use((req, res, next) => {
 
-  res.locals.usuarioSesion =
-    req.session.usuario || null;
-
+  res.locals.usuarioSesion = req.session.usuario || null;
+  res.locals.esAuditoria   = req.session.usuario?.roles?.includes("Auditoria") ?? false;
+  res.locals.esOficial     = req.session.usuario?.roles?.includes("Oficial_Cumplimiento") ?? false;
+  
   next();
 });
 

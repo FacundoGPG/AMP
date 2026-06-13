@@ -1,8 +1,12 @@
 let listasData = [];
 
 async function cargarListas() {
-  const contenedor = document.getElementById("listas-table");
+  let contenedor = document.getElementById("listas-table");
   if (!contenedor) return;
+
+  const nuevo = contenedor.cloneNode(false);
+  contenedor.replaceWith(nuevo);
+  contenedor = nuevo;
 
   try {
     const res    = await fetch("/api/listas");
@@ -26,7 +30,7 @@ async function cargarListas() {
       pagination: { limit: 10 }
     }).render(contenedor);
 
-    contenedor.addEventListener("click", (e) => {
+    contenedor.onclick = (e) => {
       const btnEditar   = e.target.closest(".btn-editar-lista");
       const btnEliminar = e.target.closest(".btn-eliminar-lista");
       if (btnEditar) {
@@ -36,7 +40,7 @@ async function cargarListas() {
       if (btnEliminar) {
         eliminarLista(btnEliminar.dataset.id, btnEliminar.dataset.nombre);
       }
-    });
+    };
 
   } catch {
     contenedor.innerHTML = "<p class='text-danger'>Error al cargar listas.</p>";
@@ -50,7 +54,7 @@ function abrirModalAgregarLista() {
   document.getElementById("lista-modal-nombre").value = "";
   document.getElementById("lista-modal-fuente").value = "";
   document.getElementById("lista-modal-error").style.display = "none";
-  document.getElementById("lista-modal").style.display = "flex";
+  abrirPanelLista();
 }
 
 function abrirModalEditarLista(lista) {
@@ -60,11 +64,18 @@ function abrirModalEditarLista(lista) {
   document.getElementById("lista-modal-nombre").value = lista.nombre;
   document.getElementById("lista-modal-fuente").value = lista.fuente;
   document.getElementById("lista-modal-error").style.display = "none";
-  document.getElementById("lista-modal").style.display = "flex";
+  abrirPanelLista();
+}
+
+function abrirPanelLista() {
+  document.getElementById("listaOverlay")?.classList.add("active");
+  document.getElementById("listaPanel")?.classList.add("active");
+  document.getElementById("lista-modal-nombre")?.focus();
 }
 
 function cerrarModalLista() {
-  document.getElementById("lista-modal").style.display = "none";
+  document.getElementById("listaOverlay")?.classList.remove("active");
+  document.getElementById("listaPanel")?.classList.remove("active");
 }
 
 async function guardarLista() {
@@ -99,13 +110,13 @@ async function guardarLista() {
     }
 
     cerrarModalLista();
-    document.getElementById("listas-table").innerHTML = "";
-    cargarListas();
+    await cargarListas();
   } catch {
     errorEl.textContent = "Error de conexión";
     errorEl.style.display = "block";
   }
 }
+
 
 async function eliminarLista(id, nombre) {
   if (!confirm(`¿Eliminar la lista "${nombre}"?`)) return;
@@ -113,10 +124,10 @@ async function eliminarLista(id, nombre) {
   try {
     const res = await fetch(`/api/listas/${id}`, { method: "DELETE" });
     if (res.ok) {
-      document.getElementById("listas-table").innerHTML = "";
-      cargarListas();
+      await cargarListas();
     } else {
-      alert("Error al eliminar");
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || "Error al eliminar");
     }
   } catch {
     alert("Error de conexión");
@@ -130,10 +141,14 @@ document.addEventListener("DOMContentLoaded", () => {
     ?.addEventListener("click", abrirModalAgregarLista);
   document.getElementById("lista-modal-cerrar")
     ?.addEventListener("click", cerrarModalLista);
-  document.getElementById("lista-modal-cancelar")
-    ?.addEventListener("click", cerrarModalLista);
   document.getElementById("lista-modal-guardar")
     ?.addEventListener("click", guardarLista);
+  document.getElementById("lista-modal-cancelar")
+    ?.addEventListener("click", cerrarModalLista);
+  document.getElementById("listaOverlay")
+    ?.addEventListener("click", cerrarModalLista);
+  document.getElementById("lista-form")
+    ?.addEventListener("submit", (e) => e.preventDefault());
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") cerrarModalLista();

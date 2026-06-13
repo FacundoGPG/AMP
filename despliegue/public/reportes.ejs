@@ -9,7 +9,7 @@
   <title><%= pageTitle || "Reportes - Beta 1" %></title>
 </head>
 
-<body>
+<body data-rol="<%= usuarioSesion?.roles?.[0] %>">
   <%- include("partials/topbar") %>
   <%- include("partials/sidebar") %>
   <%- include("partials/config") %>

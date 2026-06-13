@@ -14,13 +14,9 @@
     <div class="wrapper">
         <nav class="nav">
             <div class="nav-logo">
-                <img src="../public/resources/history.png" alt="Logo AMP">
+                <img src="/resources/amp.png" alt="Logo AMP" style="height:48px;">
             </div>
 
-            <div class="nav-button">
-                <button type="button" class="btn white-btn" id="loginBtn">Sign In</button>
-                <%# <button type="button" class="btn" id="registerBtn">Sign Up</button> %>
-            </div>
         </nav>
 
         <div class="form-box">
@@ -32,7 +28,7 @@
                 </div>
 
                 <div class="input-box">
-                    <input type="text" name="username" class="input-field" placeholder="Username or Email" required>
+                    <input type="email" name="username" class="input-field" placeholder="Email" required>
                     <i class="bx bx-user"></i>
                 </div>
 
@@ -44,17 +40,6 @@
                 <div class="input-box">
                     <input type="submit" class="submit" value="Sign In">
                 </div>
-
-                <div class="two-col">
-                    <div class="one">
-                        <input type="checkbox" id="login-check">
-                        <label for="login-check">Remember Me</label>
-                    </div>
-
-                    <div class="two">
-                        <label><a href="#">Forgot password?</a></label>
-                    </div>
-                </div> 
             </form>
 
             <form class="register-container" id="register" action="/usuarios/registro" method="POST">

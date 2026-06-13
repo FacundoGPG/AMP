@@ -25,12 +25,14 @@ exports.renderClientes = async (req, res) => {
     const clientes = await clientesModel.getClientes();
     const clientesBloqueados = await clientesModel.getClientesBloqueados();
 
-    res.render("clientes", {
-      pageTitle: "Clientes - Beta 1",
-      activeTab: req.query.tab || "clientes",
-      totalClientes: clientes.length,
-      totalBloqueados: clientesBloqueados.length
-    });
+    const roles = req.session.usuario?.roles || [];
+        res.render("clientes", {
+          pageTitle: "Clientes - Beta 1",
+          activeTab: req.query.tab || "clientes",
+          totalClientes: clientes.length,
+          totalBloqueados: clientesBloqueados.length,
+          esAuditoria: roles.includes("Auditoria")
+      });
   } catch (error) {
     console.error(error);
     res.status(500).send("Error al cargar clientes");

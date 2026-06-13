@@ -47,13 +47,15 @@ exports.addLista = async (req, res) => {
       fuente:  fuente.trim()
     });
  
+// Registrar antes de borrar para conservar el id_lista
     await listasModel.registrarConfiguracion({
-      id_usuario:        req.session.usuario.id,
-      id_lista:          lista.id_lista,
-      tipo_accion:       "Creacion",
-      descripcion_cambio: `Se creó la lista "${lista.nombre}" de tipo ${lista.tipo_lista}`
+      id_usuario:         req.session.usuario.id,
+      id_lista:           id_lista,
+      tipo_accion:        "Eliminacion",
+      descripcion_cambio: `Se eliminó la lista "${lista.nombre}" de tipo ${lista.tipo_lista}`
     });
- 
+
+    await listasModel.deleteLista(id_lista);
     res.status(201).json(lista);
   } catch (error) {
     console.error("Error agregando lista:", error);
@@ -101,23 +103,24 @@ exports.updateLista = async (req, res) => {
 
 exports.deleteLista = async (req, res) => {
   const id_lista = req.params.id;
- 
+
   try {
     const lista = await listasModel.getListaById(id_lista);
     if (!lista) return res.status(404).json({ error: "Lista no encontrada" });
- 
+
+    await listasModel.deleteLista(id_lista);
+
     await listasModel.registrarConfiguracion({
       id_usuario:         req.session.usuario.id,
-      id_lista:           id_lista,
+      id_lista:           null,
       tipo_accion:        "Eliminacion",
       descripcion_cambio: `Se eliminó la lista "${lista.nombre}" de tipo ${lista.tipo_lista}`
     });
- 
-    await listasModel.deleteLista(id_lista);
+
     res.json({ ok: true });
   } catch (error) {
-    console.error("Error eliminando lista:", error);
-    res.status(500).json({ error: "Error al eliminar lista" });
+    console.error("Error eliminando lista:", error.message, error.detail);
+    res.status(500).json({ error: "Error al eliminar lista", detalle: error.message });
   }
 };
  

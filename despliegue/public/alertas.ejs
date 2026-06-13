@@ -8,7 +8,7 @@
      <link rel="stylesheet" href="./styles.css"> 
     <title>Alertas - Beta 1 </title>
 </head>
-<body>
+<body data-rol="<%= usuarioSesion?.roles?.[0] %>">
   <%- include("partials/topbar") %>
   <%- include("partials/sidebar") %>
   <%- include("partials/config") %>
