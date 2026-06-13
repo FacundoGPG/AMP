@@ -646,8 +646,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ?.addEventListener("click", validarDocumentoYCrearCliente);
   document.getElementById("valdoc-modal-rechazar")
     ?.addEventListener("click", rechazarDocumento);
-  document.getElementById("valdocOverlay")?.addEventListener("click", cerrarModalValidarDocumento);
-
+  document.getElementById("valdocOverlay")
+    ?.addEventListener("click", cerrarModalValidarDocumento);
 });
 
 
